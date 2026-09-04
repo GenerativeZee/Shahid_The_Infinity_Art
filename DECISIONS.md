@@ -1,0 +1,80 @@
+# Decisions
+
+Running log of choices the spec didn't dictate, and why. Newest at bottom.
+
+## M0
+
+- **Project directory name.** `create-next-app` refuses capital letters in a
+  package name. Scaffolded into a temp lowercase folder and confirmed
+  Windows' case-insensitive filesystem treats it as the same directory as
+  `TheInfinityArt` — no actual file move was needed. `package.json` name is
+  `theinfinityart`, lowercase; the folder on disk keeps its original casing.
+- **Tailwind v4, no `tailwind.config.ts`.** v4 is CSS-first — the "small
+  token layer in CSS variables" the stack calls for and Tailwind's own config
+  mechanism are the same file (`app/globals.css`, `@theme` block). Not adding
+  a parallel config file to avoid two sources of truth for the same tokens.
+- **Accent colour placeholder.** `--color-accent: #7fe3ff` in
+  `app/globals.css`, one line, per spec §10. Swap it there once Shahid's logo
+  exists and pull the real accent from it.
+- **Archivo width axis.** Loaded via `next/font/google` with `axes: ["wdth"]`
+  rather than restricting `weight`, specifically to keep the variable width
+  axis (115–125) usable via `font-stretch`. Weight is fixed at 800 in the
+  `h1–h4` base style for now; fine-tuning the exact stretch/weight pairing
+  for real headlines happens in M1 when actual headline copy and sizes are
+  in front of us.
+- **Type scale.** Fluid `clamp()` steps (`--step--1` … `--step-5`) computed
+  for a 1.25 ratio at a 375px viewport and a 1.333 ratio at a 1440px
+  viewport, base 16px. Exposed to Tailwind as `text-step-*` utilities via
+  `@theme`.
+- **Spacing rhythm.** Using Tailwind's default 4px-based spacing scale (not a
+  custom 8px scale) and simply sticking to even-numbered steps everywhere,
+  which nets out to an 8px grid without inventing a parallel scale. Section
+  rhythm (96px → 128px) is its own token, `--spacing-section`, exposed as the
+  `py-section` utility so it's applied identically everywhere instead of
+  copy-pasted `py-24 md:py-32`.
+- **JS budget is already tight at M0.** `npm run check:budget` reports
+  **130.3 KB gzipped** for `/` with nothing but Next 16 + React 19 + three
+  fonts + Tailwind — before Lenis, GSAP or zustand are added in M3, all of
+  which count toward the same "JS before 3D loads" budget in §11. Only
+  ~20 KB of headroom remains. Worth watching closely at M3; may need to trim
+  a font weight or reconsider bundling if it goes over.
+- **`app/page.tsx` at M0 is a scaffold smoke test, not the homepage.** It
+  exists to prove fonts, tokens, `content/site.ts`, and the placeholder
+  system all work together end to end, and to have something to point a
+  Vercel preview at. It gets fully replaced starting at M1 (Work section
+  vertical slice).
+
+### Content placeholders — flagged for the client, not just for me
+
+- **`business` contact info** (`content/site.ts`) — phone, WhatsApp number,
+  full address, geo coordinates, and hours are bracketed placeholders
+  (`[City]`, `+91 90000 00000`, etc.). These are load-bearing: the WhatsApp
+  button and the LocalBusiness JSON-LD are both wired to these fields. **Must
+  be replaced with Shahid's real details before any production deploy** —
+  this is a hard gate at M2, not a nice-to-have.
+- **`projects`** — every client name, location and photo filename in
+  `content/site.ts` is a fictional sample entry (e.g. "Shree Umiya Traders").
+  They exist so the Work grid has realistic-looking data to lay out and
+  review against at full fidelity (M1), not to ship. Real client names,
+  locations and photography replace them at M2, per the shoot brief in
+  `public/media/README.md`.
+- **`services` price ranges** — illustrative, market-plausible figures for
+  the Surat/Gujarat signage and print trade, not Shahid's actual pricing.
+  Named materials are real category names (ACP, star flex, cast acrylic,
+  300 GSM, etc.) per the copy rules; only the numbers need his confirmation
+  before M2.
+- **`trust` numbers** (years in business, boards installed, cities covered)
+  — placeholders (`[X]+`) pending real figures from Shahid. Deliberately
+  left bracketed rather than guessed, since a specific-looking wrong number
+  is worse than an obvious placeholder.
+
+## Open items outside the code (§17 of the brief — tracked, not forgotten)
+
+- Google Business Profile: claim it, upload the real photography once shot,
+  correct hours/services/service area.
+- Review loop: ops app should request a review the evening of delivery,
+  pointed at the Business Profile; surface resulting reviews on the site.
+- `/[city]/[service]` pages: route structure left open, not built during
+  M0–M7.
+- Edge caching for `public/media/hero-seq/`: long `Cache-Control: immutable`
+  once that directory has real content (M3).
