@@ -78,6 +78,16 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   deploys automatically and the lockfile is respected. Live at
   https://theinfinityart.vercel.app.
 
+- **Two live Vercel deployments exist for a while.** `theinfinityart.vercel.app`
+  (manual file-upload deploy, `qalbi1` team) is the one I can inspect and
+  redeploy directly. `the-infinity-art-by-shahid.vercel.app` (git-linked,
+  Shahid's own Vercel account, repo
+  `GenerativeZee/TheInfinityArt_by_Shahid`) is the one we're standardising
+  on going forward, per Shahid's request. Its builds succeed cleanly from
+  git pushes, but the production domain intermittently served
+  `DEPLOYMENT_NOT_FOUND` despite showing "Valid Configuration" — being
+  chased down as a Vercel-side alias issue, not a code issue.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
