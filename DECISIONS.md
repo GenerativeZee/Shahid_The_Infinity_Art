@@ -153,6 +153,57 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   sequence replaces only that background layer at M3–M5; the DOM copy and
   CTAs don't change.
 
+## M3-M5 — live scene, tier system, scroll/GSAP wiring
+
+- **No real logo yet, so the letters mesh is a placeholder infinity mark** —
+  two `TorusGeometry` rings, not `ExtrudeGeometry` from an SVG (§7). Building
+  a hand-rolled Bezier lemniscate `THREE.Shape` (the original plan) turned
+  out fragile without a visual iteration loop, and torus rings are a
+  built-in primitive that's always geometrically correct. The
+  extrude-from-SVG pipeline itself isn't built yet — do that once Shahid's
+  real logo exists, since a placeholder path isn't worth building it against.
+- **No real HDRI yet** — using drei's built-in `<Environment preset="night">`
+  (hosted on drei's CDN, fetched at runtime) as a stand-in for the "1k
+  blue-hour HDRI" the spec calls for. Swap for a real Poly Haven blue-hour
+  HDRI when one is sourced; the swap is a one-line prop change.
+- **Tier B's "baked shadow-plane texture"** is a `CanvasTexture` — a radial
+  gradient drawn at runtime on an offscreen `<canvas>`
+  (`components/hero/shadowTexture.ts`) — not an actual bake, since there's
+  no real scene to bake from yet. Disposed on unmount.
+- **`frameloop="demand"` + `invalidate()`, not `frameloop="never"` + the
+  standalone `advance()` export.** These are functionally the same thing —
+  demand mode renders only when `invalidate()` is called, which is R3F's
+  own built-in name for exactly the pattern §4.2 describes. Went with the
+  more idiomatic, better-documented API rather than the lower-level one.
+  Important detail: `invalidate()` is called from a small
+  `InvalidateOnProgress` component that subscribes to the heroProgress
+  store — never from inside `useFrame` itself, which would self-trigger
+  every frame and defeat the entire point of demand mode.
+- **The FPS probe forces `frameloop="always"` for its own ~2s/90-frame
+  window**, then drops to demand mode. A demand-mode canvas mostly isn't
+  rendering, so sampling frame timing against it right after mount would
+  measure the browser's idle refresh rate, not real render cost — forcing
+  continuous rendering during the probe window is necessary for the
+  measurement to mean anything, and only that window trades away the
+  "zero draw calls when idle" property.
+- **Two React-Compiler-era lint rules shaped the hero code** more than
+  expected: `react-hooks/set-state-in-effect` (tier detection now uses
+  `useSyncExternalStore` instead of `useState` + `useEffect`, which also
+  correctly signals "this differs between server and client" rather than
+  papering over it) and `react-hooks/immutability` (the R3F scene object
+  from `useThree` gets piped through a ref before `Scene`'s `useFrame`
+  mutates it — refs are exempt, direct hook-return mutation isn't). Same
+  family of fix as [[reveal-dom-mutation]] in M1.
+- **Lenis lerp set to 0.85** (barely any smoothing) rather than a typical
+  cinematic value — a heavier lerp fights the "hard flick shoots straight
+  past the hero" requirement (§6, §16). Untested against a real trackpad —
+  worth revisiting at the M6 device pass.
+- **JS budget is now 141.6 KB gzipped against the 150 KB cap** (zustand +
+  Lenis + GSAP added ~10 KB on top of M1b's 133.2 KB). ~8 KB of headroom
+  left; three/R3F/drei/postprocessing are confirmed code-split into a
+  separate ~1.1 MB lazy chunk that does NOT count toward this budget
+  (verified directly against `route-bundle-stats.json`, not just trusted).
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
