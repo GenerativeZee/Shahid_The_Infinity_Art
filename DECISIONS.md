@@ -68,6 +68,16 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   left bracketed rather than guessed, since a specific-looking wrong number
   is worse than an obvious placeholder.
 
+- **First Vercel deploy via file upload, not a git-linked project.** No
+  GitHub remote exists yet, so this used `deploy_to_vercel` (direct file
+  upload) rather than `create_git_project`. `package-lock.json` and the
+  default scaffold assets (`AGENTS.md`, `CLAUDE.md`, root `README.md`,
+  unused default SVGs, `favicon.ico`) were left out of that upload since
+  they don't affect the build — Vercel ran a fresh `npm install`. Once this
+  repo has a GitHub remote, switch to a git-linked project so every push
+  deploys automatically and the lockfile is respected. Live at
+  https://theinfinityart.vercel.app.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
