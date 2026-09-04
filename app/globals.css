@@ -71,9 +71,7 @@
   }
 
   h1,
-  h2,
-  h3,
-  h4 {
+  h2 {
     font-family: var(--font-display);
     font-weight: 800;
     font-stretch: 120%;
@@ -91,10 +89,27 @@
     max-width: 65ch;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .motion-safe-only {
-      animation: none !important;
-      transition: none !important;
+  @media (prefers-reduced-motion: no-preference) {
+    .hover-zoom {
+      transition: transform 500ms ease-out;
     }
+
+    .group:hover .hover-zoom {
+      transform: scale(1.03);
+    }
+
+    .kenburns-slow {
+      animation: kenburns 18s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes kenburns {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
   }
 }

@@ -88,6 +88,37 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   `DEPLOYMENT_NOT_FOUND` despite showing "Valid Configuration" — being
   chased down as a Vercel-side alias issue, not a code issue.
 
+## M1 — Work section vertical slice
+
+- **Display font restricted to h1/h2, not h1–h4.** §10.1 says the wide
+  Archivo treatment is for "headlines only." Applying it through h4 (as M0
+  did) made small card titles (e.g. project names in the Work grid) render
+  in heavy, stretched display type where a normal semibold body-font title
+  reads correctly. h3/h4 now inherit the body font by default; anything
+  that's genuinely a section headline still gets `<h2>` and the display
+  treatment.
+- **Reveal-on-scroll implemented as a DOM mutation, not React state.**
+  `components/ui/Reveal.tsx` toggles visibility classes directly via
+  `ref.current.classList.add(...)` inside its `IntersectionObserver`
+  callback rather than `useState`. The state-based version tripped the
+  `react-hooks/set-state-in-effect` lint rule for the
+  `prefers-reduced-motion` early-return path (synchronous `setState` in an
+  effect) — and the DOM-mutation version is arguably more correct anyway,
+  since this is a one-time, non-reactive change driven by an external
+  system (viewport intersection), which is exactly what effects are for
+  per that rule's own guidance. No other component needs this pattern yet;
+  revisit if it does.
+- **Filter is client-side, over the full dataset, no separate "hide via
+  CSS" trick.** The Work grid is a small "use client" component that
+  receives all projects as props and filters the array in render. Next
+  still server-renders the initial ("All") state as real DOM text, which
+  is what search engines and no-JS clients get — satisfies §12 without
+  needing to keep filtered-out cards in the DOM.
+- **Ken-burns and hover-zoom are plain CSS, gated by a
+  `prefers-reduced-motion: no-preference` media query** (`.hover-zoom`,
+  `.kenburns-slow` in `app/globals.css`), not Tailwind's `motion-safe:`
+  variant repeated on every utility — same effect, less repetition.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

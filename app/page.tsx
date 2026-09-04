@@ -1,5 +1,5 @@
-import { Placeholder } from "@/components/ui/Placeholder";
-import { business, hero, materials, projects, trust } from "@/content/site";
+import { Work } from "@/components/sections/Work";
+import { business, hero, materials, trust } from "@/content/site";
 
 export default function Home() {
   return (
@@ -45,25 +45,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="work" className="flex flex-col gap-8 px-6 py-section md:px-12">
-        <h2 className="text-step-3">Work</h2>
-        <p className="measure text-step-0 text-text-muted">
-          Placeholder grid — real photography and the finished Work section land in M1.
-        </p>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((p) => (
-            <div key={p.slug} className="flex flex-col gap-3">
-              <Placeholder filename={p.image.filename} aspect={p.image.aspect} />
-              <div className="flex flex-col gap-1">
-                <span className="text-step-0 text-text">{p.name}</span>
-                <span className="font-mono text-step--1 text-text-muted">
-                  {p.client} — {p.location}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Work />
 
       <footer className="flex flex-col gap-2 border-t border-border px-6 py-8 font-mono text-step--1 text-text-muted md:px-12">
         <span>{business.legalName}</span>
