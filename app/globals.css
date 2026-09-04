@@ -101,6 +101,10 @@
     .kenburns-slow {
       animation: kenburns 18s ease-in-out infinite;
     }
+
+    .marquee-track {
+      animation: marquee 24s linear infinite;
+    }
   }
 }
 
@@ -111,5 +115,14 @@
   }
   50% {
     transform: scale(1.06);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }

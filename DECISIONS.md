@@ -119,6 +119,40 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   `.kenburns-slow` in `app/globals.css`), not Tailwind's `motion-safe:`
   variant repeated on every utility — same effect, less repetition.
 
+## M1b — remaining sections, static hero, quote form, JSON-LD, metadata
+
+- **Quote form doesn't upload the photo field.** No storage is provisioned
+  (no Vercel Blob, no DB) and the spec's own framing ("for now, store and
+  forward to WhatsApp") suggested an MVP seam rather than a full pipeline.
+  The optional photo `<input>` is real and accessible, but selecting a file
+  only flags `hasPhoto: true` in the payload — the visible copy under the
+  field tells the user the photo isn't uploaded and to share it on
+  WhatsApp instead. **Before this matters for real leads**, wire actual
+  file storage (Vercel Blob is the natural fit) rather than shipping this
+  as-is.
+- **`/api/quote` "stores" a submission by logging it**, then returns a
+  prefilled `wa.me` URL the client redirects to. No database is
+  provisioned — this is the seam the spec asked for (§9), not the final
+  version. Swap the `console.log` for a real write once there's an ops app
+  to consume it.
+- **`SITE_URL` in `app/layout.tsx` is hardcoded to
+  `theinfinityart.vercel.app`** for `metadataBase`, Open Graph, and the
+  JSON-LD `url` field. Needs updating the moment a real production domain
+  is chosen.
+- **No Open Graph / JSON-LD image yet.** §12 specifies the beat-4 (mounted,
+  glowing) hero render as the OG image — that doesn't exist until M4/M5
+  produce it. Both are left without an image rather than pointing at a
+  placeholder that would look broken when scraped by a social platform.
+- **Materials marquee is now the real thing** — pure CSS `@keyframes`
+  translateX loop, list duplicated once for a seamless wrap, gated by
+  `prefers-reduced-motion: no-preference` (`components/ui/Marquee.tsx` +
+  `app/globals.css`). M0's version was a static, non-scrolling row.
+- **Hero is a static placeholder**, per M1b scope — `Placeholder` block as
+  the background layer (standing in for `hero_0001.webp`, §8) with a
+  gradient scrim for 4.5:1 text contrast (§10). The scroll-driven 3D
+  sequence replaces only that background layer at M3–M5; the DOM copy and
+  CTAs don't change.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

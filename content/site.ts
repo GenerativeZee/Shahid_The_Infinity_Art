@@ -188,6 +188,18 @@ export const process: ProcessStep[] = [
   },
 ];
 
+export const wedding = {
+  eyebrow: "Wedding Cards",
+  headline: "Aapki shaadi, aapka style.",
+  body: "Custom wedding invitations on textured paper, with gold foil and insert cards — designed around your colours, not a catalogue template.",
+  cta: { label: "Talk to Us", href: whatsappHref },
+  image: {
+    filename: "wedding/hero-flatlay.jpg",
+    alt: "Wedding card flat lay on textured paper with gold foil detail",
+    aspect: "4/3" as const,
+  },
+};
+
 export const digital = {
   eyebrow: "Also digital",
   headline: "We build the website too.",
