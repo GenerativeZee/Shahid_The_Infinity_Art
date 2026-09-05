@@ -1,5 +1,5 @@
 import { Reveal } from "@/components/ui/Reveal";
-import { services } from "@/content/site";
+import { services, servicesIntro } from "@/content/site";
 import type { Service } from "@/content/types";
 
 function formatPrice(service: Service) {
@@ -13,13 +13,10 @@ export function Services() {
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
         <div className="flex flex-col gap-3">
           <p className="font-mono text-step--1 uppercase tracking-label text-accent">
-            Kya Banate Hain
+            {servicesIntro.eyebrow}
           </p>
-          <h2 className="text-heading">What we make</h2>
-          <p className="measure text-step-0 text-text-muted">
-            Real materials, honest price ranges. Talk to us about your exact size and we&apos;ll
-            confirm a number on WhatsApp.
-          </p>
+          <h2 className="text-heading">{servicesIntro.headline}</h2>
+          <p className="measure text-step-0 text-text-muted">{servicesIntro.body}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
