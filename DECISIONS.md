@@ -747,6 +747,14 @@ rather than attempting the brief's full menu of ~12 ideas at once.
 - **JS budget moved to 144.8 KB gzipped** (from 142.1) — three real
   interactive components, still comfortably under the 150 KB `SPEC.md`
   figure this branch isn't formally held to.
+- **The non-signature cards' "What changed?" hover label is confirmed
+  decoration, not a bug.** Raised directly with the client: those cards
+  zoom slightly and show the label on hover, but clicking does nothing —
+  a real gap between what the label promises and what happens. Offered
+  either wiring it to a lighter version of the same reveal dialog, or
+  leaving it as ambient hover decoration with the interaction budget
+  staying spent on the one signature card. Client chose the latter, for
+  now — logged so a future session doesn't "fix" this as an oversight.
 
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
