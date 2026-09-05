@@ -586,6 +586,70 @@ transparent background (no chroma-keying needed).
   text and the gold banner) is kept in the repo unused for now — for the
   OG image, favicon, and footer logo work still open per §17.
 
+## `theme-experiment-v4` branch — scroll-driven multi-theme system
+
+Separate creative track, branched from `redesign` at `394598e`, not
+governed by `SPEC.md` (which explicitly mandates one accent colour and
+bans gradients/multiple palettes for the mid-range-Android performance
+reasons that document lays out). Built at the client's explicit request
+for a v4 experiment kept on its own branch — not intended to merge back
+into `redesign` or `redesign-blue` unless asked.
+
+- **Four dark-based themes, not one light + dark mix.** The brief's own
+  examples included a light "Modern/Fresh" theme; deviated from that
+  deliberately (flagged to the client before building) — this site's
+  actual subject is blue-hour/LED signage photography shot for a dark
+  background, and a light section would make that photography read wrong
+  the moment real images land. Variation comes from hue/temperature and
+  accent instead: **Nocturne** (arrival — the existing gold-on-near-black
+  look, unchanged), **Verdigris** (Work/Services/Process/Digital —
+  cooler, teal-tinted, "modern/structured"), **Ember** (Wedding — warm,
+  brown-tinted, copper-gold accent close enough to true gold that the
+  card's foil still reads as foil), **Signal** (Quote/Footer — richer
+  near-black with a red-violet undertone, a muted coral-red close). Every
+  accent/ground and muted-text/ground pair checked against WCAG: all
+  clear 5.5:1+, most above 6.9:1 — `--color-text` itself stays constant
+  across every theme so body-copy contrast is never a variable.
+- **Reuses the existing scroll-progress pattern, not a new paradigm.**
+  `components/theme/ThemeEngine.tsx` is architecturally identical to
+  `useHeroProgress`/`useCardProgress`: one `Lenis` scroll listener,
+  rAF-throttled, no React state. It walks `[data-theme-zone]` markers
+  (`app/page.tsx`), finds which two zones the viewport centre sits
+  between, and interpolates every colour token by that fraction directly
+  into the same `--color-*` custom properties the whole site already
+  reads via Tailwind's `@theme` mapping.
+- **Almost no component needed to change.** Because colour already
+  routed through shared CSS variables (a decision made back at M0, for
+  an unrelated reason — "changing the accent requires one line"), every
+  button, border, card and label re-themes for free the instant those
+  variables are mutated. The only manual call: the wedding fold's 3D
+  foil material reads the accent once at mount (three.js can't watch a
+  CSS variable) — left as-is, since Ember's accent is gold-adjacent
+  anyway and the section only needs to look right, not track live.
+- **`prefers-reduced-motion` gets nearest-neighbour snapping, not no
+  theming.** Per the client's own accessibility instruction: users who
+  disable motion should still see the different themes per section, just
+  without the continuous blend — `ThemeEngine` checks `prefersReducedMotion()`
+  once and switches to picking whichever zone's midpoint is closest to
+  the viewport centre, applied instantly, no interpolation math at all.
+- **One restrained extra effect, not the whole brief's technique list.**
+  Added a single fixed ambient glow (`components/theme/AmbientGlow.tsx`)
+  — a low-opacity radial gradient tinted by the live accent variable,
+  pure CSS (`color-mix()`), no JS of its own, sitting at `z-index: -1` so
+  it's felt as mood rather than seen as a decoration. Deliberately
+  skipped: image treatment shifts, shadow-colour changes, cursor-reactive
+  effects, grain re-tinting — the brief explicitly asks for restraint
+  ("use restraint... don't use all of these everywhere"), and this
+  codebase's placeholder-only content (no real photography yet) makes
+  most of those effects unobservable anyway.
+- **JS budget moved to 142.1 KB gzipped** (from 136.0 on `redesign`) —
+  the theme engine + ambient glow, still comfortably under the 150 KB
+  figure `SPEC.md` sets for the *other* branch; this branch isn't held to
+  that budget, but there was no reason to be wasteful either.
+- **Running on `localhost:3001`** — the same dev server already serving
+  `redesign` picked this branch up automatically via the filesystem the
+  moment it was checked out; no separate server needed to preview it.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
