@@ -265,8 +265,9 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
 - **Tier-gated via the existing global `tier` in the zustand store**
   (set once by the hero's `HeroCanvas`) rather than re-running detection.
   Tier A/B get the live fold; tier C, and every server-rendered pass
-  (`tier` starts `null`), get the same static `Placeholder` used
-  everywhere else — no separate fallback path to maintain.
+  (`tier` starts `null`), get the same static image used everywhere else
+  (`SiteImage`, see [[sample-content-pass]]) — no separate fallback path
+  to maintain.
 - **Two bugs fixed on review before commit.** `WeddingScene`'s accent lookup
   used `useRef(getAccentColor()).current` as a "lazy ref init" — tripped the
   React Compiler-era `react-hooks/refs` lint rule (reading `.current` during
@@ -279,6 +280,42 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   rendering because `prev` was already `false`. Fixed by tracking
   `intersecting` and `hidden` as separate state and deriving
   `active = intersecting && !hidden`.
+
+## Sample content pass
+
+- **Business contact info and trust numbers filled with plausible sample
+  values**, not left as literal `[X]` brackets. Phone/WhatsApp is a fake
+  but correctly-formatted Indian mobile number; the address is a
+  plausible Surat street address; `geo` points at Surat's actual
+  coordinates (21.1959, 72.8302) since a wrong-city pin would be worse
+  than an approximate real one. **Still placeholder, still gated** — the
+  hard requirement in the M0 "content placeholders" note (real details
+  before any production deploy) is unchanged; this pass only makes the
+  demo/review experience not show broken-looking bracket text.
+- **`work/*` and `wedding/hero-flatlay.jpg` are now real files** — free
+  Unsplash stock photos (see `public/media/ATTRIBUTION.md` for the exact
+  source of each), not the accent-block `Placeholder`. Chosen to be
+  generic-enough category photos (a signboard, a glowing shop sign, a
+  business-card mockup, a wedding flat lay) that don't misrepresent any
+  specific real business, and screened to exclude Unsplash+ (paid)
+  results — everything used is under the free Unsplash License. This is
+  still sample content standing in for the real shoot in
+  `public/media/README.md`, same as the fictional project data itself;
+  it just no longer *looks* unfinished while doing so.
+- **New `components/ui/SiteImage.tsx`, not a fallback branch inside
+  `Placeholder`.** Renders whatever file is on disk via `next/image` —
+  swapping a stock JPEG for real client photography later is just
+  overwriting the file at the same path, no code change. `Placeholder`
+  itself is untouched and still used by the hero's tier-C/no-JS fallback
+  (`components/hero/HeroStage.tsx`), since the 72-frame `hero-seq/`
+  scrubbed sequence is a much larger asset job intentionally out of scope
+  for this pass.
+- **JS budget moved from 141.9 to 147.4 KB gzipped** (still under the
+  150 KB cap, ~2.6 KB headroom left) — this is `next/image`'s runtime
+  code entering the main bundle for the first time, not the photos
+  themselves (image bytes are static assets, not JS). Worth watching:
+  there's very little headroom left for anything else that touches the
+  always-loaded bundle.
 
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 

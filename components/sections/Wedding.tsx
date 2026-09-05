@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useRef } from "react";
-import { Placeholder } from "@/components/ui/Placeholder";
 import { Reveal } from "@/components/ui/Reveal";
+import { SiteImage } from "@/components/ui/SiteImage";
 import { useHeroStore } from "@/lib/store";
 import { wedding } from "@/content/site";
 
@@ -30,8 +30,9 @@ export function Wedding() {
           {showFold ? (
             <WeddingCanvas sectionRef={sectionRef} />
           ) : (
-            <Placeholder
+            <SiteImage
               filename={wedding.image.filename}
+              alt={wedding.image.alt}
               aspect={wedding.image.aspect}
               className="rounded"
             />

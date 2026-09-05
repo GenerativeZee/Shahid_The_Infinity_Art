@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Placeholder } from "@/components/ui/Placeholder";
 import { Reveal } from "@/components/ui/Reveal";
+import { SiteImage } from "@/components/ui/SiteImage";
 import type { MaterialCategory, Project } from "@/content/types";
 
 type Filter = MaterialCategory | "all";
@@ -70,7 +70,11 @@ function ProjectCard({ project }: { project: Project }) {
     <article className="group flex flex-col gap-3">
       <div className="hover-zoom overflow-hidden">
         <div className={project.featured ? "kenburns-slow" : ""}>
-          <Placeholder filename={project.image.filename} aspect={project.image.aspect} />
+          <SiteImage
+            filename={project.image.filename}
+            alt={project.image.alt}
+            aspect={project.image.aspect}
+          />
         </div>
       </div>
       <div className="flex flex-col gap-1">

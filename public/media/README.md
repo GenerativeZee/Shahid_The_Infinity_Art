@@ -1,12 +1,19 @@
 # Media
 
-Real photography does not exist yet. Until it does, every image reference in
-`content/site.ts` renders as an obvious accent-coloured placeholder block with
-the expected filename printed on it (`components/ui/Placeholder.tsx`) — never
-stock photography. Drop real files in at the paths below with the exact
-filenames already referenced in `content/site.ts` and the placeholders
-disappear on their own once the Work section (M1) wires up real `<Image>`
-rendering with a placeholder fallback.
+Real photography does not exist yet. `work/` and `wedding/hero-flatlay.jpg`
+are currently filled with **free Unsplash sample photos** (see
+`ATTRIBUTION.md` in this directory) so the site can be reviewed at full
+visual fidelity instead of showing text placeholders — they are generic
+stock images, not real client work, and every business name/location in
+`content/site.ts` stays fictional regardless. `hero-seq/` still has no
+files, so the hero's tier-C/no-JS fallback still renders
+`components/ui/Placeholder.tsx` (an obvious accent-coloured block with the
+expected filename printed on it).
+
+Drop real files in at the paths below with the exact filenames already
+referenced in `content/site.ts` — `components/ui/SiteImage.tsx` renders
+whatever is on disk via `next/image`, so swapping the stock JPEGs for real
+photography is just overwriting the file, no code change needed.
 
 ## Shoot brief
 

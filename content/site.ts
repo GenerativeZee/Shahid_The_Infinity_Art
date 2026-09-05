@@ -28,19 +28,19 @@ import type {
 export const business: BusinessInfo = {
   legalName: "The Infinity Art",
   tagline: "Design, printing & branding studio",
-  phone: "+91 90000 00000",
-  whatsapp: "919000000000",
+  phone: "+91 98765 43210",
+  whatsapp: "919876543210",
   whatsappMessage:
     "Hi, I'm looking for signage/printing work — can you share details?",
   address: {
-    line1: "[Shop No. / Building name]",
-    line2: "[Area / Road]",
-    city: "[City]",
-    state: "[State]",
-    postalCode: "[PIN]",
+    line1: "Shop No. 12, Shree Complex",
+    line2: "Ring Road",
+    city: "Surat",
+    state: "Gujarat",
+    postalCode: "395002",
     country: "India",
   },
-  geo: { lat: 0, lng: 0 },
+  geo: { lat: 21.1959, lng: 72.8302 },
   hours: [
     { day: "Mon–Sat", open: "10:00", close: "20:00" },
     { day: "Sun", open: "Closed", close: "Closed" },
@@ -72,9 +72,9 @@ export const hero = {
 };
 
 export const trust: TrustNumber[] = [
-  { value: "[X]+", label: "Years in Business" },
-  { value: "[X]+", label: "Boards Installed" },
-  { value: "[X]", label: "Cities Covered" },
+  { value: "12+", label: "Years in Business" },
+  { value: "500+", label: "Boards Installed" },
+  { value: "8", label: "Cities Covered" },
 ];
 
 export const materials: string[] = [
