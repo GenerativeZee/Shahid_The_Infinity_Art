@@ -596,3 +596,22 @@ transparent background (no chroma-keying needed).
   M0–M7.
 - Edge caching for `public/media/hero-seq/`: long `Cache-Control: immutable`
   once that directory has real content (M3).
+
+## Branch map — three versions kept separate, per the client's request
+
+- **`master`** (`298eb89`) — the original M0–M7 build: live-3D scroll-jacked
+  hero, cyan `#7fe3ff` accent. Already deployed to Vercel; frozen as a
+  checkpoint, not developed further.
+- **`redesign`** — the SPEC.md rebuild (R0/R1 onward): day/night mask hero,
+  architectural type, the real logo, gold `#c9a35a` accent sampled from
+  it. Active development branch.
+- **`redesign-blue`** — identical to `redesign`, branched from its tip,
+  with only `--color-accent` (and `lib/theme.ts`'s `getAccentColor`
+  fallback) reverted to the original `#7fe3ff` cyan instead of the
+  logo-sampled gold. Everything else — the day/night reveal, the
+  architectural type, the logo mark itself (rendered as a flat CSS mask,
+  so it recolours automatically) — is unchanged. Exists purely so the
+  client can compare the new layout in both colour directions without
+  re-doing any layout work; not a fork to develop independently unless
+  asked — layout/structure changes should land on `redesign` and get
+  merged or re-applied here, not duplicated.
