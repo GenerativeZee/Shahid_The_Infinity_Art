@@ -838,6 +838,353 @@
   margin-top: 1rem;
 }
 
+/* Ask the Studio (StudioChat) — a small dark consultation room inside the
+   site, not a chatbot widget. Bottom-left so WhatsApp keeps bottom-right.
+   Existing tokens only; restrained motion, all of it reduced-motion-gated. */
+.studio-chat__trigger {
+  position: fixed;
+  left: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  z-index: 55;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  transition:
+    color 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+.studio-chat__trigger:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+}
+.studio-chat__dot {
+  width: 0.36rem;
+  height: 0.36rem;
+  flex: none;
+  background: var(--color-accent);
+}
+.studio-chat__arrow {
+  transition: transform 200ms ease;
+}
+.studio-chat__trigger:hover .studio-chat__arrow {
+  transform: translateX(2px);
+}
+@media (max-width: 24rem) {
+  .studio-chat__trigger {
+    font-size: 0.7rem;
+    padding: 0 0.7rem;
+    gap: 0.4rem;
+  }
+}
+
+.studio-chat__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+}
+.studio-chat__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: transparent;
+}
+@media (max-width: 45rem) {
+  .studio-chat__scrim {
+    background: color-mix(in srgb, var(--color-ground) 52%, transparent);
+  }
+}
+
+.studio-chat__frame {
+  position: absolute;
+  left: 1.25rem;
+  bottom: calc(1.25rem + 2.75rem + 0.6rem + env(safe-area-inset-bottom, 0px));
+  width: min(92vw, 27rem);
+  max-height: min(72vh, 42rem);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  color: var(--color-text);
+  background-color: color-mix(in srgb, var(--color-surface) 94%, var(--color-ground));
+  background-image: radial-gradient(
+    82% 34% at 10% 0%,
+    color-mix(in srgb, var(--color-accent) 5%, transparent),
+    transparent 68%
+  );
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  box-shadow: 0 24px 60px -14px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+  animation: studio-chat-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.studio-chat__panel[data-reduced] .studio-chat__frame {
+  animation: none;
+}
+@media (max-width: 45rem) {
+  .studio-chat__frame {
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    height: 82vh;
+    max-height: min(82vh, 44rem);
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@keyframes studio-chat-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.studio-chat__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+}
+.studio-chat__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text);
+}
+.studio-chat__subtitle {
+  margin-top: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--color-text-muted) 80%, transparent);
+}
+.studio-chat__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.studio-chat__reset,
+.studio-chat__close {
+  font-family: var(--font-mono);
+  font-size: var(--text-step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-muted);
+  transition: color 180ms ease;
+}
+.studio-chat__close {
+  line-height: 1;
+  font-size: 1.15rem;
+  padding: 0 0.15rem;
+}
+.studio-chat__reset:hover,
+.studio-chat__close:hover {
+  color: var(--color-text);
+}
+
+.studio-chat__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem;
+  font-size: var(--text-step--1);
+  line-height: 1.55;
+}
+.studio-chat__intro {
+  color: var(--color-text-muted);
+  max-width: 34ch;
+}
+.studio-chat__msg {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.studio-chat__msg--user {
+  align-self: flex-end;
+  max-width: 85%;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-surface-raised) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  border-radius: 4px;
+}
+.studio-chat__msg--studio {
+  max-width: 94%;
+  color: var(--color-text);
+}
+.studio-chat__msg-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: color-mix(in srgb, var(--color-accent) 75%, transparent);
+}
+.studio-chat__thinking {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.studio-chat__thinking .studio-chat__msg-label {
+  margin-bottom: 0;
+}
+.studio-chat__thinking-line {
+  display: inline-block;
+  width: 1.6rem;
+  height: 1px;
+  background: var(--color-accent);
+  transform-origin: left;
+  animation: studio-chat-scan 1.4s ease-in-out infinite;
+}
+.studio-chat__panel[data-reduced] .studio-chat__thinking-line {
+  animation: none;
+  opacity: 0.5;
+}
+@keyframes studio-chat-scan {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scaleX(0.55);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scaleX(1);
+  }
+}
+
+.studio-chat__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0 1rem 0.85rem;
+}
+.studio-chat__chip {
+  padding: 0.45rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+.studio-chat__chip:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.studio-chat__input {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin: 0 1rem;
+  padding: 0.4rem 0.4rem 0.4rem 0.75rem;
+  background: var(--color-ground);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  transition: border-color 180ms ease;
+}
+.studio-chat__input:focus-within {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+}
+.studio-chat__input textarea {
+  flex: 1 1 auto;
+  resize: none;
+  min-height: 1.5rem;
+  max-height: 6rem;
+  padding: 0.55rem 0;
+  font-family: var(--font-body);
+  font-size: var(--text-step--1);
+  line-height: 1.4;
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+.studio-chat__input textarea::placeholder {
+  color: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
+}
+.studio-chat__send {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  color: var(--color-ground);
+  background: var(--color-accent);
+  border-radius: 3px;
+  transition: opacity 180ms ease;
+}
+.studio-chat__send:disabled {
+  opacity: 0.35;
+}
+
+.studio-chat__handoff {
+  margin: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-accent);
+  opacity: 0.82;
+  transition: opacity 180ms ease;
+}
+.studio-chat__handoff:hover {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .studio-chat__frame,
+  .studio-chat__thinking-line {
+    animation: none;
+  }
+  .studio-chat__thinking-line {
+    opacity: 0.5;
+  }
+  .studio-chat__trigger,
+  .studio-chat__arrow,
+  .studio-chat__chip,
+  .studio-chat__input,
+  .studio-chat__send,
+  .studio-chat__handoff,
+  .studio-chat__reset,
+  .studio-chat__close {
+    transition: none;
+  }
+}
+
 /* Grain (SPEC.md §5.7) — fixed full-page overlay, above everything,
    inert to pointer events. One fractal-noise SVG data URI, no library. */
 .grain-overlay {

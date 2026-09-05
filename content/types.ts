@@ -112,6 +112,44 @@ export type ProjectDetail = {
 };
 
 /**
+ * "Start a Project" — the adaptive enquiry experience (Quote 02). The
+ * visitor first says what they're making; each category then defines its
+ * own short set of relevant questions. This is a structured config, not
+ * a wall of if/else in JSX — one `ProjectCategory` per kind of work the
+ * studio actually offers (see `services` in site.ts). Both the form
+ * component and the /api/quote route read the same config, so validation
+ * and the WhatsApp summary stay in step.
+ *
+ * `photo` fields carry no value in the payload (nothing is uploaded on
+ * the site); they only set the `hasPhoto` hint. "Not sure" is a first-
+ * class option everywhere — a visitor is never required to know a
+ * material or a spec.
+ */
+export type ProjectFieldType = "segmented" | "text" | "textarea" | "photo";
+
+export type ProjectField = {
+  /** Stable key in the submitted `answers` map — do not rename lightly. */
+  name: string;
+  label: string;
+  type: ProjectFieldType;
+  /** Choices for a `segmented` field. */
+  options?: readonly string[];
+  placeholder?: string;
+  /** One quiet helper line under the control. */
+  hint?: string;
+  /** Genuinely necessary only — kept rare on purpose (the form is forgiving). */
+  required?: boolean;
+  /** Pair with the next `half` field into a two-column row on ≥sm. */
+  half?: boolean;
+};
+
+export type ProjectCategory = {
+  id: string;
+  label: string;
+  fields: readonly ProjectField[];
+};
+
+/**
  * "Build It" decisions — a small, fixed vocabulary. Materials map by
  * `sample` onto the existing `materials` list so their accent and
  * description stay single-sourced; nothing here is a new material system.

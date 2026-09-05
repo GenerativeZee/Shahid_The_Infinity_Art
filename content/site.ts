@@ -6,6 +6,7 @@ import type {
   PriceRange,
   ProcessStep,
   Project,
+  ProjectCategory,
   ProjectDetail,
   Service,
   TrustNumber,
@@ -273,9 +274,221 @@ export const digital = {
     "Most of what you see us make is physical — boards, cards, banners. We also build the websites and apps that go with them, so your shop looks the same everywhere someone finds it.",
 };
 
-export const quote = {
-  headline: "Get a Quote",
-  body: "Tell us the size and material, and send a photo of the wall if you have one — we'll reply on WhatsApp with a price.",
+/**
+ * "Start a Project" — the adaptive enquiry (Quote 02). The old form
+ * assumed every visitor wanted a signboard and asked for a size in feet
+ * and a material up front. This one asks what they're making first, then
+ * shows only the questions that fit. Categories mirror `services` above —
+ * nothing here is a service the studio doesn't offer. Field options stay
+ * within what the site already states (materials, finishes, lighting);
+ * "Not sure" is always available so no visitor has to know a spec.
+ *
+ * `startProject.categories` is read by both `QuoteForm` and the
+ * `/api/quote` route, so required-field checks and the WhatsApp summary
+ * are driven from one place.
+ */
+const projectCategories: ProjectCategory[] = [
+  {
+    id: "signage",
+    label: "Signage",
+    fields: [
+      {
+        name: "kind",
+        label: "What kind?",
+        type: "segmented",
+        options: ["ACP", "Acrylic", "LED / Illuminated", "Not sure"],
+      },
+      {
+        name: "size",
+        label: "Approximate size",
+        type: "text",
+        placeholder: "e.g. 6 × 3 ft",
+        hint: "A rough size is fine — we confirm it on site.",
+      },
+      {
+        name: "lighting",
+        label: "Lighting",
+        type: "segmented",
+        options: ["None", "Front-lit", "Backlit", "Not sure"],
+      },
+      {
+        name: "photo",
+        label: "Photo of the wall",
+        type: "photo",
+        hint: "Optional — nothing is uploaded here. We’ll ask you to share it on WhatsApp.",
+      },
+    ],
+  },
+  {
+    id: "flex",
+    label: "Flex / Banner",
+    fields: [
+      { name: "size", label: "Size", type: "text", placeholder: "e.g. 8 × 4 ft", half: true },
+      { name: "quantity", label: "Quantity", type: "text", placeholder: "e.g. 2", half: true },
+      {
+        name: "mounting",
+        label: "Mounting",
+        type: "segmented",
+        options: ["Wall-mounted", "MS frame", "Not sure"],
+      },
+      {
+        name: "design",
+        label: "Do you have the design?",
+        type: "segmented",
+        options: ["Ready", "Not yet", "Not sure"],
+      },
+    ],
+  },
+  {
+    id: "visiting-cards",
+    label: "Visiting Cards",
+    fields: [
+      {
+        name: "quantity",
+        label: "Quantity",
+        type: "text",
+        placeholder: "e.g. 500",
+        required: true,
+      },
+      {
+        name: "design",
+        label: "Do you have a design?",
+        type: "segmented",
+        options: ["Ready", "Not yet", "Not sure"],
+      },
+      {
+        name: "finish",
+        label: "Finish",
+        type: "segmented",
+        options: ["Matte", "Gloss", "Not sure"],
+      },
+    ],
+  },
+  {
+    id: "wedding",
+    label: "Wedding Invitations",
+    fields: [
+      {
+        name: "quantity",
+        label: "Quantity",
+        type: "text",
+        placeholder: "e.g. 200",
+        required: true,
+      },
+      {
+        name: "occasion",
+        label: "Type",
+        type: "segmented",
+        options: ["Wedding", "Nikkah", "Engagement", "Other"],
+      },
+      {
+        name: "design",
+        label: "Do you have a design?",
+        type: "segmented",
+        options: ["Ready", "Not yet", "Not sure"],
+      },
+      {
+        name: "inserts",
+        label: "Insert cards?",
+        type: "segmented",
+        options: ["Yes", "No", "Not sure"],
+      },
+    ],
+  },
+  {
+    id: "printing",
+    label: "Printing",
+    fields: [
+      {
+        name: "item",
+        label: "What are you printing?",
+        type: "segmented",
+        options: ["Flyers", "Brochures", "Standees", "Other"],
+      },
+      { name: "quantity", label: "Quantity", type: "text", placeholder: "e.g. 250" },
+      {
+        name: "design",
+        label: "Do you have a design?",
+        type: "segmented",
+        options: ["Ready", "Not yet", "Not sure"],
+      },
+    ],
+  },
+  {
+    id: "branding",
+    label: "Branding",
+    fields: [
+      {
+        name: "need",
+        label: "What do you need?",
+        type: "segmented",
+        options: ["Logo", "Brand identity", "Stationery", "Not sure"],
+      },
+      {
+        name: "existing",
+        label: "Do you already have a brand?",
+        type: "segmented",
+        options: ["Yes", "No"],
+      },
+    ],
+  },
+  {
+    id: "digital",
+    label: "Website / Digital",
+    fields: [
+      {
+        name: "kind",
+        label: "What are you looking for?",
+        type: "segmented",
+        options: ["Business website", "Landing page", "Web app", "Not sure"],
+      },
+      {
+        name: "design",
+        label: "Do you have a design?",
+        type: "segmented",
+        options: ["Ready", "Not yet", "Not sure"],
+      },
+    ],
+  },
+  {
+    id: "other",
+    label: "Something else",
+    fields: [
+      {
+        name: "brief",
+        label: "Tell us what you’re looking for",
+        type: "textarea",
+        placeholder: "A sentence or two is plenty.",
+        required: true,
+      },
+    ],
+  },
+];
+
+export const startProject = {
+  eyebrow: "Start a Project",
+  headline: "Tell us what you’re making.",
+  body: "We’ll help figure out the rest — you’ll only see the questions that matter.",
+  categoryHeading: "What are you looking for?",
+  notSureLead: "Not sure which option fits? That’s okay.",
+  notSureCta: "Ask the Studio",
+  contactHeading: "Where do we reach you?",
+  nameLabel: "Name",
+  phoneLabel: "Phone",
+  noteLabel: "Anything else?",
+  notePlaceholder: "Context, deadlines, a reference you like — anything helps.",
+  submitLabel: "Send enquiry",
+  submitPendingLabel: "Sending…",
+  errorGeneric: "Something went wrong — please try again, or continue on WhatsApp.",
+  errorNetwork: "Couldn’t reach the studio — check your connection and try again.",
+  completion: {
+    eyebrow: "Received",
+    headline: "We’ve got the details.",
+    body: "Shahid can take it from here. Continue on WhatsApp to add anything else — like a photo of the wall.",
+    whatsappLabel: "Continue on WhatsApp",
+    resetLabel: "Start another project",
+  },
+  categories: projectCategories,
 };
 
 /**
@@ -451,6 +664,29 @@ export const buildIt = {
   ctaLine: "Let's make the real thing.",
   ctaLabel: "Start a conversation",
   ctaHref: "#quote",
+} as const;
+
+/**
+ * "Ask the Studio" — the copy for the studio assistant (∞ chat 01). It's a
+ * conversation with the studio, not a chatbot: no "AI assistant" wording,
+ * no "how can I help you today". WhatsApp stays the human handoff.
+ */
+export const askStudio = {
+  triggerLabel: "Ask the Studio",
+  title: "Ask the Studio",
+  subtitle: "Studio Assistant",
+  intro: "Tell us what you're making, what you're considering, or just ask a question.",
+  suggestions: [
+    "What should I use for my shop?",
+    "ACP or acrylic?",
+    "What works best with LED?",
+    "How is signage priced?",
+    "Tell me about wedding invitations",
+  ],
+  inputPlaceholder: "Ask the studio something…",
+  handoffLabel: "Continue on WhatsApp",
+  errorText:
+    "The studio assistant is taking a moment. You can continue directly with Shahid on WhatsApp.",
 } as const;
 
 const project = (p: Project): Project => p;

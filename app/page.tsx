@@ -9,6 +9,7 @@ import { Services } from "@/components/sections/Services";
 import { SiteNav } from "@/components/sections/SiteNav";
 import { Wedding } from "@/components/sections/Wedding";
 import { Work } from "@/components/sections/Work";
+import { StudioChat } from "@/components/chat/StudioChat";
 import { AmbientGlow } from "@/components/theme/AmbientGlow";
 import { MaterialExplorer } from "@/components/theme/MaterialExplorer";
 import { ThemeEngine } from "@/components/theme/ThemeEngine";
@@ -65,6 +66,7 @@ export default function Home() {
         </div>
       </main>
       <WhatsAppButton />
+      <StudioChat />
     </>
   );
 }
