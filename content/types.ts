@@ -47,6 +47,18 @@ export type ProcessStep = {
   description: string;
 };
 
+export type MaterialSample = {
+  name: string;
+  description: string;
+  /**
+   * Local accent tint for the material explorer's hover/tap preview —
+   * scoped to that section only (set on its own wrapper, never on
+   * :root), so it never fights the scroll-driven theme engine's own
+   * --color-accent value.
+   */
+  accent: string;
+};
+
 export type TrustNumber = {
   value: string;
   label: string;

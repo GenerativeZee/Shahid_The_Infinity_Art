@@ -7,8 +7,8 @@ import { Services } from "@/components/sections/Services";
 import { Wedding } from "@/components/sections/Wedding";
 import { Work } from "@/components/sections/Work";
 import { AmbientGlow } from "@/components/theme/AmbientGlow";
+import { MaterialExplorer } from "@/components/theme/MaterialExplorer";
 import { ThemeEngine } from "@/components/theme/ThemeEngine";
-import { Marquee } from "@/components/ui/Marquee";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { materials, trust } from "@/content/site";
 
@@ -32,7 +32,7 @@ export default function Home() {
             ))}
           </section>
 
-          <Marquee items={materials} />
+          <MaterialExplorer items={materials} />
         </div>
 
         <div data-theme-zone="verdigris">

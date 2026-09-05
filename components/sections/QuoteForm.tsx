@@ -106,8 +106,8 @@ export function QuoteForm() {
                     Choose one
                   </option>
                   {materials.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
+                    <option key={m.name} value={m.name}>
+                      {m.name}
                     </option>
                   ))}
                 </select>

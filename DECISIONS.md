@@ -678,6 +678,76 @@ where it should feel warm" (noted there, not silently dropped).
   part of what was asked, flagging it here so a future pass doesn't
   treat the inconsistency as unnoticed.
 
+## Catalogue → interactive experience (v4, three interactions)
+
+Client wanted the site to stop feeling like "a beautiful digital
+catalogue" — scroll, read, look at cards, repeat. Explicitly asked for
+restraint ("5 exceptional interactions, not 30 mediocre ones"), so this
+picked the three most catalogue-feeling spots (materials marquee, Work
+grid, Process section) and gave each exactly one real interaction,
+rather than attempting the brief's full menu of ~12 ideas at once.
+
+- **Materials marquee → `MaterialExplorer`.** `materials` changed from
+  `string[]` to `MaterialSample[]` (name/description/accent) — a real,
+  if small, content-model change. Hovering or tapping a chip locally
+  re-tints `--color-accent` **on the section's own wrapper element**,
+  not on `:root` — deliberately avoids fighting `ThemeEngine`, which
+  owns `:root`'s value via the scroll-driven blend. Clearing the
+  preview just removes the local override, letting the live
+  scroll-theme value cascade back through automatically — no snap-back
+  glitch, no coordination needed between the two systems. Marquee scroll
+  pauses on `:hover`/`:focus-within` (`app/globals.css`) since a row
+  that keeps sliding under the cursor defeats the interaction entirely.
+  The duplicated second copy of each chip (needed for the seamless
+  scroll loop) is `aria-hidden`/`tabIndex={-1}` — only the first copy is
+  reachable by keyboard or a screen reader.
+- **Work grid → one signature "Look Again" card + a lighter cue on the
+  rest.** `LookAgainReveal.tsx` targets whichever project has
+  `featured: true` first in array order — click opens a dialog, a
+  "Reveal details" button stages in general craftsmanship callouts
+  (`craftDetails` in `content/site.ts`: balanced negative space,
+  consistent letterforms, etc.) ending on "Great design lives in the
+  details." These are deliberately generic principles, not specific
+  claims about this particular placeholder project — §11.2's "never
+  invent a claim to fill a layout" applies here too, even for a UI
+  flourish. Every other card gets a lighter "What changed?" hover label
+  — enough variety to feel like an exhibition, not so much that the
+  interaction language becomes incoherent.
+  - **Caught in self-review before calling it done:** the signature
+    card's first draft put `group` and `hover-zoom` on the *same*
+    element. The existing CSS rule (`,group:hover .hover-zoom`, dating
+    to M1) requires `hover-zoom` to be a *descendant* of `.group` — an
+    element can't be its own descendant, so the scale-up-on-hover effect
+    silently never fired on exactly the one card meant to feel the most
+    polished. Fixed by matching `WorkGrid.tsx`'s existing nesting
+    depth exactly.
+  - **Known simplification, not fixed:** the dialog sets initial focus
+    and closes on Escape/backdrop-click, but doesn't implement a full
+    Tab-cycle focus trap. Acceptable for a small experimental feature
+    with only 1-2 focusable elements inside; flagging rather than
+    silently shipping a partial a11y pattern as if it were complete.
+- **Process → a clickable/swipeable stepper**, not four static cards.
+  Each of the four stages shows an abstract SVG icon
+  (`stroke="currentColor"`, so it re-themes for free with the section's
+  live accent) instead of a real project photo — none of these stages
+  have real photography, and a staged photo pretending to depict a real
+  job would be the same kind of dishonesty §11.2 already rules out for
+  the portfolio. Click a step number, use arrow keys, or swipe
+  left/right on touch — `onTouchStart`/`onTouchEnd` computed inline
+  (40px threshold), no gesture library.
+- **Deliberately deferred, not forgotten:** Before/After drag-reveal
+  (needs a real matched day/night-style photo pair per project — none
+  exist), "Shahid's Eye" layered-composition reveal (needs one real,
+  richly detailed finished project photo), a Hero interactive layer
+  (already carries the most interactive investment on the site via the
+  §5.1 day/night reveal — adding more risked diluting rather than
+  improving it), and the "creative playground" config tool (real
+  build cost, more a bonus feature than a fix for the three sections
+  actually identified as catalogue-like).
+- **JS budget moved to 144.8 KB gzipped** (from 142.1) — three real
+  interactive components, still comfortably under the 150 KB `SPEC.md`
+  figure this branch isn't formally held to.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

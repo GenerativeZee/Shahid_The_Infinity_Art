@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { Reveal } from "@/components/ui/Reveal";
+import { LookAgainReveal } from "@/components/theme/LookAgainReveal";
+import { craftDetails } from "@/content/site";
 import type { MaterialCategory, Project } from "@/content/types";
 
 type Filter = MaterialCategory | "all";
@@ -24,6 +26,9 @@ const FILTER_LABEL: Record<Filter, string> = Object.fromEntries(
 export function WorkGrid({ projects }: { projects: Project[] }) {
   const [filter, setFilter] = useState<Filter>("all");
   const visible = filter === "all" ? projects : projects.filter((p) => p.material === filter);
+  // The site's one signature discovery moment (see LookAgainReveal) — the
+  // rest of the grid gets the lighter "What changed?" hover cue instead.
+  const signatureSlug = useMemo(() => projects.find((p) => p.featured)?.slug, [projects]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -56,7 +61,7 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((project, index) => (
             <Reveal key={project.slug} index={index % 6}>
-              <ProjectCard project={project} />
+              <ProjectCard project={project} isSignature={project.slug === signatureSlug} />
             </Reveal>
           ))}
         </div>
@@ -65,14 +70,26 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, isSignature }: { project: Project; isSignature: boolean }) {
   return (
     <article className="group flex flex-col gap-3">
-      <div className="hover-zoom overflow-hidden">
-        <div className={project.featured ? "kenburns-slow" : ""}>
-          <Placeholder filename={project.image.filename} aspect={project.image.aspect} />
+      {isSignature ? (
+        <LookAgainReveal image={project.image} projectName={project.name} details={craftDetails} />
+      ) : (
+        <div className="relative hover-zoom overflow-hidden">
+          <div className={project.featured ? "kenburns-slow" : ""}>
+            <Placeholder filename={project.image.filename} aspect={project.image.aspect} />
+          </div>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 flex items-end justify-start bg-ground/0 p-4 transition-colors duration-300 group-hover:bg-ground/25"
+          >
+            <span className="translate-y-2 rounded-full border border-accent/60 bg-ground/80 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-label text-accent opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+              What changed?
+            </span>
+          </div>
         </div>
-      </div>
+      )}
       <div className="flex flex-col gap-1">
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-step-0 font-semibold text-text">{project.name}</h3>

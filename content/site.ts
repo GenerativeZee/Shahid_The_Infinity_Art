@@ -1,6 +1,7 @@
 import type {
   BusinessInfo,
   MaterialCategory,
+  MaterialSample,
   PriceRange,
   ProcessStep,
   Project,
@@ -89,13 +90,37 @@ export const trust: TrustNumber[] = [
   { value: "[X]", label: "Cities Covered" },
 ];
 
-export const materials: string[] = [
-  "ACP",
-  "STAR FLEX",
-  "CAST ACRYLIC",
-  "3M VINYL",
-  "300 GSM",
-  "LED",
+export const materials: MaterialSample[] = [
+  {
+    name: "ACP",
+    description: "Brushed aluminium composite — the standard for a durable, architectural shopfront.",
+    accent: "#8fa3ad",
+  },
+  {
+    name: "Star Flex",
+    description: "Woven outdoor-grade vinyl for bold, budget-friendly hoardings.",
+    accent: "#d99a4e",
+  },
+  {
+    name: "Cast Acrylic",
+    description: "3D-cut letters, front or back-lit, for a raised, premium finish.",
+    accent: "#e8c98a",
+  },
+  {
+    name: "3M Vinyl",
+    description: "Precision-cut lettering and graphics that hold their colour for years.",
+    accent: "#5ec2d1",
+  },
+  {
+    name: "300 GSM",
+    description: "Heavyweight card stock for visiting cards and brochures that feel substantial.",
+    accent: "#d8c9ad",
+  },
+  {
+    name: "LED",
+    description: "Fully backlit glow signage that reads clearly after dark.",
+    accent: "#7fe3ff",
+  },
 ];
 
 const priceRange = (min: number, max: number, unit: string): PriceRange => ({
@@ -223,6 +248,19 @@ export const quote = {
   headline: "Get a Quote",
   body: "Tell us the size and material, and send a photo of the wall if you have one — we'll reply on WhatsApp with a price.",
 };
+
+/**
+ * General craftsmanship principles, not specific claims about any one
+ * placeholder project — used by the "Look Again" discovery interaction
+ * on the first featured Work card. Deliberately generic until real
+ * project photography exists to annotate specifically.
+ */
+export const craftDetails: string[] = [
+  "Balanced negative space",
+  "Consistent letterforms",
+  "Weatherproof, edge-sealed finish",
+  "Colour that reads true after dark",
+];
 
 const project = (p: Project): Project => p;
 
