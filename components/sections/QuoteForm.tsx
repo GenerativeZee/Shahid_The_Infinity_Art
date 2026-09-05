@@ -54,7 +54,7 @@ export function QuoteForm() {
           <p className="font-mono text-step--1 uppercase tracking-label text-accent">
             Get a Quote
           </p>
-          <h2 className="text-step-3">{quote.headline}</h2>
+          <h2 className="text-heading">{quote.headline}</h2>
           <p className="measure text-step-0 text-text-muted">{quote.body}</p>
         </Reveal>
 

@@ -7,7 +7,7 @@ export function Process() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
         <div className="flex flex-col gap-3">
           <p className="font-mono text-step--1 uppercase tracking-label text-accent">Process</p>
-          <h2 className="text-step-3">How a job runs</h2>
+          <h2 className="text-heading">How a job runs</h2>
           <p className="measure text-step-0 text-text-muted">
             Four steps, every time. The date we give you at step four is a promise, not an
             estimate.

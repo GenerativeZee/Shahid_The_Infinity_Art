@@ -27,6 +27,48 @@
 
   /* Section rhythm — 96px mobile, 128px desktop */
   --space-section: clamp(6rem, 5.257rem + 3.71vw, 8rem);
+
+  /* Architectural type scale (SPEC.md §5.2) — separate from the fluid
+     --step-* scale above, which tops out far smaller. */
+  --text-hero: clamp(3rem, 17vw, 15rem);
+  --text-heading: clamp(2.5rem, 11vw, 8rem);
+
+  /* Day/night reveal radius (SPEC.md §5.1) — viewport-responsive, not
+     itself animated; --r below references it live so a resize is always
+     correct without a JS resize listener. */
+  --reveal-radius: 280px;
+}
+
+@media (max-width: 719px) {
+  :root {
+    --reveal-radius: 175px;
+  }
+}
+
+@media (max-width: 479px) {
+  :root {
+    --reveal-radius: 130px;
+  }
+}
+
+/* Typed so they can be animated by the touch auto-sweep keyframes below —
+   an untyped custom property can't be interpolated by CSS animations. */
+@property --x {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: -999px;
+}
+
+@property --y {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: -999px;
+}
+
+@property --r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
 }
 
 @theme inline {
@@ -53,6 +95,9 @@
   --text-step-3: var(--step-3);
   --text-step-4: var(--step-4);
   --text-step-5: var(--step-5);
+
+  --text-hero: var(--text-hero);
+  --text-heading: var(--text-heading);
 }
 
 @layer base {
@@ -125,4 +170,71 @@
   to {
     transform: translateX(-50%);
   }
+}
+
+/* Day/night hero reveal (SPEC.md §5.1). --x/--y/--r are mutated directly
+   via ref in DayNightReveal.tsx (desktop) or driven by the keyframes below
+   (touch) — never through React state, so a mousemove can never trigger a
+   re-render. */
+.day-night-reveal__night {
+  -webkit-mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    #fff 0%,
+    #fff 38%,
+    rgb(255 255 255 / 72%) 58%,
+    rgb(255 255 255 / 35%) 74%,
+    rgb(255 255 255 / 10%) 88%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    #fff 0%,
+    #fff 38%,
+    rgb(255 255 255 / 72%) 58%,
+    rgb(255 255 255 / 35%) 74%,
+    rgb(255 255 255 / 10%) 88%,
+    transparent 100%
+  );
+}
+
+@media (hover: none) {
+  .day-night-reveal__night--sweep {
+    --r: var(--reveal-radius);
+    animation: day-night-sweep 9s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes day-night-sweep {
+  0% {
+    --x: 15%;
+    --y: 45%;
+  }
+  100% {
+    --x: 85%;
+    --y: 45%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-night-reveal__night {
+    -webkit-mask-image: none;
+    mask-image: none;
+    opacity: 1;
+  }
+
+  .day-night-reveal__night--sweep {
+    animation: none;
+  }
+}
+
+/* Grain (SPEC.md §5.7) — fixed full-page overlay, above everything,
+   inert to pointer events. One fractal-noise SVG data URI, no library. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 190px;
 }

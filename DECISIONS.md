@@ -444,6 +444,79 @@ own opening line.
   - JS budget dropped back to 141.9 KB gzipped (from 147.4) now that
     `next/image`'s runtime is gone again.
 
+## R1 — day/night reveal, architectural type, grain
+
+- **`--x`/`--y`/`--r` are registered via `@property`** (`app/globals.css`),
+  typed as `<length-percentage>` / `<length-percentage>` / `<length>`.
+  An untyped custom property can't be interpolated by a CSS `@keyframes`
+  animation — without this, the touch auto-sweep (§5.1) would jump between
+  keyframe values instead of animating smoothly. `inherits: false` since
+  values are always set directly on the element that reads them, never
+  meant to cascade to descendants.
+- **`--reveal-radius` is a plain responsive custom property (media
+  queries only), not JS-computed.** Desktop interaction sets `--r` once
+  via `night.style.setProperty("--r", "var(--reveal-radius)")` — a live
+  `var()` reference, not a resolved pixel snapshot — so a viewport resize
+  crossing a breakpoint updates the radius correctly with no resize
+  listener needed.
+- **Touch sweep path is percentage-based (`--x: 15% → 85%`), desktop
+  tracking is pixel-based (`clientX - rect.left`).** `<length-percentage>`
+  typing supports both in the same property. Percentages scale naturally
+  with the panel's own width, so the sweep endpoints are always "just
+  inside the sign" regardless of panel size, without measuring anything.
+- **A bespoke placeholder for the two hero layers, not
+  `components/ui/Placeholder.tsx`.** That component hard-codes a fixed
+  aspect ratio, which doesn't fit a layer that must fill an arbitrary
+  hero panel height. `DayNightReveal.tsx` inlines the same "obviously
+  fake, labelled" visual language instead, tinted per layer (light
+  accent tint for day, near-black for night) so the day/night distinction
+  reads even before real photos exist — pure CSS, same cost as the real
+  `Placeholder`.
+- **The wordmark is `business.legalName`, not `hero.headline`.** §5.2
+  calls it a "wordmark" (`white-space: nowrap`) — a full marketing
+  sentence doesn't fit that role at 15rem, a business name does. The old
+  `hero.headline` copy becomes the "one line of copy" §7 asks for,
+  underneath. `hero.subhead` is no longer rendered anywhere (left in
+  `content/site.ts`, unused, in case a later pass wants it back).
+- **The hero photo panel is a bounded rectangle, not full-bleed, despite
+  §5.1 saying `position:absolute; inset:0` for the day layer.** That
+  `inset:0` is scoped to the panel's own container in this reading —
+  §5.2 needs the giant wordmark visible *around* the photo for "the type
+  is architecture the subject stands in front of" to mean anything; a
+  full-viewport photo would just cover the wordmark entirely regardless
+  of z-index. No exact panel size/position is given, so this is a
+  judgment call (rule 2) rather than a spec'd value — flagging it clearly
+  so it's the first thing to correct in the R1 screenshot review if it
+  doesn't read right.
+- **Old 300dvh scroll-jacked live-3D hero (M3-M5) retired from this
+  section**, not deleted. `Hero.tsx` no longer imports `HeroStage`; that
+  component tree (`HeroStage`/`HeroCanvas`/`Scene`/`useHeroProgress`) sits
+  unreferenced, parked as the candidate for §8.3's optional tier-A live-3D
+  layer once the real board-fabrication section (§8) exists at R4 — per
+  the agreed R0 plan, not deleted outright.
+- **New `--text-hero` / `--text-heading` tokens**, separate from the
+  existing fluid `--step-*` scale (which tops out at ~4.7rem — nowhere
+  near the 15rem/8rem §5.2 calls for). Exposed as `text-hero`/
+  `text-heading` Tailwind utilities via `@theme inline`, same pattern as
+  `--text-step-*`. `text-heading` also replaces `text-step-3` on every
+  genuine section `<h2>` (Work, Services, Wedding, Process, Digital,
+  QuoteForm) — §5.2's scale isn't hero-only, it's the whole site's
+  heading scale. Left `Footer.tsx`'s `<h2>` at `text-step-2`: that
+  heading is the business name label, not a section-heading moment.
+- **Self-review caught two real weaknesses before calling R1 done**
+  (§15.1): the eyebrow label duplicated the wordmark verbatim ("The
+  Infinity Art" twice on screen) once the wordmark became the business
+  name — removed, since §7 doesn't call for an eyebrow at all. And the
+  bottom scrim originally covered the full hero height, which would have
+  visibly darkened the photo panel sitting in its gradient zone —
+  constrained to the bottom 45% where the copy actually needs it.
+- **No screenshots taken — no browser tooling available in this
+  environment.** The Chrome extension isn't connected (same limitation
+  noted in the M6 entry) and no headless browser is installed in this
+  project. `npm run dev` is running; §15's required 390px/1440px
+  screenshot check needs to happen in a real browser before R1 is signed
+  off, not from a code read alone.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

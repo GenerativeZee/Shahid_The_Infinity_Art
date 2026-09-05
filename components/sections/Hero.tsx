@@ -1,50 +1,62 @@
-"use client";
-
-import { useRef } from "react";
-import { HeroStage } from "@/components/hero/HeroStage";
-import { useHeroProgress } from "@/components/hero/useHeroProgress";
-import { hero } from "@/content/site";
+import { DayNightReveal } from "@/components/hero/DayNightReveal";
+import { business, hero } from "@/content/site";
 
 /**
- * The 300dvh scroll track (§6: "not more"). The inner stage is pinned via
- * `sticky` for the full track height, so the DOM copy below scrolls the
- * visitor straight into the Work section the instant the track ends —
- * standard scrollytelling pinning, native scroll drives it the whole way.
+ * SPEC.md §5.1 + §5.2. The old 300dvh scroll-jacked live-3D hero (M3-M5) is
+ * retired from this section — that mechanism now belongs to the separate
+ * board-fabrication scroll sequence (§8), a section not yet built (R4).
+ * The R3F code itself isn't deleted; it's the candidate for §8.3's optional
+ * live-3D layer, judged at R5. See DECISIONS.md.
+ *
+ * The wordmark is the business name, not the marketing headline — a
+ * shopfront's own sign is its name, not a sentence. The headline becomes
+ * the "one line of copy" §7 calls for underneath it.
  */
 export function Hero() {
-  const trackRef = useRef<HTMLDivElement>(null);
-  useHeroProgress(trackRef);
-
   return (
-    <div ref={trackRef} className="relative h-[300dvh]">
-      <div className="sticky top-0 flex h-dvh flex-col justify-end overflow-hidden">
-        <HeroStage />
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-ground via-ground/80 to-ground/30"
-          aria-hidden="true"
-        />
-        <div className="relative z-10 flex flex-col gap-6 px-6 pb-16 pt-32 md:px-12 md:pb-24">
-          <p className="font-mono text-step--1 uppercase tracking-label text-accent">
-            {hero.eyebrow}
-          </p>
-          <h1 className="text-step-5 text-text">{hero.headline}</h1>
-          <p className="measure text-step-1 text-text-muted">{hero.subhead}</p>
-          <div className="flex flex-wrap gap-4 pt-2">
-            <a
-              href={hero.primaryCta.href}
-              className="rounded bg-accent px-5 py-3 font-mono text-step--1 uppercase tracking-label text-ground"
-            >
-              {hero.primaryCta.label}
-            </a>
-            <a
-              href={hero.secondaryCta.href}
-              className="rounded border border-border px-5 py-3 font-mono text-step--1 uppercase tracking-label text-text"
-            >
-              {hero.secondaryCta.label}
-            </a>
-          </div>
+    <section className="relative flex h-dvh flex-col justify-end overflow-hidden bg-ground">
+      {/* Wordmark — behind the photo panel (z-index:1 vs the panel's :2) */}
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-center overflow-hidden">
+        <h1
+          className="w-full whitespace-nowrap px-6 font-display font-extrabold uppercase text-text md:px-12"
+          style={{ fontSize: "var(--text-hero)", letterSpacing: "-0.03em", lineHeight: 0.92 }}
+        >
+          {business.legalName}
+        </h1>
+      </div>
+
+      {/* The hero photo panel overlaps the wordmark, not full-bleed — that's
+          what makes the type read as architecture the subject stands in
+          front of, rather than a caption under a full-screen photo. */}
+      <div className="absolute left-1/2 top-[42%] z-20 h-[52vh] w-[min(78vw,760px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded shadow-2xl shadow-black/60">
+        <DayNightReveal />
+      </div>
+
+      {/* Scrim only behind the copy block below, not the full hero — a
+          full-height scrim would wash out the photo panel above, which
+          sits centered in exactly the zone a bottom-up gradient darkens. */}
+      <div
+        className="absolute inset-x-0 bottom-0 z-30 h-[45%] bg-gradient-to-t from-ground via-ground/70 to-transparent"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-40 flex flex-col gap-6 px-6 pb-16 pt-32 md:px-12 md:pb-24">
+        <p className="measure text-step-1 text-text-muted">{hero.headline}</p>
+        <div className="flex flex-wrap gap-4 pt-2">
+          <a
+            href={hero.primaryCta.href}
+            className="rounded bg-accent px-5 py-3 font-mono text-step--1 uppercase tracking-label text-ground"
+          >
+            {hero.primaryCta.label}
+          </a>
+          <a
+            href={hero.secondaryCta.href}
+            className="rounded border border-border px-5 py-3 font-mono text-step--1 uppercase tracking-label text-text"
+          >
+            {hero.secondaryCta.label}
+          </a>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

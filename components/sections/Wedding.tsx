@@ -42,7 +42,7 @@ export function Wedding() {
           <p className="font-mono text-step--1 uppercase tracking-label text-accent">
             {wedding.eyebrow}
           </p>
-          <h2 className="text-step-3">{wedding.headline}</h2>
+          <h2 className="text-heading">{wedding.headline}</h2>
           <p className="measure text-step-0 text-text-muted">{wedding.body}</p>
           <a
             href={wedding.cta.href}

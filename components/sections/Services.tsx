@@ -15,7 +15,7 @@ export function Services() {
           <p className="font-mono text-step--1 uppercase tracking-label text-accent">
             Kya Banate Hain
           </p>
-          <h2 className="text-step-3">What we make</h2>
+          <h2 className="text-heading">What we make</h2>
           <p className="measure text-step-0 text-text-muted">
             Real materials, honest price ranges. Talk to us about your exact size and we&apos;ll
             confirm a number on WhatsApp.
