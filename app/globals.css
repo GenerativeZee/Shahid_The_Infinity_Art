@@ -199,6 +199,13 @@
   inherits: true;
   initial-value: 0;
 }
+/* Nav quietness — a hump: 0 at the ends, ~1 through the strongest part of
+   the transformation, so the fixed nav recedes then returns. */
+@property --nav-q {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
 /* Phase + colour envelopes — all pure functions of --reveal, registered
    so nested calc()s resolve to numbers. Phase timing follows the ∞ 11.1
    reference: presence .00-.18, tension .18-.32, disassembly .32-.48,
@@ -237,7 +244,8 @@
 .hero-scroll__pin {
   position: sticky;
   top: 0;
-  --reveal: 0;
+  /* --reveal now inherits from <body> (HeroMark writes it there so the
+     fixed nav can read it too); no local `--reveal: 0` to shadow it. */
   --sep: clamp(0, calc((var(--reveal) - 0.18) / 0.15), 1); /* tension → disassembly */
   --ext: clamp(0, calc((var(--reveal) - 0.32) / 0.17), 1); /* disassembly → translation */
   --wrt: clamp(0, calc((var(--reveal) - 0.48) / 0.2), 1); /* write */
@@ -315,6 +323,16 @@
 .hero-mark__trail--rose {
   stroke: var(--hero-rose);
   opacity: calc(var(--c-rose) * 0.24);
+}
+
+/* Fabrication frame — datum line + registration marks. Only resolves as
+   the identity locks (--idn / --stl); tiny opacity so it is the last
+   thing the eye finds, never a blueprint. */
+.hero-mark__frame {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 1;
+  opacity: calc((var(--idn) * 0.55 + var(--stl) * 0.45) * 0.12);
 }
 
 /* Arcs of coloured light — fade in through translation and stay faint
@@ -433,8 +451,9 @@
   font-weight: 800;
   font-stretch: 120%;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-size: clamp(1.35rem, 7vw, 6rem);
+  letter-spacing: 0.015em;
+  /* ~10% more presence than 11.1 (§18) — still fabricated signage, not a title */
+  font-size: clamp(1.5rem, 7.6vw, 6.6rem);
   line-height: 1;
   white-space: nowrap;
   /* metallic gold fill: light crown, a dark bevel band, warm base */
@@ -450,14 +469,12 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  /* extrusion + cast shadow + a glow that cools slightly then settles gold */
+  /* Shallow extrusion (§19: 1-2 offsets) + a soft cast + a settling glow */
   text-shadow:
-    0 1px 0 #7c5d30,
-    0 2px 0 #6a4f28,
-    0 3px 0 #58421f,
-    0 4px 1px #46351a,
-    0 6px 10px rgba(0, 0, 0, 0.45),
-    0 0 26px color-mix(in srgb, var(--color-accent) calc(30% + var(--idn) * 14%), transparent);
+    0 1px 0 #6f5329,
+    0 2px 1px rgba(0, 0, 0, 0.5),
+    0 5px 14px rgba(0, 0, 0, 0.4),
+    0 0 24px color-mix(in srgb, var(--color-accent) calc(24% + var(--idn) * 12%), transparent);
   /* Hard-gated to 0 until writing begins, so nothing bleeds through the
      feather at --reveal 0. The mask edge starts fully off-screen-left
      (negative stops) and sweeps right as --wrt grows. */
@@ -572,6 +589,204 @@
   .hero-eyebrow {
     opacity: 0.55;
   }
+  .site-nav {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Exhibition wayfinding (SiteNav.tsx, ∞ 11.2) — a thin fixed frame, not a
+   container. Transparent over the Hero; a faint dark surface + hairline
+   once past it. Recedes during the transformation via --nav-q (a plain
+   calc() of --reveal, inherited from <body>); those two props carry NO
+   transition so they track scroll exactly. The surface swap is attribute-
+   driven (IntersectionObserver), so its transition is safe. */
+.site-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 90;
+  --nav-q: calc(
+    clamp(0, calc((var(--reveal) - 0.12) / 0.26), 1) *
+      clamp(0, calc((0.9 - var(--reveal)) / 0.28), 1)
+  );
+  opacity: calc(1 - var(--nav-q) * 0.5);
+  transform: translateY(calc(var(--nav-q) * -3px));
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 22%, transparent);
+  transition:
+    background-color 400ms ease,
+    border-color 400ms ease;
+}
+.site-nav[data-past-hero] {
+  background-color: color-mix(in srgb, var(--color-ground) 78%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom-color: color-mix(in srgb, var(--color-border) 55%, transparent);
+}
+
+.site-nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 1rem 1.5rem;
+}
+@media (min-width: 768px) {
+  .site-nav__inner {
+    padding: 1.1rem 3rem;
+  }
+}
+
+.site-nav__brand,
+.site-nav__link,
+.site-nav__action,
+.site-nav__menu-btn {
+  font-family: var(--font-mono);
+  font-size: var(--text-step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+.site-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-text-muted);
+  transition: color 200ms ease;
+}
+.site-nav__brand:hover {
+  color: var(--color-text);
+}
+.site-nav__mark {
+  width: 1.15rem;
+  aspect-ratio: 1000 / 642;
+  background-color: var(--color-accent);
+  -webkit-mask: url(/logo/mark.png) center / contain no-repeat;
+  mask: url(/logo/mark.png) center / contain no-repeat;
+}
+
+.site-nav__links {
+  display: none;
+}
+@media (min-width: 768px) {
+  .site-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+.site-nav__link {
+  position: relative;
+  color: var(--color-text-muted);
+  padding-block: 0.35rem;
+  transition: color 200ms ease;
+}
+.site-nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms ease;
+}
+.site-nav__link:hover {
+  color: var(--color-text);
+}
+.site-nav__link:hover::after,
+.site-nav__link:focus-visible::after {
+  transform: scaleX(1);
+}
+.site-nav__link[aria-current] {
+  color: var(--color-text);
+}
+/* Active is a small registration mark, not a full underline. */
+.site-nav__link[aria-current]::after {
+  width: 0.5rem;
+  transform: scaleX(1);
+}
+
+.site-nav__action {
+  color: var(--color-accent);
+  opacity: 0.82;
+  transition: opacity 200ms ease;
+}
+.site-nav__action:hover,
+.site-nav__action:focus-visible {
+  opacity: 1;
+}
+
+.site-nav__menu-btn {
+  color: var(--color-text-muted);
+  padding: 0.4rem 0.2rem;
+  transition: color 200ms ease;
+}
+.site-nav__menu-btn:hover {
+  color: var(--color-text);
+}
+@media (min-width: 768px) {
+  .site-nav__menu-btn {
+    display: none;
+  }
+}
+
+.site-nav__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: color-mix(in srgb, var(--color-ground) 97%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.site-nav__close {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-muted);
+  padding: 0.4rem;
+}
+.site-nav__menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.site-nav__menu-link,
+.site-nav__menu-action {
+  font-family: var(--font-mono);
+  font-size: var(--text-step-1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-muted);
+  padding: 0.55rem 0;
+}
+.site-nav__menu-link[aria-current] {
+  color: var(--color-text);
+}
+.site-nav__menu-link[aria-current]::before {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.6rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  vertical-align: middle;
+}
+.site-nav__menu-action {
+  color: var(--color-accent);
+  margin-top: 1rem;
 }
 
 /* Grain (SPEC.md §5.7) — fixed full-page overlay, above everything,

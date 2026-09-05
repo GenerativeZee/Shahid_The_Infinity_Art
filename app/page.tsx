@@ -6,6 +6,7 @@ import { Process } from "@/components/sections/Process";
 import { QuoteForm } from "@/components/sections/QuoteForm";
 import { ShahidsEye } from "@/components/sections/ShahidsEye";
 import { Services } from "@/components/sections/Services";
+import { SiteNav } from "@/components/sections/SiteNav";
 import { Wedding } from "@/components/sections/Wedding";
 import { Work } from "@/components/sections/Work";
 import { AmbientGlow } from "@/components/theme/AmbientGlow";
@@ -19,6 +20,7 @@ export default function Home() {
     <>
       <ThemeEngine />
       <AmbientGlow />
+      <SiteNav />
       <main id="main" className="flex flex-col">
         <div data-theme-zone="nocturne">
           <Hero />

@@ -42,7 +42,7 @@ const HERO_VIOLET = "#8f5aa6";
  */
 export function Hero() {
   return (
-    <section className="hero-scroll relative bg-ground">
+    <section id="top" className="hero-scroll relative bg-ground">
       <div
         className="hero-scroll__pin flex h-dvh flex-col justify-end overflow-hidden"
         style={

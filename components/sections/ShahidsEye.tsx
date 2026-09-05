@@ -41,7 +41,7 @@ export function ShahidsEye() {
   const transition = reduced ? "" : "transition-all duration-500 ease-out";
 
   return (
-    <section className="px-6 py-section md:px-12">
+    <section id="studio" className="px-6 py-section md:px-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
         <Reveal>
           <div className="flex flex-col gap-3">

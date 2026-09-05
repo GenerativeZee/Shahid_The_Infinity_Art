@@ -1628,6 +1628,60 @@ board.
   `background-clip:text` / `@property` on pre-2023 browsers (documented
   fallbacks / graceful degradation).
 
+## Hero 11.2 — exhibition wayfinding + composed final state
+
+The logo→wordmark transformation is approved and untouched. This
+iteration adds a global navigation and makes the *settled* Hero read as a
+composed room rather than an empty canvas.
+
+- **`components/sections/SiteNav.tsx`** (new) — a thin, `position: fixed`,
+  edge-to-edge frame, not a container/pill. Transparent over the Hero; a
+  faint `--color-ground`/78% surface + `blur(8px)` + a stronger hairline
+  once the Hero has scrolled past (one `IntersectionObserver` on `#top`
+  with `rootMargin: -88%`, so it flips ~when the pin releases). Mono
+  type, site gutters (`72rem` inner, `1.5/3rem` padding), the site's
+  `--color-*` tokens (re-tints with the scroll theme for free). Desktop:
+  brand (real mark, `mask.png`) + Work / What We Do / Process / Studio +
+  a quiet "Get a Quote" link (not a button — §27). Hover = a 1px gold
+  underline draw; active = a small gold registration mark (the
+  Marker/Process vocabulary), set by a second `IntersectionObserver`
+  scroll-spy over the real anchors. Mobile: brand + "Menu" → a plain
+  full-screen `role="dialog"` list (Escape, focus to close, focus return).
+- **`--reveal` moved from `.hero-scroll__pin` to `<body>`.** `HeroMark`
+  now writes it there (same synchronous Lenis-tick write, one
+  `setProperty`, no new listener) so the fixed nav — a sibling of
+  `<main>`, not inside the pin — can read it. `@property --reveal`
+  inherits, so `.hero-scroll__pin` and its sub-progress vars are
+  unchanged; the local `--reveal: 0` there was removed so it inherits.
+  Nothing else in the app reads `--reveal`.
+- **Nav recedes during the transformation** via `--nav-q` — a plain
+  `calc()` hump of `--reveal` (0 at the ends, ~1 mid-transformation)
+  driving `opacity` (dips to 0.5) and a 3px `translateY`. No transition
+  on those two props; the surface swap (attribute-driven) does have one,
+  which is safe. "presence → retreat → return", ~invisible (§9).
+- **Composed final state:** the wordmark is ~10% larger
+  (`clamp(1.5rem, 7.6vw, 6.6rem)`) and its extrusion trimmed to two
+  shallow offsets + a soft cast + a settling glow (§18/§19 — signage,
+  not a title). A **fabrication frame** in `.hero-mark__fx` — one dashed
+  datum line + two tiny registration crosses, `--color-accent` at ≤12%
+  opacity, resolving only at `--idn`/`--stl` — gives the settled
+  negative space structure without a blueprint (§21/§22).
+- **Section anchors:** `id="studio"` added to `ShahidsEye`'s `<section>`
+  and `id="top"` to Hero's — one line each, the only touch to those
+  files, needed for real nav destinations (§41: don't invent routes).
+- **11.1/11.2 preserved:** logo presence, `--sep`/`--ext`/`--tone`, V/A
+  stroke rake, trails, arcs, colour envelopes, `--wrt` mask reveal (+ the
+  load-blob fix), the glowing baseline, eyebrow choreography, ambient
+  pools, the 10.1 pin, the 9.1 sync. Verified by diff.
+- **Budget:** 152.4 → 153.0 KB gzipped (+0.6). No deps.
+- **Not browser-verified** (no tooling here). Traced: `--reveal`
+  inheritance, sync, the nav-dim envelope, past-hero timing, scroll-spy,
+  a11y, hydration, overflow, z-order, reduced motion, regression.
+  Unverified: whether the nav reads as "exhibition frame" vs. template,
+  the blind-tuned datum-line position, the transient contrast of the nav
+  at its 0.5-opacity dip, `backdrop-filter` / `color-mix` on older
+  browsers, and the mobile menu at 375.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

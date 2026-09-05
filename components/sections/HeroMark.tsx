@@ -66,11 +66,16 @@ export function HeroMark() {
     const h1 = ref.current;
     if (!h1) return;
 
-    const pin = (h1.closest(".hero-scroll__pin") as HTMLElement | null) ?? h1;
-    const section = (h1.closest(".hero-scroll") as HTMLElement | null) ?? pin;
+    const section = (h1.closest(".hero-scroll") as HTMLElement | null) ?? h1;
+    // Written on <body> (not .hero-scroll__pin) so the fixed nav — a
+    // sibling of <main>, not a descendant of the pin — can also read
+    // --reveal and recede during the transformation. @property --reveal
+    // inherits, so .hero-scroll__pin and its sub-progress vars still pick
+    // it up. No second listener; this is the same synchronous write.
+    const host = document.body;
 
     if (prefersReducedMotion()) {
-      pin.style.setProperty("--reveal", "1");
+      host.style.setProperty("--reveal", "1");
       return;
     }
 
@@ -89,7 +94,7 @@ export function HeroMark() {
     function update() {
       const top = section.getBoundingClientRect().top;
       const p = clamp01(-top / range);
-      pin.style.setProperty("--reveal", p.toFixed(4));
+      host.style.setProperty("--reveal", p.toFixed(4));
       if (showDebug) setDebug({ top: Math.round(top), range: Math.round(range), reveal: p });
     }
 
@@ -126,6 +131,14 @@ export function HeroMark() {
         fill="none"
         preserveAspectRatio="xMidYMid meet"
       >
+        {/* Fabrication frame — a datum line + two registration marks that
+            resolve only as the identity locks, so the settled composition
+            reads as "designed and made here", not an empty canvas. */}
+        <g className="hero-mark__frame">
+          <line x1="36" y1="304" x2="1364" y2="304" strokeDasharray="2 11" />
+          <path d="M 112 70 h 22 M 123 59 v 22" />
+          <path d="M 1266 392 h 22 M 1277 381 v 22" />
+        </g>
         <g className="hero-mark__arcs">
           <path className="hero-mark__arc hero-mark__arc--cool" d="M -240 430 Q 460 250 1640 90" />
           <path className="hero-mark__arc hero-mark__arc--violet" d="M -160 60 Q 720 210 1720 380" />

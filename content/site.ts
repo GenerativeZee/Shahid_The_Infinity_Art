@@ -66,6 +66,23 @@ export const nav = [
   { label: "Get a Quote", href: "#quote" },
 ];
 
+/**
+ * The curated exhibition wayfinding (∞ 11.2) — a deliberately short set,
+ * each a real section anchor. "Studio" is Shahid's Eye (the section about
+ * how the studio looks at design). The `action` is the quote form, kept
+ * quieter than the Hero's own WhatsApp CTA.
+ */
+export const siteNav = {
+  brand: { label: "The Infinity Art", href: "#top" },
+  links: [
+    { label: "Work", href: "#work", section: "work" },
+    { label: "What We Do", href: "#services", section: "services" },
+    { label: "Process", href: "#process", section: "process" },
+    { label: "Studio", href: "#studio", section: "studio" },
+  ],
+  action: { label: "Get a Quote", href: "#quote" },
+} as const;
+
 export const hero = {
   eyebrow: "The Infinity Art",
   headline: "Your shopfront, unmistakably yours.",
