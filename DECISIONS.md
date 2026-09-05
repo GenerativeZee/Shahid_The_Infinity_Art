@@ -1241,6 +1241,40 @@ discover why a sign feels different."
   `content/types.ts` and the two new files — nothing in
   `components/hero/`, `ThemeEngine.tsx`, or `lib/themeEngine.ts`.
 
+## Production hardening — `theme-experiment-v4` promoted to `master`
+
+Client approved this version ("I like this version") and asked to push
+and productionise. `theme-experiment-v4` was a strict fast-forward ahead
+of `master` (15 commits, zero divergence), so `master` was fast-forwarded
+to it — the v4 creative track is now the mainline. Vercel deploys
+`master` for `GenerativeZee/Shahid_The_Infinity_Art`.
+
+Infra/SEO hygiene done in this pass (nothing that needs Shahid's real
+data — those gates are unchanged and still listed below):
+
+- **`SITE_URL` corrected** `theinfinityart.vercel.app` →
+  `shahid-the-infinity-art.vercel.app` (the actual live domain) in
+  `app/layout.tsx`, and the same value in the two new metadata routes.
+  Still a one-line swap when a real custom domain is bought.
+- **`app/robots.ts`, `app/sitemap.ts`, `app/manifest.ts`** added (Next 16
+  metadata routes). Sitemap has one entry (`/`) — the section anchors
+  aren't separate URLs; extend when real `/[city]/[service]` routes land.
+- **Real favicon.** The default create-next-app `app/favicon.ico`
+  (md5 `c30c7d42…`) was shipping to production. Replaced with
+  `app/icon.png` + `app/apple-icon.png` — the real logo mark, padded to
+  a 512² square via Pillow (apple-icon composited on the `#080c0e`
+  brand ground since iOS ignores alpha).
+- **Stopgap OG/Twitter image** — `/logo/full.png` (the real logo on its
+  gold banner), plus `alternates.canonical`, explicit `robots` metadata,
+  and `twitter.card: summary_large_image`. Replace the image with the
+  mounted/glowing hero render once real photography exists.
+- **`poweredByHeader: false`** in `next.config.ts`.
+- Deleted five unused create-next-app scaffold SVGs from `public/`.
+- Replaced the default scaffold `README.md` with a real one, including
+  the before-production checklist.
+
+Budget unchanged at 151.8 KB gzipped (metadata routes are server-only).
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

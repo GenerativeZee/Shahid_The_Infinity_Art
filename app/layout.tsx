@@ -4,8 +4,9 @@ import { Grain } from "@/components/ui/Grain";
 import { localBusinessJsonLd } from "@/lib/seo";
 import "./globals.css";
 
-// TODO: point at the real production domain once one is chosen — see DECISIONS.md.
-const SITE_URL = "https://theinfinityart.vercel.app";
+// Current production domain. Swap for a real custom domain here (one line)
+// once one is bought — see DECISIONS.md.
+const SITE_URL = "https://shahid-the-infinity-art.vercel.app";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -32,10 +33,21 @@ const title = "The Infinity Art — Signage, Printing & Branding Studio";
 const description =
   "Custom signage, printing, wedding invitations and brand identity — designed and fabricated by The Infinity Art.";
 
+// Stopgap share image: the real logo on its gold banner. Replace with the
+// mounted/glowing hero render once real photography exists (see DECISIONS.md).
+const shareImage = "/logo/full.png";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title,
   description,
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title,
     description,
@@ -43,12 +55,13 @@ export const metadata: Metadata = {
     siteName: "The Infinity Art",
     locale: "en_IN",
     type: "website",
-    // TODO: OG image — use the beat-4 (mounted, glowing) hero render once M4/M5 exist (§12).
+    images: [{ url: shareImage, alt: "The Infinity Art" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title,
     description,
+    images: [shareImage],
   },
 };
 
