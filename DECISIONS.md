@@ -1033,6 +1033,75 @@ is not the feature, continuity is the feature."
   amount of new markup (the refactor removes duplicated JSX) plus one
   small conditional block; the ~0.2 KB is essentially noise.
 
+## Interactive Detail Index
+
+Fifth iteration. Turns the decorative `Marker` into an occasionally-
+interactive "look closer" system — a few markers on the Work grid that,
+when opened, answer one design question in Shahid's own terms. Curated
+and sparse on purpose: three notes across eight projects.
+
+- **Extended `Marker`, did not add a second marker style.** `Marker` now
+  has an `interactive` mode: same dot + label vocabulary, but rendered as
+  a real focusable `<button>` (drops `pointer-events-none`) with
+  `aria-expanded`/`aria-controls`/`aria-label` and a ~42px invisible tap
+  pad (`-m-4 p-4` around the 10px dot). The decorative path (dialog,
+  Shahid's Eye stage) is byte-identical to before — the dot/label
+  className strings were lifted to `DOT_CLASS`/`LABEL_CLASS` module
+  constants so both modes literally share them. `ref` is a plain prop
+  (React 19, no `forwardRef`).
+- **New `components/theme/DetailMarker.tsx` owns the disclosure, not
+  `Marker`.** Keeping open-state, Escape, outside-`pointerdown` dismissal
+  and focus return in a separate small component keeps `Marker` presentational.
+  The panel is **Level 2** in the brief's hierarchy — a placard laid over
+  the image's bottom edge (`absolute inset-x-2 bottom-2`), deliberately
+  **not** `role="dialog"` and **not** focus-trapped: one control, two
+  sentences. The signature card's `LookAgainReveal` dialog (Level 3) is
+  untouched and remains the site's one deep discovery moment. The panel
+  reuses the existing `material-preview-in` keyframe — **zero new CSS**.
+- **Presentation depth is now three honest tiers on the Work grid:**
+  signature card → full staged dialog; three cards → one-tap Detail Index
+  note; every other card → the lighter "What changed?" pill. Same
+  escalation philosophy the section already used.
+- **Categories are Shahid's Eye's six lenses verbatim** (`DetailCategory
+  = EyeLensId | "detail"`). No new taxonomy, no per-category colour — the
+  panel inherits the live scroll theme like everything else. The
+  connection to Shahid's Eye is left to **emerge**: same `Marker` visual,
+  same category words, no new explanatory section (per the brief's Step 9).
+  The marker's own word points at the thing ("Edge", "Glow", "Tension"),
+  matching the Shahid's Eye markers' precedent ("Spacing", "Room", "Glow"
+  — descriptive, not the lens name); the panel then names the lens.
+- **Content is material-level truth, keyed by nothing invented.** All
+  three `answer` strings are re-phrasings of copy already in
+  `content/site.ts` (`whatChangedByMaterial.signage`,
+  `whyThisWorksByMaterial["acrylic-led"].choice`,
+  `whyThisWorksByMaterial.flex` + `whatChangedByMaterial.flex`) — no
+  fabricated client requirement, measurement, or outcome (SPEC.md §11.2).
+  Not attached to the signature card, which already carries a deeper
+  version of the same signage story.
+- **Three, not more.** 3/8 projects. The brief's "2–4" with the scarcity
+  argument taken seriously — a marker on every card would make it an
+  annotation layer, which is the exact thing Step 2 rules out. Distinct
+  categories (Detail / Light / Material) so the taxonomy reads as a way
+  of looking, not a tag cloud.
+- **The persistent label chip was a deliberate call, not an oversight.**
+  Hiding the "Edge"/"Glow"/"Tension" word until hover would be a
+  hover-only affordance (Step 16 forbids) and too subtle to invite a tap
+  on mobile — the visible chip is the more accessible choice, and it's
+  the established `Marker` vocabulary, not a new "i" icon.
+- **Hero: zero changes.** `git diff --stat` covers `WorkGrid.tsx`,
+  `Marker.tsx`, `content/site.ts`, `content/types.ts` and the new
+  `DetailMarker.tsx` — nothing in `components/hero/`, `ThemeEngine.tsx`,
+  or `lib/themeEngine.ts`.
+- **No browser verification.** The Chrome extension still isn't connected
+  in this environment (same as every iteration since M6). This is a full
+  runtime trace — every handler, listener ordering, positioning-context
+  and reduced-motion path read in full — not a confirmed live click.
+  Needs a real 390px/1440px pass before sign-off.
+- **JS budget moved to 148.8 KB gzipped** (from 147.9), no new
+  dependencies. Headroom against the 150 KB `SPEC.md` figure this branch
+  isn't formally held to is now thin (~1.2 KB) — the next iteration
+  touching the always-loaded bundle should expect to trim something.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

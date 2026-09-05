@@ -68,6 +68,36 @@ export type WhyThisWorksLayer = {
 /** A "Shahid's Eye" lens — one of six ways of looking at the same subject. */
 export type EyeLensId = "type" | "light" | "space" | "material" | "colour" | "balance";
 
+/**
+ * A Detail Index category. Reuses Shahid's Eye's six lenses verbatim —
+ * a marker a visitor finds in the Work grid names the same way-of-looking
+ * that section demonstrates — plus a general "detail" for a small physical
+ * decision that doesn't sit under one lens.
+ */
+export type DetailCategory = EyeLensId | "detail";
+
+/**
+ * One "look closer" note in the Detail Index — a marker on a Work project
+ * image that, when opened, answers one design question. Same honesty rule
+ * as WhyThisWorksLayer (SPEC.md §11.2): `answer` is true of the material or
+ * category, never an invented fact about the specific (still-placeholder)
+ * project. Deliberately sparse — only a few projects carry one. See
+ * DECISIONS.md.
+ */
+export type ProjectDetail = {
+  /** `Project.slug` this note is attached to. */
+  projectSlug: string;
+  category: DetailCategory;
+  /** Percentage position of the marker within the project image. */
+  marker: { xPercent: number; yPercent: number };
+  /** One descriptive word on the marker itself — points at the thing, not the lens. */
+  markerLabel: string;
+  /** The question the note answers, also its accessible name (e.g. "Why seal the edge?"). */
+  question: string;
+  /** 1–2 sentences. Material/category-level truth only. */
+  answer: string;
+};
+
 export type MaterialSample = {
   name: string;
   description: string;

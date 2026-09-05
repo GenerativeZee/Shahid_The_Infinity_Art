@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { Reveal } from "@/components/ui/Reveal";
+import { DetailMarker } from "@/components/theme/DetailMarker";
 import { LookAgainReveal } from "@/components/theme/LookAgainReveal";
-import { whatChangedByMaterial, whyThisWorksByMaterial } from "@/content/site";
-import type { MaterialCategory, Project } from "@/content/types";
+import { projectDetails, whatChangedByMaterial, whyThisWorksByMaterial } from "@/content/site";
+import type { MaterialCategory, Project, ProjectDetail } from "@/content/types";
 
 type Filter = MaterialCategory | "all";
 
@@ -29,6 +30,12 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
   // The site's one signature discovery moment (see LookAgainReveal) — the
   // rest of the grid gets the lighter "What changed?" hover cue instead.
   const signatureSlug = useMemo(() => projects.find((p) => p.featured)?.slug, [projects]);
+  // The Detail Index — a sparse map of slug -> "look closer" note. Most
+  // projects have none; that scarcity is the point (see content/site.ts).
+  const detailBySlug = useMemo(
+    () => new Map(projectDetails.map((d) => [d.projectSlug, d])),
+    [],
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -61,7 +68,11 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((project, index) => (
             <Reveal key={project.slug} index={index % 6}>
-              <ProjectCard project={project} isSignature={project.slug === signatureSlug} />
+              <ProjectCard
+                project={project}
+                isSignature={project.slug === signatureSlug}
+                detail={detailBySlug.get(project.slug)}
+              />
             </Reveal>
           ))}
         </div>
@@ -70,7 +81,15 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
   );
 }
 
-function ProjectCard({ project, isSignature }: { project: Project; isSignature: boolean }) {
+function ProjectCard({
+  project,
+  isSignature,
+  detail,
+}: {
+  project: Project;
+  isSignature: boolean;
+  detail?: ProjectDetail;
+}) {
   const [revealed, setRevealed] = useState(false);
   const [whyRevealed, setWhyRevealed] = useState(false);
 
@@ -79,26 +98,32 @@ function ProjectCard({ project, isSignature }: { project: Project; isSignature: 
       {isSignature ? (
         <LookAgainReveal image={project.image} projectName={project.name} material={project.material} />
       ) : (
-        <div className="relative hover-zoom overflow-hidden">
-          <div className={project.featured ? "kenburns-slow" : ""}>
-            <Placeholder filename={project.image.filename} aspect={project.image.aspect} />
+        // Outer wrapper is the Detail Index marker's positioning context —
+        // it must stay non-overflow-hidden so the note panel can sit at the
+        // image's bottom edge. The zoom/clip stays on the inner div.
+        <div className="relative">
+          <div className="relative hover-zoom overflow-hidden">
+            <div className={project.featured ? "kenburns-slow" : ""}>
+              <Placeholder filename={project.image.filename} aspect={project.image.aspect} />
+            </div>
+            <div className="pointer-events-none absolute inset-0 flex items-end justify-start bg-ground/0 p-4 transition-colors duration-300 group-hover:bg-ground/25">
+              {/*
+               * Always at least partially visible — a hover-only affordance
+               * is invisible and unreachable on touch. Click/tap toggles its
+               * own text between the question and a real, category-honest
+               * answer (content/site.ts's whatChangedByMaterial) — no modal,
+               * deliberately lighter than the signature card's dialog.
+               */}
+              <button
+                type="button"
+                onClick={() => setRevealed((r) => !r)}
+                className="pointer-events-auto max-w-full rounded border border-accent/60 bg-ground/80 px-3 py-1 text-left font-mono text-[0.65rem] uppercase tracking-label text-accent opacity-70 transition-all duration-300 hover:opacity-100 focus-visible:opacity-100 group-hover:opacity-100"
+              >
+                {revealed ? whatChangedByMaterial[project.material] : "What changed?"}
+              </button>
+            </div>
           </div>
-          <div className="pointer-events-none absolute inset-0 flex items-end justify-start bg-ground/0 p-4 transition-colors duration-300 group-hover:bg-ground/25">
-            {/*
-             * Always at least partially visible — a hover-only affordance
-             * is invisible and unreachable on touch. Click/tap toggles its
-             * own text between the question and a real, category-honest
-             * answer (content/site.ts's whatChangedByMaterial) — no modal,
-             * deliberately lighter than the signature card's dialog.
-             */}
-            <button
-              type="button"
-              onClick={() => setRevealed((r) => !r)}
-              className="pointer-events-auto max-w-full rounded border border-accent/60 bg-ground/80 px-3 py-1 text-left font-mono text-[0.65rem] uppercase tracking-label text-accent opacity-70 transition-all duration-300 hover:opacity-100 focus-visible:opacity-100 group-hover:opacity-100"
-            >
-              {revealed ? whatChangedByMaterial[project.material] : "What changed?"}
-            </button>
-          </div>
+          {detail ? <DetailMarker detail={detail} projectName={project.name} /> : null}
         </div>
       )}
       <div className="flex flex-col gap-1">

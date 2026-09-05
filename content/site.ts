@@ -6,6 +6,7 @@ import type {
   PriceRange,
   ProcessStep,
   Project,
+  ProjectDetail,
   Service,
   TrustNumber,
   WhyThisWorksLayer,
@@ -333,6 +334,53 @@ export const whatChangedByMaterial: Record<MaterialCategory, string> = {
   print: "Stock heavy enough to feel considered before you even read it.",
   digital: "Built to load fast on the same connection your customers use.",
 };
+
+/**
+ * The Detail Index — a deliberately sparse set of "look closer" notes on
+ * the Work grid. Three notes across eight projects, on purpose: the
+ * scarcity is what makes finding one feel like Shahid pointing something
+ * out rather than a wall of tooltips (see DECISIONS.md).
+ *
+ * Every `answer` is drawn from the same material-level truth as
+ * `whyThisWorksByMaterial` / `whatChangedByMaterial` — never a fabricated
+ * claim about the specific placeholder project (SPEC.md §11.2). Categories
+ * are Shahid's Eye's own lenses, so a visitor who used that section
+ * recognises the vocabulary when they meet it again here.
+ *
+ * Not attached to the signature card (`featured` / `acp-shopfront-board`):
+ * that one already carries the site's one deep discovery moment via
+ * `LookAgainReveal`, and stacking a second interaction on it would blunt
+ * both.
+ */
+export const projectDetails: ProjectDetail[] = [
+  {
+    projectSlug: "acp-signboard-two-panel",
+    category: "detail",
+    marker: { xPercent: 50, yPercent: 80 },
+    markerLabel: "Edge",
+    question: "Why does the edge matter?",
+    answer:
+      "Every ACP panel edge is sealed before the board goes up. An open edge is where monsoon damp gets in and lifts the face away from the frame.",
+  },
+  {
+    projectSlug: "cast-acrylic-led-sign",
+    category: "light",
+    marker: { xPercent: 52, yPercent: 46 },
+    markerLabel: "Glow",
+    question: "Why is the glow even?",
+    answer:
+      "The letters are lit from behind, not around the rim, so the whole face carries the same light instead of a bright edge and a dull centre.",
+  },
+  {
+    projectSlug: "star-flex-clinic-board",
+    category: "material",
+    marker: { xPercent: 50, yPercent: 52 },
+    markerLabel: "Tension",
+    question: "Why stretch it over a frame?",
+    answer:
+      "Star flex is pulled drum-tight over a steel frame rather than glued to the wall, so wind moves across the face without rippling the print.",
+  },
+];
 
 const project = (p: Project): Project => p;
 
