@@ -58,9 +58,14 @@ export function Hero() {
         {/* Ambient wash — nocturne gold, with a low warm/cool bias that
             enters as the name is written. Backmost layer. */}
         <div aria-hidden="true" className="hero-mark__ambient pointer-events-none absolute inset-0" />
+        {/* Mobile only — a faint gold light on the upper gallery wall, so
+            the space above the mark reads as lit, not empty (globals.css). */}
+        <div aria-hidden="true" className="hero-mark__uplight pointer-events-none absolute inset-0" />
 
-        {/* The identity reveal — logo → wordmark */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
+        {/* The identity reveal — logo → wordmark. On phones it sits above
+            centre (pb-[16vh]) so the nav→mark gap is an intentional pause,
+            not dead space; unchanged on md+. */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden pb-[16vh] md:pb-0">
           <HeroMark />
         </div>
 

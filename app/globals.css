@@ -325,14 +325,37 @@
   opacity: calc(var(--c-rose) * 0.24);
 }
 
-/* Fabrication frame — datum line + registration marks. Only resolves as
-   the identity locks (--idn / --stl); tiny opacity so it is the last
-   thing the eye finds, never a blueprint. */
+/* Fabrication frame — datum line + registration marks. Resolves as the
+   identity locks (--idn / --stl); tiny opacity so it is the last thing
+   the eye finds, never a blueprint. */
 .hero-mark__frame {
   fill: none;
   stroke: var(--color-accent);
   stroke-width: 1;
   opacity: calc((var(--idn) * 0.55 + var(--stl) * 0.45) * 0.12);
+}
+/* On phones the frame carries a small always-on floor, so a structural
+   trace exists in the upper gallery space from the start (§13/§14). */
+@media (max-width: 47.99rem) {
+  .hero-mark__frame {
+    opacity: calc(0.04 + (var(--idn) * 0.5 + var(--stl) * 0.5) * 0.08);
+  }
+}
+
+/* Mobile upper-space light — a single faint gold wall-wash just under the
+   nav. Static, aria-hidden, mobile only: the room is lit, not empty. */
+.hero-mark__uplight {
+  display: none;
+}
+@media (max-width: 47.99rem) {
+  .hero-mark__uplight {
+    display: block;
+    background: radial-gradient(
+      64% 30% at 50% 15%,
+      color-mix(in srgb, var(--color-accent) 3.5%, transparent),
+      transparent 72%
+    );
+  }
 }
 
 /* Arcs of coloured light — fade in through translation and stay faint
