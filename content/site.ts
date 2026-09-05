@@ -7,6 +7,7 @@ import type {
   Project,
   Service,
   TrustNumber,
+  WhyThisWorksLayer,
 } from "./types";
 
 /**
@@ -250,17 +251,46 @@ export const quote = {
 };
 
 /**
- * General craftsmanship principles, not specific claims about any one
- * placeholder project — used by the "Look Again" discovery interaction
- * on the first featured Work card. Deliberately generic until real
- * project photography exists to annotate specifically.
+ * "Why This Works" — Portfolio 2.0. One story per material category, not
+ * per (placeholder) project — SPEC.md §11.2 still rules out inventing
+ * project-specific facts. Only `signage` gets the full problem/choice/
+ * detail/result arc with a marker on the image; every other category
+ * gets the lighter choice+result version. That split is deliberate, not
+ * an oversight: the signature Work card (material: "signage") is the
+ * one place this site currently has enough of a real story to tell in
+ * four parts, and forcing that depth onto every category would mean
+ * inventing detail that isn't there. See DECISIONS.md.
  */
-export const craftDetails: string[] = [
-  "Balanced negative space",
-  "Consistent letterforms",
-  "Weatherproof, edge-sealed finish",
-  "Colour that reads true after dark",
-];
+export const whyThisWorksByMaterial: Record<MaterialCategory, WhyThisWorksLayer> = {
+  signage: {
+    problem: "A shopfront sign has to work from across the street, not just up close.",
+    choice: "ACP board with raised, edge-lit lettering instead of a printed flex face.",
+    detail:
+      "The letterforms are cut heavier than feels “right” up close — calibrated for legibility from a moving vehicle, not for a close-up photo.",
+    detailMarker: { xPercent: 55, yPercent: 45, label: "Letter weight" },
+    result: "A sign that reads clearly from the road, not just the doorstep.",
+  },
+  flex: {
+    choice: "Star flex stretched drum-tight over an MS frame, not glued to a wall.",
+    result: "Tensioned tight so the print never ripples in wind.",
+  },
+  "acrylic-led": {
+    choice: "Backlit cast acrylic, not edge-lit — the glow needed to be even, not just a rim.",
+    result: "Backlit evenly, corner to corner — no hot spots.",
+  },
+  wedding: {
+    choice: "Foil placed only where it catches light, not across the whole card.",
+    result: "Foil that catches light without overpowering the design.",
+  },
+  print: {
+    choice: "300 GSM stock, heavy enough to hold its shape in a stack.",
+    result: "Stock heavy enough to feel considered before you even read it.",
+  },
+  digital: {
+    choice: "Built content-first, so the design serves what a customer is actually looking for.",
+    result: "Built to load fast on the same connection your customers use.",
+  },
+};
 
 /**
  * The lightweight answer behind every non-signature Work card's "What

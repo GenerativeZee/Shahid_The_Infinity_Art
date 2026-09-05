@@ -852,6 +852,69 @@ for the same gradient instead of trusting the arbitrary class blind.
   above, still comfortably under the 150 KB figure this branch isn't
   formally held to.
 
+## Portfolio 2.0 — "Why This Works"
+
+Second major idea after the theme system, deliberately built as one
+thing at a time per the client's own iteration pacing. Evolves the
+signature Work card from "here's what we made" toward "here's why it
+works," via four short conceptual layers (Problem, Choice, Detail,
+Result) revealed one at a time — not a staged dump of facts, which is
+what the previous `craftDetails` version actually was, in retrospect.
+
+- **Architecture: extended the existing modal, not a route.** Content
+  is four short sentences, one image, one marker — nowhere near heavy
+  enough to justify `/work/[slug]` routing, a new page-load path, or
+  SEO investment in project data that's still bracketed placeholders.
+  The modal already had a working focus trap and fits the site's
+  single-page scroll model; a route would fight that model for no real
+  gain at this content depth. Revisit once real per-project photography
+  and facts exist — that's the point at which a dedicated page's SEO
+  value would actually mean something.
+- **Depth is data-driven, not per-project.** `whyThisWorksByMaterial`
+  (`content/site.ts`) is keyed by `MaterialCategory`, not by project —
+  every project's client/location/year is still a bracketed placeholder
+  (§11.2), so there's no real per-project fact to hang a unique story
+  on yet. Only `signage` (the signature card's category) has a
+  `problem`/`detail`/`detailMarker`; every other category gets the
+  lighter choice+result version through the exact same code path
+  (`LookAgainReveal` builds its layer list by filtering out whichever
+  optional fields are absent). This means the *non-signature* "Why this
+  works" line for `acp-signboard-two-panel` (also `signage`) will show
+  the identical "Choice" sentence as the signature card's — expected
+  and correct given the data model, not a duplication bug.
+- **The stepped reveal reuses Process.tsx's own visual language** —
+  numbered circles with a connecting progress line that fills as you
+  advance, `role="group"` + `aria-current="step"` rather than a tabs
+  ARIA pattern (same fix as the Process audit, applied consistently
+  here from the start rather than repeating the earlier mistake).
+  Deliberate: reusing an established interaction language site-wide is
+  part of what keeps this from reading as a generic template.
+- **The image stays completely stable across stages — only a small
+  marker (dot + label) appears, and only during "The Detail."** No
+  real photography exists yet, so the marker points at a placeholder;
+  the mechanism is real and will mean something the moment a real photo
+  replaces it, same reasoning as every other placeholder-first build in
+  this project.
+- **Every non-signature card gets exactly one new line**, not a second
+  pill stacked on the image: "Why this works" sits in the text block
+  below the existing client/location/year row, revealing the category's
+  `choice` sentence on click. Keeps the grid visually calm per the
+  client's explicit "do not turn every card into a giant panel"
+  instruction, while still giving every project *some* depth, per
+  "normal project: short story."
+- **Focus trap and reduced-motion handling are unchanged, not
+  reimplemented** — the existing Tab-wrapping logic already recomputes
+  the focusable set on every keypress (built that way originally
+  because `revealed` used to toggle content; now `stage` does the same
+  job), so it needed no changes to keep working across the new stepped
+  content.
+- **`craftDetails` is retired**, not kept alongside the new system —
+  it was the exact flat-list-reveal pattern this iteration replaces,
+  and leaving it as dead-but-exported content would invite a future
+  session to wonder which one is current.
+- **JS budget moved to 146.3 KB gzipped** (from 145.4) — one real
+  content-driven feature, still comfortably under 150 KB.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

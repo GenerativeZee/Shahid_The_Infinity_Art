@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { Reveal } from "@/components/ui/Reveal";
 import { LookAgainReveal } from "@/components/theme/LookAgainReveal";
-import { craftDetails, whatChangedByMaterial } from "@/content/site";
+import { whatChangedByMaterial, whyThisWorksByMaterial } from "@/content/site";
 import type { MaterialCategory, Project } from "@/content/types";
 
 type Filter = MaterialCategory | "all";
@@ -72,11 +72,12 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
 
 function ProjectCard({ project, isSignature }: { project: Project; isSignature: boolean }) {
   const [revealed, setRevealed] = useState(false);
+  const [whyRevealed, setWhyRevealed] = useState(false);
 
   return (
     <article className="group flex flex-col gap-3">
       {isSignature ? (
-        <LookAgainReveal image={project.image} projectName={project.name} details={craftDetails} />
+        <LookAgainReveal image={project.image} projectName={project.name} material={project.material} />
       ) : (
         <div className="relative hover-zoom overflow-hidden">
           <div className={project.featured ? "kenburns-slow" : ""}>
@@ -110,6 +111,22 @@ function ProjectCard({ project, isSignature }: { project: Project; isSignature: 
         <p className="font-mono text-step--1 tabular-nums text-text-muted">
           {project.client} — {project.location} · {project.year}
         </p>
+        {!isSignature ? (
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setWhyRevealed((r) => !r)}
+              className="font-mono text-[0.65rem] uppercase tracking-label text-text-muted underline decoration-dashed underline-offset-4 hover:text-accent"
+            >
+              Why this works
+            </button>
+            {whyRevealed ? (
+              <p className="pt-1 text-step--1 text-text-muted">
+                {whyThisWorksByMaterial[project.material].choice}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </article>
   );

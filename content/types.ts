@@ -47,6 +47,24 @@ export type ProcessStep = {
   description: string;
 };
 
+/**
+ * The "Why This Works" story behind a material category — never a
+ * specific placeholder project (SPEC.md §11.2 still applies: no
+ * fabricated project facts). `problem`/`detail`/`detailMarker` are
+ * optional on purpose — most categories only get the lighter
+ * choice+result story; only the category behind the signature Work
+ * card earns the full four-layer treatment. See DECISIONS.md.
+ */
+export type WhyThisWorksLayer = {
+  problem?: string;
+  choice: string;
+  /** Only present for the one category deep enough to point at something specific. */
+  detail?: string;
+  /** Percentage position within the project image, for the detail-stage marker. */
+  detailMarker?: { xPercent: number; yPercent: number; label: string };
+  result: string;
+};
+
 export type MaterialSample = {
   name: string;
   description: string;
