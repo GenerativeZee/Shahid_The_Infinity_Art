@@ -531,6 +531,61 @@ own opening line.
   logomark is expected once Shahid shares his logo, at which point this
   becomes an actual SVG mark instead of the Unicode `∞` character.
 
+## Real logo received — accent colour and wordmark resolved
+
+Shahid sent the real logo (2026-09-05): an abstract gold-gradient icon
+mark above stacked "The Infinity Art" / "We Print What You Imagine" text
+and a gold banner. Delivered as one flattened PNG, already with a
+transparent background (no chroma-keying needed).
+
+- **`public/logo/mark.png` — the icon only, cropped out.** No image
+  tool was available (no ImageMagick, no `sharp` yet), so this used
+  Python/Pillow, already present in the environment: scanned horizontal
+  "ink" bands across the source PNG's alpha channel to separate the
+  three visual regions (icon, text block, bottom banner) automatically,
+  found the icon's tight bounding box within its band, cropped with a
+  small margin, and downscaled to 1000px wide (from a 4925px source —
+  the original is far higher resolution than any web use needs). See
+  `public/logo/README.md`.
+- **Icon-only, not the full logo file, per rule 2 and the same math as
+  the wordmark fix above.** The full file's stacked text lines can't
+  satisfy a single `nowrap` line at architectural scale any better than
+  the business-name text could — same overflow problem, different asset.
+  The client's own message explicitly offered either option ("take out
+  the logo only without text, or use full logo"), so this is a decision
+  within the scope they gave, not a deviation from an instruction.
+- **`--color-accent` changed from the `#7FE3FF` placeholder to `#c9a35a`**
+  (`app/globals.css`), resolving the placeholder SPEC.md §6 flagged.
+  Sampled programmatically: averaged the RGB of every opaque pixel inside
+  the cropped icon (median ≈ rgb(179,136,72); picked a point nearer the
+  gradient's lighter end for better contrast against the dark ground).
+  Checked WCAG contrast against `--color-ground` (#080c0e): ≈8.3:1, comfortably
+  past the 4.5:1 requirement in both directions (gold text on dark, and
+  dark text on a gold button background, per `bg-accent text-ground`).
+  `lib/theme.ts`'s `getAccentColor()` fallback updated to match.
+- **Coincidence worth recording:** the wedding fold's foil edge
+  (`WeddingScene.tsx`, M7) already hardcoded `GOLD_COLOR = "#c9a35a"` —
+  the exact same value this session landed on independently by sampling
+  the real logo. That hardcoded constant is now deleted and the mesh
+  uses `getAccentColor()` like the rest of the 3D scenes, so it updates
+  automatically if the accent ever changes — closes the gap `SPEC.md`
+  §16's "changing the accent colour requires editing exactly one line"
+  check was pointing at.
+- **The hero wordmark renders the icon as a flat CSS mask
+  (`background-color: var(--color-accent)` + `mask-image:
+  url(/logo/mark.png)`), not the logo's own raster gradient.** The
+  client's message explicitly invited changing the logo's "theme"
+  (colour). A flat, single-colour version means the wordmark
+  automatically recolours with everything else if `--color-accent` ever
+  changes — extending the same one-variable guarantee to the hero mark,
+  not just buttons and borders. Sized by `height: var(--text-hero)` with
+  `aspect-ratio: 1000/642` rather than `font-size` (it's an image, not
+  text now), which also means it structurally cannot overflow the way
+  the text/glyph wordmark could — no clamp math to get wrong.
+- **`public/logo/full.png`** (1600px wide, the complete original with
+  text and the gold banner) is kept in the repo unused for now — for the
+  OG image, favicon, and footer logo work still open per §17.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

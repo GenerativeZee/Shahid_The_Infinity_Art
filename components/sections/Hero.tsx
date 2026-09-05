@@ -8,25 +8,40 @@ import { business, hero } from "@/content/site";
  * The R3F code itself isn't deleted; it's the candidate for §8.3's optional
  * live-3D layer, judged at R5. See DECISIONS.md.
  *
- * The wordmark is a single glyph (∞), not the full business name — three
- * words can't satisfy `white-space: nowrap` at this scale on any real
- * viewport (confirmed live: the full name clipped mid-word off-screen).
- * A real logomark is expected to replace this once Shahid shares his logo
- * (see DECISIONS.md). The headline becomes the "one line of copy" §7
- * calls for underneath it; the business name itself still renders as real
- * text via the h1's aria-label and the small label above the copy.
+ * The wordmark is the logo's icon mark alone (public/logo/mark.png,
+ * cropped from Shahid's real logo — see DECISIONS.md), not the full
+ * business name as text: three words can't satisfy `white-space: nowrap`
+ * at this scale on any real viewport (confirmed live: the full name
+ * clipped mid-word off-screen), and the full logo file's stacked text
+ * lines don't fit a single nowrap line either. Rendered as a flat
+ * accent-coloured CSS mask, not the logo's own raster gradient, so
+ * changing --color-accent (SPEC.md §16) recolours it too. The headline
+ * becomes the "one line of copy" §7 calls for underneath it; the business
+ * name itself still renders as real text via the h1's aria-label and the
+ * small label above the copy.
  */
 export function Hero() {
   return (
     <section className="relative flex h-dvh flex-col justify-end overflow-hidden bg-ground">
       {/* Wordmark — behind the photo panel (z-index:1 vs the panel's :2) */}
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
-        <h1
-          aria-label={business.legalName}
-          className="whitespace-nowrap font-display font-extrabold text-text"
-          style={{ fontSize: "var(--text-hero)", letterSpacing: "-0.03em", lineHeight: 0.92 }}
-        >
-          <span aria-hidden="true">∞</span>
+        <h1 aria-label={business.legalName} className="flex">
+          <span
+            aria-hidden="true"
+            className="bg-accent"
+            style={{
+              height: "var(--text-hero)",
+              aspectRatio: "1000 / 642",
+              WebkitMaskImage: "url(/logo/mark.png)",
+              maskImage: "url(/logo/mark.png)",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+            }}
+          />
         </h1>
       </div>
 

@@ -6,7 +6,6 @@ import * as THREE from "three";
 import { getAccentColor } from "@/lib/theme";
 
 const PAPER_COLOR = "#f2e8d8";
-const GOLD_COLOR = "#c9a35a";
 
 /**
  * The wedding card fold — a deliberately different, warm mood from the
@@ -54,11 +53,13 @@ export function WeddingScene({ progressRef }: { progressRef: React.RefObject<num
           <planeGeometry args={[1.5, 2]} />
           <meshStandardMaterial color={PAPER_COLOR} roughness={0.7} side={THREE.DoubleSide} />
         </mesh>
-        {/* Gold foil edge */}
+        {/* Foil edge — the site's one accent colour, not a separate gold
+            constant (SPEC.md §16: changing the accent is a one-line edit,
+            including here). */}
         <mesh position={[1.49, 0, 0.002]}>
           <planeGeometry args={[0.03, 2]} />
           <meshStandardMaterial
-            color={GOLD_COLOR}
+            color={accent}
             metalness={0.6}
             roughness={0.3}
             side={THREE.DoubleSide}

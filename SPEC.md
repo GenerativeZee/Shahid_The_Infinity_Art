@@ -156,6 +156,10 @@ read.
 
 - Ground around `#080C0E`, surfaces one step up, generous negative space.
 - One accent, taken from his logo, in a single CSS variable so it changes in one place. Until the logo SVG exists use `#7FE3FF` and note it in `DECISIONS.md`.
+
+  > **Resolved** — the real logo now exists (`public/logo/mark.png`).
+  > `--color-accent` is `#c9a35a`, a gold sampled from the logo's icon
+  > mark. See `DECISIONS.md`.
 - Photographs supply all other colour. No gradient meshes, no glassmorphism, no purple-to-blue hero.
 - Text over imagery always sits on a scrim dark enough for 4.5:1. Measure it.
 

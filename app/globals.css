@@ -2,12 +2,14 @@
 
 :root {
   /* Colour — dark ground, one accent. Swap --color-accent here (and only
-     here) once Shahid's logo exists; see DECISIONS.md. */
+     here) if the logo ever changes; see DECISIONS.md. Gold, sampled from
+     the real logo mark (public/logo/mark.png) — replaces the #7fe3ff
+     cyan placeholder now that the logo exists. */
   --color-ground: #080c0e;
   --color-surface: #10161a;
   --color-surface-raised: #161e23;
   --color-border: #1e2a30;
-  --color-accent: #7fe3ff;
+  --color-accent: #c9a35a;
   --color-text: #f3f6f7;
   --color-text-muted: #94a3a8;
 
