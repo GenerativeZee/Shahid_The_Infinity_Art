@@ -389,6 +389,51 @@ export const projectDetails: ProjectDetail[] = [
   },
 ];
 
+/**
+ * "Build It" — the final interactive idea. Four decisions (material,
+ * proportion, lettering, light) reshape one persistent sign artefact, so
+ * a visitor feels the difference a choice makes rather than reading about
+ * it. The controls quietly stand in for four of Shahid's Eye's lenses
+ * (Material / Space / Type / Light) — no second explainer section.
+ *
+ * `materials[].sample` points at an entry in `materials` above, so the
+ * accent tint and canonical name stay single-sourced. Every `character`
+ * line characterises a real material in the same register as
+ * `whyThisWorksByMaterial` — no fabricated spec, price, or dimension.
+ */
+export const buildIt = {
+  eyebrow: "Build It",
+  headline: "See what happens when you make a few choices.",
+  body: "Choose a material. Change the proportions. Give it a voice. The same board, four decisions — watch its character change.",
+  materials: [
+    { id: "acp", label: "ACP", sample: "ACP", character: "Structured. Architectural. Quietly strong." },
+    { id: "acrylic", label: "Acrylic", sample: "Cast Acrylic", character: "Cleaner edges. More depth. More light." },
+    { id: "star-flex", label: "Star Flex", sample: "Star Flex", character: "A tensioned surface, built for large-format." },
+    { id: "led", label: "LED", sample: "LED", character: "Made to be read after sunset." },
+  ],
+  proportions: [
+    { id: "compact", label: "Compact" },
+    { id: "standard", label: "Standard" },
+    { id: "wide", label: "Wide" },
+  ],
+  lettering: [
+    { id: "clean", label: "Clean" },
+    { id: "bold", label: "Bold" },
+    { id: "refined", label: "Refined" },
+  ],
+  light: [
+    { id: "none", label: "None" },
+    { id: "soft", label: "Soft" },
+    { id: "illuminated", label: "Illuminated" },
+  ],
+  payoffHeading: "Different choices. Different character.",
+  payoffLabel: "Your build",
+  ctaLead: "Like what you built?",
+  ctaLine: "Let's make the real thing.",
+  ctaLabel: "Start a conversation",
+  ctaHref: "#quote",
+} as const;
+
 const project = (p: Project): Project => p;
 
 // PLACEHOLDER DATA (SPEC.md §11.2): client, location and year are

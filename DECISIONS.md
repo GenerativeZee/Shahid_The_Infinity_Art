@@ -1173,6 +1173,74 @@ unbroken, all the way to the wall.
   small sizes. If not, the fix is local to `ProcessArtifact.tsx` (abstract
   wordmark bars; lighter/removed blur).
 
+## Build It — the final major creative feature
+
+Seventh iteration, and the last major creative one. Four decisions
+(material, proportion, lettering, light) reshape one persistent sign
+artefact, so a visitor *feels* the difference a choice makes instead of
+reading about it. "Don't let visitors configure a sign — let them
+discover why a sign feels different."
+
+- **Homepage section, not a route.** `components/sections/BuildIt.tsx` +
+  `BuildItArtifact.tsx`, inserted in `app/page.tsx` **after `<Digital />`
+  inside the existing `verdigris` zone**. Placed after Digital
+  specifically so the Process → Digital logo-mark callback keeps its
+  adjacency; the Build It CTA then flows straight into the next section
+  (`#quote`). A dedicated `/build` route would break the single-page
+  exhibition model and that CTA hand-off for no gain — the feature is
+  ~1.9 KB gzipped with no dependencies, nothing to isolate.
+- **One persistent object, `ProcessArtifact` philosophy.**
+  `BuildItArtifact` is a single `<svg>` (viewBox 400×300) whose nodes
+  never unmount; only opacity / transform / fill-stroke / letter-spacing
+  change with the props. Material swaps the face (flat ACP, faint acrylic
+  sheen, woven Star Flex `<pattern>`, dark LED box) and the edge
+  treatment; proportion is a non-uniform `scale()` on the whole panel
+  group (`transform-box: fill-box`; `scale()` has no length units, so it
+  sidesteps the px/user-unit ambiguity that kept transforms out of
+  `ProcessArtifact`); lettering re-weights / re-sizes / re-tracks the
+  wordmark; light drives the glow behind the panel and, illuminated, on
+  the letters. The wordmark is always the studio's own name — never a
+  fake customer sign.
+- **No new material system, no global theme touch.** The four Build It
+  materials map by `sample` onto the existing `materials` list, so their
+  accent tint and canonical name stay single-sourced. The selected
+  material scopes `--color-accent` **on Build It's own wrapper `<div>`
+  via inline style** — the exact MaterialExplorer / Shahid's-Eye pattern,
+  never `:root`, so the scroll `ThemeEngine` and the fixed `AmbientGlow`
+  are untouched. Every colour in the artefact is an existing `--color-*`
+  token (plus a black cast shadow).
+- **Shahid's Eye, embodied not re-explained.** The four controls *are*
+  four lenses — Material / Space / Type / Light. The one `Marker` on the
+  preview names whichever lens the visitor **last changed** (reusing the
+  decorative `Marker` exactly as Shahid's Eye does), then disappears into
+  the next interaction. No second six-lens section.
+- **The payoff is derived, not a state machine.** When ≥ 2 of the 4
+  choices differ from their defaults, a quiet line appears —
+  "Different choices. Different character." + "Your build — ACP · Wide ·
+  Bold · Soft light" — built straight from the current selections,
+  `aria-live` so it is announced. No counter, no gamification, no fake
+  quote / price / dimension / delivery date. The CTA (`Start a
+  conversation →`) is a plain anchor to `#quote`.
+- **One CSS rule.** `.build-artifact [data-layer] { transition: opacity /
+  transform / fill / stroke / font-size / letter-spacing }` inside the
+  shared `prefers-reduced-motion: no-preference` guard — reduced motion
+  drops every tween and each build still renders in full. No idle or
+  looping animation. Touch targets bumped to `py-3.5` (~44px) rather than
+  matching Shahid's Eye's `py-3` — Build It is a touch-first exploration
+  and 44px is a named requirement.
+- **Budget: 149.9 → 151.8 KB gzipped** (+1.9), no dependencies added,
+  well under the 170 KB soft ceiling. The SVG markup gzips well.
+- **No browser verification.** The Chrome extension still isn't connected
+  in this environment. Geometry (every rect/scale/marker coordinate
+  against the 400×300 viewBox, the column at 375–1440) and the full state
+  machine were traced, not seen. Same unverified risk as `ProcessArtifact`:
+  whether the `textLength` wordmark and the `blur()` glow read as premium
+  at small sizes. If not, the fix is local to `BuildItArtifact.tsx`.
+- **Hero: zero changes.** `git diff --stat` covers `globals.css`,
+  `page.tsx` (one import + one `<BuildIt />` line), `content/site.ts`,
+  `content/types.ts` and the two new files — nothing in
+  `components/hero/`, `ThemeEngine.tsx`, or `lib/themeEngine.ts`.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

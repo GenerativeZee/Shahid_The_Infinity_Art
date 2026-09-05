@@ -287,6 +287,23 @@
   }
 }
 
+/* Build It artefact (BuildItArtifact.tsx) — one sign panel reshaped by
+   four decisions. Every layer cross-fades, the panel group scales for
+   proportion, the lettering re-spaces; each change is the consequence of
+   a choice, never idle motion. Dropped under reduced motion — each build
+   still renders in full, with no tween. */
+@media (prefers-reduced-motion: no-preference) {
+  .build-artifact [data-layer] {
+    transition:
+      opacity 450ms ease,
+      transform 500ms cubic-bezier(0.33, 1, 0.68, 1),
+      fill 350ms ease,
+      stroke 350ms ease,
+      font-size 350ms ease,
+      letter-spacing 350ms ease;
+  }
+}
+
 /* Process stepper (Process.tsx) — fade-in when a step is selected, JS
    skips the inline animation style entirely under reduced motion. */
 @keyframes process-step-in {

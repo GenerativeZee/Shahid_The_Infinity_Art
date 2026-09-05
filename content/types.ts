@@ -111,6 +111,16 @@ export type ProjectDetail = {
   answer: string;
 };
 
+/**
+ * "Build It" decisions — a small, fixed vocabulary. Materials map by
+ * `sample` onto the existing `materials` list so their accent and
+ * description stay single-sourced; nothing here is a new material system.
+ */
+export type BuildMaterialId = "acp" | "acrylic" | "star-flex" | "led";
+export type BuildProportionId = "compact" | "standard" | "wide";
+export type BuildLetteringId = "clean" | "bold" | "refined";
+export type BuildLightId = "none" | "soft" | "illuminated";
+
 export type MaterialSample = {
   name: string;
   description: string;

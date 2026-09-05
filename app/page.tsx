@@ -1,3 +1,4 @@
+import { BuildIt } from "@/components/sections/BuildIt";
 import { Digital } from "@/components/sections/Digital";
 import { Footer } from "@/components/sections/Footer";
 import { Hero } from "@/components/sections/Hero";
@@ -49,6 +50,7 @@ export default function Home() {
         <div data-theme-zone="verdigris">
           <Process />
           <Digital />
+          <BuildIt />
         </div>
 
         <div data-theme-zone="signal">
