@@ -8,20 +8,25 @@ import { business, hero } from "@/content/site";
  * The R3F code itself isn't deleted; it's the candidate for §8.3's optional
  * live-3D layer, judged at R5. See DECISIONS.md.
  *
- * The wordmark is the business name, not the marketing headline — a
- * shopfront's own sign is its name, not a sentence. The headline becomes
- * the "one line of copy" §7 calls for underneath it.
+ * The wordmark is a single glyph (∞), not the full business name — three
+ * words can't satisfy `white-space: nowrap` at this scale on any real
+ * viewport (confirmed live: the full name clipped mid-word off-screen).
+ * A real logomark is expected to replace this once Shahid shares his logo
+ * (see DECISIONS.md). The headline becomes the "one line of copy" §7
+ * calls for underneath it; the business name itself still renders as real
+ * text via the h1's aria-label and the small label above the copy.
  */
 export function Hero() {
   return (
     <section className="relative flex h-dvh flex-col justify-end overflow-hidden bg-ground">
       {/* Wordmark — behind the photo panel (z-index:1 vs the panel's :2) */}
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-center overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
         <h1
-          className="w-full whitespace-nowrap px-6 font-display font-extrabold uppercase text-text md:px-12"
+          aria-label={business.legalName}
+          className="whitespace-nowrap font-display font-extrabold text-text"
           style={{ fontSize: "var(--text-hero)", letterSpacing: "-0.03em", lineHeight: 0.92 }}
         >
-          {business.legalName}
+          <span aria-hidden="true">∞</span>
         </h1>
       </div>
 
@@ -41,6 +46,9 @@ export function Hero() {
       />
 
       <div className="relative z-40 flex flex-col gap-6 px-6 pb-16 pt-32 md:px-12 md:pb-24">
+        <p className="font-mono text-step--1 uppercase tracking-label text-accent">
+          {business.legalName}
+        </p>
         <p className="measure text-step-1 text-text-muted">{hero.headline}</p>
         <div className="flex flex-wrap gap-4 pt-2">
           <a

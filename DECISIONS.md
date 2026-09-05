@@ -516,6 +516,20 @@ own opening line.
   project. `npm run dev` is running; §15's required 390px/1440px
   screenshot check needs to happen in a real browser before R1 is signed
   off, not from a code read alone.
+- **The wordmark clipped off-screen mid-word in the real browser check** —
+  confirmed by a client screenshot showing "THE INFIN" cut off with the
+  rest invisible. Root cause is structural, not a sizing tweak: three
+  words (`business.legalName`, "The Infinity Art") cannot satisfy
+  `white-space: nowrap` at `clamp(3rem, 17vw, 15rem)` on any realistic
+  viewport — the math doesn't work at mobile widths or desktop ones.
+  Swapped the wordmark to a single `∞` glyph, which can't overflow by
+  definition. The business name still renders as real text two ways: an
+  `aria-label` on the `h1` itself (so the glyph doesn't cost the real
+  heading text for accessibility/SEO), and a small mono label restored
+  above the copy line — no longer a duplicate of the wordmark now that
+  the wordmark isn't textual. This is explicitly provisional: a real
+  logomark is expected once Shahid shares his logo, at which point this
+  becomes an actual SVG mark instead of the Unicode `∞` character.
 
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
