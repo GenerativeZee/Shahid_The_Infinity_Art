@@ -2,7 +2,7 @@
 
 import { useRef, useState, type SVGProps } from "react";
 import { Reveal } from "@/components/ui/Reveal";
-import { prefersReducedMotion } from "@/lib/tier";
+import { usePrefersReducedMotion } from "@/lib/tier";
 import { process } from "@/content/site";
 
 /**
@@ -41,7 +41,8 @@ export function Process() {
 
   const activeStep = process[activeIndex];
   const ActiveIcon = STEP_ICONS[activeIndex];
-  const enterStyle = prefersReducedMotion()
+  const reduced = usePrefersReducedMotion();
+  const enterStyle = reduced
     ? undefined
     : { animation: "process-step-in 400ms ease both" };
 

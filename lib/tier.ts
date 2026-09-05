@@ -1,4 +1,21 @@
+import { useSyncExternalStore } from "react";
+
 export type Tier = "A" | "B" | "C";
+
+const noopSubscribe = () => () => {};
+
+/**
+ * SSR-safe reactive read of prefers-reduced-motion, via useSyncExternalStore
+ * (same pattern as detectTier's own client/server split). Calling the plain
+ * prefersReducedMotion() function directly in a render body is NOT
+ * SSR-safe — it always returns false on the server, so a client whose real
+ * preference is "reduce" hydrates with a mismatched value on first paint.
+ * Prefer this hook in any component rendered during SSR (i.e. not behind
+ * a next/dynamic ssr:false boundary).
+ */
+export function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(noopSubscribe, prefersReducedMotion, () => false);
+}
 
 type NavigatorConnection = {
   saveData?: boolean;

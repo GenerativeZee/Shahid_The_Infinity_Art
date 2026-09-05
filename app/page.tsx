@@ -3,6 +3,7 @@ import { Footer } from "@/components/sections/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { Process } from "@/components/sections/Process";
 import { QuoteForm } from "@/components/sections/QuoteForm";
+import { ShahidsEye } from "@/components/sections/ShahidsEye";
 import { Services } from "@/components/sections/Services";
 import { Wedding } from "@/components/sections/Wedding";
 import { Work } from "@/components/sections/Work";
@@ -37,6 +38,7 @@ export default function Home() {
 
         <div data-theme-zone="verdigris">
           <Work />
+          <ShahidsEye />
           <Services />
         </div>
 

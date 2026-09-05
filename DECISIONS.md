@@ -915,6 +915,69 @@ what the previous `craftDetails` version actually was, in retrospect.
 - **JS budget moved to 146.3 KB gzipped** (from 145.4) — one real
   content-driven feature, still comfortably under 150 KB.
 
+## Shahid's Eye
+
+Third major idea, same one-thing-at-a-time pacing as before. Not a bio
+section — an interactive demonstration of how a designer looks at one
+subject six ways.
+
+- **One subject, six lenses, not six unrelated demo widgets.** The
+  subject is a small mock signage plaque of the studio's own name
+  (`business.legalName`/`tagline`) — chosen over reusing a Work-grid
+  placeholder image because a crafted, controllable object can actually
+  demonstrate letter-spacing, glow, gap, texture, colour and alignment
+  changes; a static accent-striped placeholder photo can't. Each lens
+  transforms the *same* element rather than swapping in a different
+  visual per lens, which is what makes "the object changes, you notice
+  something" (the brief's own framing) actually true instead of just a
+  slogan.
+- **Reused the marker system instead of duplicating it.** Extracted
+  `components/theme/Marker.tsx` out of `LookAgainReveal.tsx` (identical
+  dot+label behaviour, zero visual change there) so both features share
+  one "pointing at something" vocabulary instead of two similar-but-
+  different ones — directly the "may become useful here, don't
+  duplicate infrastructure" instruction.
+- **Material lens is the only one with its own local colour scope**,
+  reusing the exact `MaterialExplorer` pattern (`stageRef.current.style
+  .setProperty('--color-accent', ...)`, never touching `:root`) with
+  the same real `materials` data, letting a visitor cycle ACP/Star
+  Flex/Cast Acrylic/etc. and see the plaque's texture and tint shift.
+  Every other lens (Type, Light, Space, Colour, Balance) just reads the
+  live, scroll-driven `--color-accent` directly — no local override,
+  no second theme system, per the explicit "existing theme system
+  remains the source of truth" instruction.
+- **Self-review caught the Balance lens was decorative, not
+  demonstrative.** First draft just faded in two corner dots — passed
+  no real "would removing this make the section worse?" test. Redesigned
+  to shift the plaque's whole content block to one side and label the
+  resulting empty space "Counterweight" via the marker — an actual
+  asymmetric-balance principle (negative space doing compositional
+  work), not a decoration.
+- **Found and fixed a real, previously-unnoticed hydration risk.**
+  `prefersReducedMotion()` returns `false` unconditionally during SSR
+  (`typeof window === "undefined"`) — calling it directly in a render
+  body that's part of the *initial* render is not SSR-safe: a visitor
+  whose real preference is "reduce" would hydrate with a mismatched
+  style attribute on first paint. Added `usePrefersReducedMotion()`
+  (`lib/tier.ts`, `useSyncExternalStore`, same pattern as `detectTier`
+  and `MaterialExplorer`'s touch detection) and used it here from the
+  start. `Process.tsx` had the identical latent bug (its animated step
+  content is part of the always-rendered initial step, not gated behind
+  interaction) — fixed there too, a contained one-line swap, not a
+  redesign. `LookAgainReveal.tsx` calls the same raw function but is
+  *not* actually affected — its animated content only exists once
+  `open` is true, which never happens before hydration completes, so
+  left unchanged rather than fixed on principle alone.
+- **Mobile order is reversed from desktop, not just stacked.** DOM order
+  is stage-first, lens-buttons-second (`order-1`/`order-2`, flipped back
+  at `lg:`), so a phone sees the plaque before being asked to choose a
+  lens — matches the "see the visual first" mobile flow the brief asked
+  for, not just a naive single-column stack of the desktop's left-to-
+  right order.
+- **JS budget moved to 147.7 KB gzipped** (from 146.3) — one section,
+  no new dependencies, still under 150 KB with headroom shrinking as
+  expected across iterations.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

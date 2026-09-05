@@ -1,5 +1,6 @@
 import type {
   BusinessInfo,
+  EyeLensId,
   MaterialCategory,
   MaterialSample,
   PriceRange,
@@ -249,6 +250,32 @@ export const quote = {
   headline: "Get a Quote",
   body: "Tell us the size and material, and send a photo of the wall if you have one — we'll reply on WhatsApp with a price.",
 };
+
+/**
+ * "Shahid's Eye" — not a bio section, an interactive demonstration of how
+ * a designer looks at the same object six different ways. Deliberately
+ * no claims about Shahid himself here ("visionary," "genius," invented
+ * quotes) — the experience is meant to communicate the eye, not announce
+ * it. See DECISIONS.md.
+ */
+export const shahidsEye = {
+  eyebrow: "Shahid's Eye",
+  headline: "Good design isn't only about what you add.",
+  subhead: "It's about what you notice.",
+};
+
+export const eyeLenses: { id: EyeLensId; label: string; annotation: string }[] = [
+  { id: "type", label: "Type", annotation: "Spacing changes how a name feels before you read it." },
+  { id: "light", label: "Light", annotation: "Light decides what the eye finds first after dark." },
+  { id: "space", label: "Space", annotation: "Sometimes the best thing to add is room." },
+  {
+    id: "material",
+    label: "Material",
+    annotation: "Same idea, different material — different character.",
+  },
+  { id: "colour", label: "Colour", annotation: "Colour doesn't decorate. It decides where you look first." },
+  { id: "balance", label: "Balance", annotation: "Alignment is invisible — until it's missing." },
+];
 
 /**
  * "Why This Works" — Portfolio 2.0. One story per material category, not

@@ -65,6 +65,9 @@ export type WhyThisWorksLayer = {
   result: string;
 };
 
+/** A "Shahid's Eye" lens — one of six ways of looking at the same subject. */
+export type EyeLensId = "type" | "light" | "space" | "material" | "colour" | "balance";
+
 export type MaterialSample = {
   name: string;
   description: string;

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { Marker } from "@/components/theme/Marker";
 import { prefersReducedMotion } from "@/lib/tier";
 import { whyThisWorksByMaterial } from "@/content/site";
 import type { MaterialCategory, ProjectImage } from "@/content/types";
@@ -156,21 +157,12 @@ export function LookAgainReveal({
             <div className="relative">
               <Placeholder filename={image.filename} aspect={image.aspect} className="rounded" />
               {activeLayer?.markerPos ? (
-                <div
-                  className="pointer-events-none absolute"
-                  style={{ left: `${activeLayer.markerPos.x}%`, top: `${activeLayer.markerPos.y}%` }}
-                >
-                  <span
-                    style={enterStyle}
-                    className="absolute block h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-ground"
-                  />
-                  <span
-                    style={enterStyle}
-                    className="absolute left-3 top-0 -translate-y-1/2 whitespace-nowrap rounded border border-accent/60 bg-ground/90 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-label text-accent"
-                  >
-                    {activeLayer.markerLabel}
-                  </span>
-                </div>
+                <Marker
+                  xPercent={activeLayer.markerPos.x}
+                  yPercent={activeLayer.markerPos.y}
+                  label={activeLayer.markerLabel ?? ""}
+                  animate={!prefersReducedMotion()}
+                />
               ) : null}
             </div>
 
