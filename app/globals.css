@@ -458,17 +458,21 @@
     0 4px 1px #46351a,
     0 6px 10px rgba(0, 0, 0, 0.45),
     0 0 26px color-mix(in srgb, var(--color-accent) calc(30% + var(--idn) * 14%), transparent);
+  /* Hard-gated to 0 until writing begins, so nothing bleeds through the
+     feather at --reveal 0. The mask edge starts fully off-screen-left
+     (negative stops) and sweeps right as --wrt grows. */
+  opacity: clamp(0, calc(var(--wrt) * 60), 1);
   -webkit-mask-image: linear-gradient(
     90deg,
     #000 0,
-    #000 calc(var(--wrt) * 108%),
-    transparent calc(var(--wrt) * 108% + 5%)
+    #000 calc(var(--wrt) * 116% - 12%),
+    transparent calc(var(--wrt) * 116% - 5%)
   );
   mask-image: linear-gradient(
     90deg,
     #000 0,
-    #000 calc(var(--wrt) * 108%),
-    transparent calc(var(--wrt) * 108% + 5%)
+    #000 calc(var(--wrt) * 116% - 12%),
+    transparent calc(var(--wrt) * 116% - 5%)
   );
 }
 
@@ -557,6 +561,7 @@
     opacity: 0;
   }
   .hero-mark__wordmark {
+    opacity: 1;
     -webkit-mask-image: none;
     mask-image: none;
   }
