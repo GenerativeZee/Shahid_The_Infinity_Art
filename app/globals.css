@@ -162,106 +162,127 @@
   }
 }
 
-/* Hero ribbon (HeroRibbon.tsx) — the first fabricated artifact. Scroll
-   writes --reveal (0→1) onto .hero-ribbon, synchronously on Lenis's tick;
-   every value below is a calc() of it. transform / opacity /
-   stroke-dashoffset only — nothing that triggers layout, and NO
-   `transition` on any of them: a temporal transition on a scroll-bound
-   property is what makes the artifact lag and then "catch up" after a
-   fast flick (∞ iteration 9.1). Smoothing lives in exactly one place —
-   Lenis's scroll easing. When the visitor stops scrolling it just holds. */
-.hero-ribbon {
+/* Hero artifact (HeroArtifact.tsx) — the studio's own dimensional sign,
+   revealed by scroll. Scroll writes --reveal (0→1) onto .hero-artifact,
+   synchronously on Lenis's tick; every value below is a plain calc() of
+   it. transform / opacity only — nothing that triggers layout, and NO
+   `transition` on any scroll-bound property: a temporal transition there
+   is what makes the artifact lag and then "catch up" after a fast flick
+   (∞ 9.1). Smoothing lives in exactly one place — Lenis's scroll easing.
+   Stop anywhere and it is a composed frame. */
+.hero-artifact {
   --reveal: 0;
 }
 
-.hero-ribbon__svg {
+.hero-artifact__svg {
   position: absolute;
   inset: 0;
   height: 100%;
   width: 100%;
 }
 
-/* The whole strip turns into place as it is revealed: rises, unskews,
-   squares up, grows very slightly toward the viewer. */
-.hero-ribbon__group {
-  transform-box: fill-box;
-  transform-origin: 50% 60%;
-  transform: translateY(calc((1 - var(--reveal)) * 5%))
-    rotate(calc((1 - var(--reveal)) * -7deg))
-    skewY(calc((1 - var(--reveal)) * 4deg))
-    scale(calc(0.9 + var(--reveal) * 0.1));
+/* The camera — a restrained dolly. transform-box: view-box so the % origin
+   and % translate resolve against the 1200×900 viewBox, not the giant
+   wall rect's bounding box. */
+.hero-artifact__cam {
+  transform-box: view-box;
+  transform-origin: 30% 42%;
+  transform: translate(calc(-3% + var(--reveal) * 5%), calc(var(--reveal) * -3%))
+    scale(calc(1.55 - var(--reveal) * 0.55))
+    skewY(calc((1 - var(--reveal)) * -1.6deg));
   will-change: transform;
 }
-
-/* Shared "draw" — nothing at reveal 0, fully drawn by reveal ≈ 0.62,
-   the rest of the scroll is the settle. Only the three structural strokes
-   animate their dash; the hatch texture (below) stays fully drawn and
-   just fades in, so its pattern tiling isn't re-painted every frame. */
-.hero-ribbon__shadow,
-.hero-ribbon__edge,
-.hero-ribbon__face {
-  fill: none;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: clamp(0, calc(1 - var(--reveal) / 0.62), 1);
+@media (min-width: 768px) {
+  .hero-artifact__cam {
+    transform-origin: 24% 44%;
+    transform: translate(calc(-5% + var(--reveal) * 8%), calc(var(--reveal) * -3%))
+      scale(calc(1.6 - var(--reveal) * 0.55))
+      skewY(calc((1 - var(--reveal)) * -1.2deg));
+  }
 }
 
-/* A soft dark offset stroke reads as a contact shadow behind the type —
-   no blur filter, which would recomposite every scroll frame. */
-.hero-ribbon__shadow {
-  stroke: #000000;
-  stroke-width: 70;
-  opacity: 0.24;
+/* Presence → material → structure → identity → light → arrival, every
+   band a plain clamp() of --reveal. */
+.hero-artifact__wall {
+  /* Arrival — the gallery wall resolves last */
+  opacity: clamp(0, calc((var(--reveal) - 0.8) / 0.2), 1);
 }
-.hero-ribbon__edge {
-  stroke: var(--color-border);
-  stroke-width: 58;
+.hero-artifact__edge {
+  /* Presence — the lit cut edge is the first thing there */
+  opacity: calc(0.5 + clamp(0, calc(var(--reveal) / 0.1), 1) * 0.5);
 }
-.hero-ribbon__face {
-  stroke: var(--color-surface-raised);
-  stroke-width: 46;
+.hero-artifact__depth {
+  opacity: clamp(0, calc((var(--reveal) - 0.06) / 0.2), 1);
 }
-.hero-ribbon__tex {
-  fill: none;
-  stroke: url(#hero-ribbon-hatch);
-  stroke-width: 46;
-  stroke-linecap: round;
-  /* Fully drawn, no per-frame dash repaint — fades in late as surface
-     texture on the settled face, then rides the group transform. */
-  opacity: max(0, calc((var(--reveal) - 0.5) * 0.9));
+.hero-artifact__surface {
+  /* A faint dark plane from the start, full ACP face by ~0.3 */
+  opacity: calc(0.12 + clamp(0, calc((var(--reveal) - 0.06) / 0.22), 1) * 0.88);
+}
+.hero-artifact__hatch {
+  opacity: calc(clamp(0, calc((var(--reveal) - 0.16) / 0.26), 1) * 0.55);
+}
+.hero-artifact__guides {
+  /* On from the start, cleared by ~0.5 */
+  opacity: clamp(0, calc((0.5 - var(--reveal)) / 0.22), 0.5);
+}
+.hero-artifact__bolts {
+  opacity: clamp(0, calc((var(--reveal) - 0.4) / 0.22), 1);
+}
+.hero-artifact__castshadow {
+  opacity: calc(0.1 + clamp(0, calc((var(--reveal) - 0.15) / 0.6), 1) * 0.3);
+}
+.hero-artifact__glow {
+  opacity: calc(clamp(0, calc((var(--reveal) - 0.78) / 0.22), 1) * 0.15);
 }
 
-/* A short bright segment that travels along the edge as the loop closes,
-   then dims to a resting glint. Held invisible until the ribbon is part
-   drawn, so no stray dot floats over empty space early on. */
-.hero-ribbon__highlight {
-  fill: none;
-  stroke: var(--color-accent);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dasharray: 0.06 0.94;
-  stroke-dashoffset: calc(0.62 - var(--reveal) * 0.92);
-  opacity: max(0, calc((var(--reveal) - 0.2) * 0.62));
+/* Identity — the lettering rises out of the face and inks solid */
+.hero-artifact__letters {
+  transform-box: view-box;
+  transform: translateY(calc((1 - var(--reveal)) * 1.4%));
+  opacity: clamp(0, calc((var(--reveal) - 0.5) / 0.22), 1);
+}
+.hero-artifact__letterHair {
+  opacity: clamp(0, calc((0.66 - var(--reveal)) / 0.16), 1);
+}
+.hero-artifact__letterSolid {
+  opacity: clamp(0, calc((var(--reveal) - 0.58) / 0.14), 1);
+}
+.hero-artifact__highlight {
+  opacity: calc(clamp(0, calc((var(--reveal) - 0.78) / 0.16), 1) * 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* No scroll animation — a finished, settled artifact. */
-  .hero-ribbon__group {
+  /* No scroll response — the arrival composition, static. */
+  .hero-artifact__cam {
     transform: scale(1);
   }
-  .hero-ribbon__shadow,
-  .hero-ribbon__edge,
-  .hero-ribbon__face,
-  .hero-ribbon__tex,
-  .hero-ribbon__highlight {
-    stroke-dashoffset: 0;
+  .hero-artifact__letters {
+    transform: none;
   }
-  .hero-ribbon__shadow {
-    opacity: 0.26;
+  .hero-artifact__wall,
+  .hero-artifact__depth,
+  .hero-artifact__surface,
+  .hero-artifact__edge,
+  .hero-artifact__bolts,
+  .hero-artifact__letters,
+  .hero-artifact__letterSolid {
+    opacity: 1;
   }
-  .hero-ribbon__highlight {
-    stroke-dasharray: none;
+  .hero-artifact__hatch {
+    opacity: 0.55;
+  }
+  .hero-artifact__guides,
+  .hero-artifact__letterHair {
+    opacity: 0;
+  }
+  .hero-artifact__castshadow {
     opacity: 0.4;
+  }
+  .hero-artifact__glow {
+    opacity: 0.15;
+  }
+  .hero-artifact__highlight {
+    opacity: 0.5;
   }
 }
 

@@ -1375,6 +1375,62 @@ ahead and the ribbon animated toward the new position afterward.
   lag, if any, would most likely be Lenis's shared `lerp: 0.85` or SVG
   paint cost on a low-end GPU.
 
+## Hero signature experience — the ribbon becomes a sign specimen
+
+Iteration 10. The 9/9.1 ribbon was technically fine but had no clear
+reason to exist: it was the only artifact on the site that wasn't
+legibly *signage* (Process and Build It are both a sign panel with
+"INFINITY ART" lettering; Shahid's Eye is a plaque of the same), and with
+the studio name it read as a literal ∞ — the least interesting reading.
+
+- **`HeroRibbon.tsx` → `HeroArtifact.tsx`** (renamed, not kept as dead
+  code; `.hero-ribbon*` CSS → `.hero-artifact*`). The scroll hook is
+  carried over **verbatim** from 9.1 — synchronous `--reveal` write
+  inside `lenis.on("scroll")`, no rAF hop, `range` cached on
+  resize/visualViewport-resize, no React state in the scroll path, no CSS
+  transition on any scroll-bound property. The catch-up fix is preserved.
+- **New artifact:** the studio's own dimensional "INFINITY ART" shopfront
+  sign, seen close and cropped in a dark gallery, built from the exact
+  SVG kit `ProcessArtifact` / `BuildItArtifact` already use —
+  `--color-surface-raised` ACP face, offset `--color-ground` depth, a
+  rotated accent hatch `<pattern>`, an edge stroke, a stacked-offset
+  `<text>` extrude, a hairline→solid front cross-fade, a raking accent
+  highlight, a low blurred glow, four mounting bolts, a blurred cast
+  shadow, a gallery wall plane.
+- **One camera group** (`.hero-artifact__cam`, `transform-box: view-box`
+  so % origin/translate resolve against the 1200×900 viewBox) does a
+  restrained dolly — `scale` 1.55→1.0, a few % pan, a ~1.6° deskew — all
+  `calc(var(--reveal))`. Every layer's opacity is a single `clamp()` band
+  of `--reveal`: presence (edge + shadow) → material (face, hatch,
+  depth) → structure (guides clear, bolts resolve) → identity (letters
+  extrude + ink solid) → light (highlight + glow, shadow deepens) →
+  arrival (wall resolves). Continuous — every intermediate scroll
+  position is a composed frame, not just the keyframes.
+- **Narrative fit:** same object family Process builds four states of and
+  Build It configures, so the Hero is now the thesis the rest of the
+  site proves. It contains (never labels) Shahid's Eye's six lenses —
+  Type in the lettering, Light in the rake, Space in the crop, Material
+  in the ACP, Colour in the single accent, Balance in the asymmetric
+  lower-right composition.
+- **Typography untouched** — logo-mark `<h1>`, eyebrow, one line of copy,
+  two CTAs, scrim, z-order all byte-identical. The specimen sits
+  lower-right behind the scrim so its SVG lettering never collides with
+  the centred logo mark.
+- **Reduced motion:** `--reveal` pinned to 1 + a media block → the
+  arrival composition, static (mounted, lit, textured sign). Not
+  "disabled".
+- **Perf:** wall rect sized only to cover the widest camera transform
+  (not oversized) to keep the `will-change` layer texture small; glow/
+  shadow blur radii trimmed (44→30, 16→11). 152.1 → 152.4 KB gzipped, no
+  deps, no `@keyframes`, no transitions.
+- **No browser verification** (no tooling in this env). Traced: scroll
+  sync (unchanged from 9.1), the opacity choreography at ~7 checkpoints
+  (each a coherent frame), reduced motion, hydration, overflow,
+  regression. Unverified: whether the composition is actually *beautiful*
+  at each frame, the camera px/%/skew values, `transform-box: view-box`
+  on pre-2023 browsers, blur paint cost on a weak GPU. Camera tuning, if
+  needed, is local to `.hero-artifact__cam` in globals.css.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

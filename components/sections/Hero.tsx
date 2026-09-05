@@ -1,14 +1,13 @@
-import { HeroRibbon } from "@/components/sections/HeroRibbon";
+import { HeroArtifact } from "@/components/sections/HeroArtifact";
 import { business, hero } from "@/content/site";
 
 /**
- * The day/night mask reveal (SPEC.md §5.1) is retired — it revealed
- * placeholder art that was never shot, and it was pointer-driven rather
- * than scroll-driven. In its place, a scroll-revealed fabricated artifact
- * (`HeroRibbon`): the first physical object of the exhibition, echoing the
- * old 300dvh 3D hero's spirit (a fabricated object coming into being on
- * scroll) at a fraction of the weight — SVG/CSS, no 3D stack. See
- * DECISIONS.md.
+ * The day/night mask reveal (SPEC.md §5.1) is retired. In its place, one
+ * scroll-revealed signature artifact (`HeroArtifact`): the studio's own
+ * dimensional "INFINITY ART" shopfront sign, seen close and cropped in a
+ * dark gallery — material → structure → identity → light → mounted. Same
+ * object family Process builds and Build It configures, so the Hero is the
+ * thesis the rest of the site proves. SVG/CSS, no 3D stack. See DECISIONS.md.
  *
  * Everything semantic is unchanged: the logo-mark wordmark, the eyebrow,
  * the one line of copy, the two CTAs, the layout hierarchy. The wordmark
@@ -20,8 +19,8 @@ import { business, hero } from "@/content/site";
 export function Hero() {
   return (
     <section className="relative flex h-dvh flex-col justify-end overflow-hidden bg-ground">
-      {/* Backmost visual layer — the fabricated artifact, revealed on scroll */}
-      <HeroRibbon />
+      {/* Backmost visual layer — the fabricated sign specimen, revealed on scroll */}
+      <HeroArtifact />
 
       {/* Wordmark — sits above the artifact, below the copy scrim */}
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
