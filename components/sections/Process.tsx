@@ -75,18 +75,34 @@ export function Process() {
             </div>
 
             <div className="flex flex-1 flex-col gap-6">
-              <div role="tablist" aria-label="Process steps" className="flex gap-2">
+              {/*
+               * A plain button group, not an ARIA tabs widget — role="tab"
+               * implies arrow keys move focus between tabs, which this
+               * doesn't do (arrow keys change the active step without
+               * moving focus). aria-current="step" describes the state
+               * honestly without promising a keyboard contract this
+               * component doesn't fully implement.
+               */}
+              <div role="group" aria-label="Process steps" className="relative flex gap-2">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-border"
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-5 top-1/2 h-px -translate-y-1/2 bg-accent transition-[width] duration-500"
+                  style={{ width: `calc((100% - 2.5rem) * ${activeIndex / (process.length - 1)})` }}
+                />
                 {process.map((step, i) => (
                   <button
                     key={step.step}
                     type="button"
-                    role="tab"
-                    aria-selected={i === activeIndex}
+                    aria-current={i === activeIndex ? "step" : undefined}
                     onClick={() => setActiveIndex(i)}
-                    className={`flex h-10 w-10 items-center justify-center rounded-full border font-mono text-step--1 tabular-nums transition-colors duration-200 ${
+                    className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border font-mono text-step--1 tabular-nums transition-colors duration-200 ${
                       i === activeIndex
                         ? "border-accent bg-accent text-ground"
-                        : "border-border text-text-muted hover:border-text-muted hover:text-text"
+                        : "border-border bg-surface text-text-muted hover:border-text-muted hover:text-text"
                     }`}
                   >
                     {String(step.step).padStart(2, "0")}

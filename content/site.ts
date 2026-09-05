@@ -262,6 +262,21 @@ export const craftDetails: string[] = [
   "Colour that reads true after dark",
 ];
 
+/**
+ * The lightweight answer behind every non-signature Work card's "What
+ * changed?" pill — one true-of-the-category sentence, not a fabricated
+ * claim about the specific (placeholder) project shown. Same honesty
+ * rule as `craftDetails`, one level lighter.
+ */
+export const whatChangedByMaterial: Record<MaterialCategory, string> = {
+  signage: "Every panel edge is sealed against monsoon damp.",
+  flex: "Tensioned tight so the print never ripples in wind.",
+  "acrylic-led": "Backlit evenly, corner to corner — no hot spots.",
+  wedding: "Foil that catches light without overpowering the design.",
+  print: "Stock heavy enough to feel considered before you even read it.",
+  digital: "Built to load fast on the same connection your customers use.",
+};
+
 const project = (p: Project): Project => p;
 
 // PLACEHOLDER DATA (SPEC.md §11.2): client, location and year are

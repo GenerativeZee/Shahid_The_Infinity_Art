@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { Reveal } from "@/components/ui/Reveal";
 import { LookAgainReveal } from "@/components/theme/LookAgainReveal";
-import { craftDetails } from "@/content/site";
+import { craftDetails, whatChangedByMaterial } from "@/content/site";
 import type { MaterialCategory, Project } from "@/content/types";
 
 type Filter = MaterialCategory | "all";
@@ -71,6 +71,8 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
 }
 
 function ProjectCard({ project, isSignature }: { project: Project; isSignature: boolean }) {
+  const [revealed, setRevealed] = useState(false);
+
   return (
     <article className="group flex flex-col gap-3">
       {isSignature ? (
@@ -80,13 +82,21 @@ function ProjectCard({ project, isSignature }: { project: Project; isSignature: 
           <div className={project.featured ? "kenburns-slow" : ""}>
             <Placeholder filename={project.image.filename} aspect={project.image.aspect} />
           </div>
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 flex items-end justify-start bg-ground/0 p-4 transition-colors duration-300 group-hover:bg-ground/25"
-          >
-            <span className="translate-y-2 rounded-full border border-accent/60 bg-ground/80 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-label text-accent opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-              What changed?
-            </span>
+          <div className="pointer-events-none absolute inset-0 flex items-end justify-start bg-ground/0 p-4 transition-colors duration-300 group-hover:bg-ground/25">
+            {/*
+             * Always at least partially visible — a hover-only affordance
+             * is invisible and unreachable on touch. Click/tap toggles its
+             * own text between the question and a real, category-honest
+             * answer (content/site.ts's whatChangedByMaterial) — no modal,
+             * deliberately lighter than the signature card's dialog.
+             */}
+            <button
+              type="button"
+              onClick={() => setRevealed((r) => !r)}
+              className="pointer-events-auto max-w-full rounded border border-accent/60 bg-ground/80 px-3 py-1 text-left font-mono text-[0.65rem] uppercase tracking-label text-accent opacity-70 transition-all duration-300 hover:opacity-100 focus-visible:opacity-100 group-hover:opacity-100"
+            >
+              {revealed ? whatChangedByMaterial[project.material] : "What changed?"}
+            </button>
           </div>
         </div>
       )}

@@ -756,6 +756,102 @@ rather than attempting the brief's full menu of ~12 ideas at once.
   staying spent on the one signature card. Client chose the latter, for
   now — logged so a future session doesn't "fix" this as an oversight.
 
+  > **Superseded below** — a follow-up UX audit (next entry) concluded
+  > the label needed a real answer, not just an honest "decoration"
+  > label, and implemented one at a deliberately lighter weight than the
+  > signature card.
+
+## UX audit — fixing broken promises before adding anything else
+
+Client asked for a genuine audit ("open and interact with the website
+as a first-time visitor"), not another feature. **Caveat that matters:
+the Chrome extension still isn't connected in this environment, so this
+audit is a rigorous trace of actual runtime behaviour — every event
+handler, CSS state and timing, read in full — not a confirmed live
+interaction.** Flagged explicitly rather than silently presenting
+code-reading as equivalent to using the site.
+
+**Kept as-is:** the signature card's mechanism, Process's four distinct
+icons, Materials' local CSS-variable scoping (already correctly
+isolated from `ThemeEngine`), reduced-motion handling across all three
+components (verified correct by trace). No case of excess animation
+worth removing — the existing set is already restrained.
+
+**Fixed — real bugs, not taste calls:**
+
+- **"What changed?" did nothing on click.** This directly contradicted
+  the label's own promise. Resolved as **Option B** from the three the
+  client offered: the pill itself is now the trigger, and clicking it
+  swaps its own text in place to a genuine, category-honest one-liner
+  (`whatChangedByMaterial` in `content/site.ts`, keyed by
+  `MaterialCategory` — "Backlit evenly, corner to corner — no hot
+  spots," not a fabricated claim about the specific placeholder
+  project). No modal, no staged reveal — mechanically distinct from the
+  signature card, which is what actually preserves the hierarchy the
+  client asked to protect, rather than differing only in content length.
+- **Both pills were `:hover`-only — invisible and unreachable on
+  touch**, not just "less convenient" there. Both now render at
+  `opacity-70` at rest, brightening on hover/focus, so touch users can
+  see there's something to tap at all. This is a bigger conceptual
+  fix than a style tweak: an interaction gated entirely behind `:hover`
+  isn't a mobile inconvenience, it's a feature that doesn't exist on
+  mobile.
+- **`MaterialExplorer` had no way to dismiss a tapped preview on
+  touch** — no `mouseleave` equivalent exists there. This is the same
+  click-vs-hover conflict this component hit once already (see the
+  "sample content pass" entries above); fixed properly this time by
+  branching on `window.matchMedia('(hover: none)')`
+  (`useSyncExternalStore`, same pattern as `detectTier`, since
+  `react-hooks/set-state-in-effect` rejects a plain `useEffect` +
+  `setState` for a one-time client-only read) rather than overloading
+  one click handler for both input types: hover-capable devices preview
+  on enter/leave as before, touch devices toggle on tap.
+- **The preview panel appeared and disappeared with a hard cut** (a
+  conditional-render mount/unmount, no transition) — closer to a
+  tooltip than an "exploration." Added a fade+lift on entry
+  (`material-preview-in`, gated inside the existing
+  `prefers-reduced-motion: no-preference` block, matching every other
+  animation in this file rather than an ungated inline Tailwind
+  arbitrary class, which was the first draft's mistake).
+- **The dialog had no real focus trap** despite `role="dialog"`
+  implying one. `LookAgainReveal.tsx` now recomputes the focusable set
+  on every Tab press (content changes when `revealed` flips — the
+  "Reveal details" button disappears — so the set can't be cached once
+  at open) and wraps Tab/Shift+Tab at the panel's edges.
+- **Process's `role="tablist"`/`role="tab"` promised a keyboard contract
+  it didn't keep** — that ARIA pattern implies arrow keys move focus
+  between tabs; this component only changes the active step, focus
+  stays put. Replaced with a plain `role="group"` +
+  `aria-current="step"`, which describes the actual behaviour honestly
+  instead of half-implementing a heavier widget pattern.
+
+**Improved:**
+
+- Materials: hovering now washes the whole strip with a low-opacity
+  `color-mix()` tint of the local accent (`.material-explorer`'s
+  background-color, also newly transition-gated), not just a small
+  swatch dot — closer to "touching the material" than "reading a
+  tooltip."
+- Materials: chips now carry a dashed underline at rest — a static
+  affordance so a first-time visitor has some visual reason to try
+  hovering one, instead of discovering the interaction by accident.
+- Materials: the swatch is a diagonal-stripe pattern (the same visual
+  language as `Placeholder.tsx`), not a flat colour circle — reads as
+  "material sample" rather than "a colour."
+- Process: added a connecting track behind the four step-number
+  circles, filled up to the active step — shifts the read from
+  independent tabs toward a journey with a visible position in it.
+
+**Caught in the process of fixing the swatch:** the first draft used a
+Tailwind arbitrary `bg-[repeating-linear-gradient(...)]` class — exactly
+the kind of multi-comma value Tailwind's bracket syntax can mis-parse.
+Matched `Placeholder.tsx`'s already-established inline-style approach
+for the same gradient instead of trusting the arbitrary class blind.
+
+- **JS budget moved to 145.4 KB gzipped** (from 144.8) — all of the
+  above, still comfortably under the 150 KB figure this branch isn't
+  formally held to.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

@@ -25,6 +25,7 @@ export function LookAgainReveal({
   const [revealed, setRevealed] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   function openDialog() {
     setOpen(true);
@@ -40,9 +41,40 @@ export function LookAgainReveal({
     if (!open) return;
     closeRef.current?.focus();
 
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") closeDialog();
+    function focusables(): HTMLElement[] {
+      if (!panelRef.current) return [];
+      return Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      );
     }
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        closeDialog();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      // Full focus trap: content changes when `revealed` flips (the
+      // "Reveal details" button disappears), so the focusable set is
+      // recomputed on every Tab press rather than cached once on open.
+      const nodes = focusables();
+      if (nodes.length === 0) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const activeEl = document.activeElement;
+
+      if (e.shiftKey && activeEl === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && activeEl === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
@@ -61,7 +93,10 @@ export function LookAgainReveal({
           onClick={openDialog}
           className="absolute inset-0 flex items-end justify-start bg-ground/0 p-4 text-left transition-colors duration-300 group-hover:bg-ground/30"
         >
-          <span className="translate-y-2 rounded-full border border-accent/60 bg-ground/80 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-label text-accent opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          {/* Always at least partially visible, same as the other cards'
+              "What changed?" pill — a hover-only affordance is invisible
+              and unreachable on touch. */}
+          <span className="rounded border border-accent/60 bg-ground/80 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-label text-accent opacity-70 transition-all duration-300 group-hover:opacity-100">
             Look again
           </span>
         </button>
@@ -75,7 +110,10 @@ export function LookAgainReveal({
           className="fixed inset-0 z-[110] flex items-center justify-center bg-ground/90 p-6"
         >
           <div className="absolute inset-0" onClick={closeDialog} aria-hidden="true" />
-          <div className="relative z-10 flex w-full max-w-2xl flex-col gap-6 rounded border border-border bg-surface p-6 md:p-8">
+          <div
+            ref={panelRef}
+            className="relative z-10 flex w-full max-w-2xl flex-col gap-6 rounded border border-border bg-surface p-6 md:p-8"
+          >
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-step-1 text-text">{projectName}</h3>
               <button
