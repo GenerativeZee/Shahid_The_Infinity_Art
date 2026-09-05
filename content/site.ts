@@ -687,6 +687,9 @@ export const askStudio = {
   handoffLabel: "Continue on WhatsApp",
   errorText:
     "The studio assistant is taking a moment. You can continue directly with Shahid on WhatsApp.",
+  // Quiet, honest disclosure shown under the chat input. No privacy policy
+  // page exists yet — see docs/google-sheets-logging.md TODO.
+  privacyNote: "Conversations may be stored to help us improve the studio experience.",
 } as const;
 
 const project = (p: Project): Project => p;

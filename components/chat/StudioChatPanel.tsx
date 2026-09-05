@@ -22,6 +22,7 @@ export function StudioChatPanel({
   onSend,
   onClose,
   onReset,
+  onHandoff,
 }: {
   messages: ChatMsg[];
   pending: boolean;
@@ -30,6 +31,7 @@ export function StudioChatPanel({
   onSend: (text: string) => void;
   onClose: () => void;
   onReset: () => void;
+  onHandoff: () => void;
 }) {
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -180,10 +182,13 @@ export function StudioChatPanel({
           href={handoff}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={onHandoff}
           className="studio-chat__handoff"
         >
           {askStudio.handoffLabel} →
         </a>
+
+        <p className="studio-chat__privacy">{askStudio.privacyNote}</p>
       </div>
     </div>
   );

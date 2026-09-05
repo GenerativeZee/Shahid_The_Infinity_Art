@@ -3,6 +3,11 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { askStudio } from "@/content/site";
+import {
+  getStudioSessionId,
+  newMessageId,
+  resetStudioSessionId,
+} from "@/lib/chat/session";
 import { usePrefersReducedMotion } from "@/lib/tier";
 
 // The panel loads only when the visitor opens it — the always-present cost
@@ -73,6 +78,9 @@ export function StudioChat() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: withUser.map(({ role, content }) => ({ role, content })),
+            sessionId: getStudioSessionId(),
+            messageId: newMessageId(),
+            page: window.location.pathname,
           }),
         });
         const data = (await res.json().catch(() => null)) as { reply?: string } | null;
@@ -98,6 +106,27 @@ export function StudioChat() {
   const reset = useCallback(() => {
     setMessages([]);
     setFailed(false);
+    // "New" starts a fresh conversation — and a fresh Sessions row.
+    resetStudioSessionId();
+  }, []);
+
+  // Fire-and-forget beacon when the visitor takes the WhatsApp handoff from
+  // the panel. Uses keepalive so it survives the navigation; never awaited,
+  // never blocks the click.
+  const trackHandoff = useCallback(() => {
+    try {
+      fetch("/api/chat/handoff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: getStudioSessionId(),
+          page: window.location.pathname,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch {
+      /* handoff link still works regardless */
+    }
   }, []);
 
   return (
@@ -127,6 +156,7 @@ export function StudioChat() {
           onSend={send}
           onClose={close}
           onReset={reset}
+          onHandoff={trackHandoff}
         />
       ) : null}
     </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Reveal } from "@/components/ui/Reveal";
 import { getLenis } from "@/lib/scroll";
 import { startProject } from "@/content/site";
@@ -63,6 +63,8 @@ export function QuoteForm() {
     return () => cancelAnimationFrame(id);
   }, [category, status, formError, errors]);
 
+  // Also handles collapse: `id === ""` closes the open panel and clears its
+  // (now irrelevant) answers, errors and any submit state.
   function selectCategory(id: string) {
     setCategory(id);
     setAnswers({});
@@ -226,67 +228,98 @@ export function QuoteForm() {
                   <legend className="mb-1 font-mono text-step--1 uppercase tracking-label text-text-muted">
                     {startProject.categoryHeading}
                   </legend>
+                  {/* Inline accordion — the chosen category's questions open
+                      directly beneath its row and push the rest down. Only
+                      one panel is ever mounted (the radio group guarantees
+                      a single selection). */}
                   <div className="overflow-hidden rounded border border-border">
-                    {startProject.categories.map((c, i) => (
-                      <label
-                        key={c.id}
-                        className={`group relative flex cursor-pointer items-center justify-between gap-4 px-4 py-4 transition-colors hover:bg-surface-raised/50 has-[:checked]:bg-surface-raised has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:-outline-offset-2 motion-reduce:transition-none ${
-                          i > 0 ? "border-t border-border" : ""
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="sp-category"
-                          value={c.id}
-                          checked={c.id === category}
-                          onChange={() => selectCategory(c.id)}
-                          className="sr-only"
-                        />
-                        <span
-                          aria-hidden
-                          className="absolute inset-y-0 left-0 w-0.5 bg-accent opacity-0 transition-opacity group-has-[:checked]:opacity-100 motion-reduce:transition-none"
-                        />
-                        <span className="font-mono text-step--1 uppercase tracking-label text-text-muted transition-colors group-has-[:checked]:text-text motion-reduce:transition-none">
-                          {c.label}
-                        </span>
-                        <span
-                          aria-hidden
-                          className="h-2 w-2 shrink-0 rounded-full border border-text-muted transition-colors group-has-[:checked]:border-accent group-has-[:checked]:bg-accent motion-reduce:transition-none"
-                        />
-                      </label>
-                    ))}
+                    {startProject.categories.map((c, i) => {
+                      const isOpen = c.id === category;
+                      return (
+                        <Fragment key={c.id}>
+                          <label
+                            className={`group relative flex cursor-pointer items-center justify-between gap-4 px-4 py-4 transition-colors hover:bg-surface-raised/50 has-[:checked]:bg-surface-raised has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:-outline-offset-2 motion-reduce:transition-none ${
+                              i > 0 ? "border-t border-border" : ""
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="sp-category"
+                              value={c.id}
+                              checked={isOpen}
+                              onChange={() => selectCategory(c.id)}
+                              // Re-clicking the open category collapses it.
+                              // `onClick` fires even when `checked` doesn't
+                              // change, which `onChange` would not.
+                              onClick={() => {
+                                if (isOpen) selectCategory("");
+                              }}
+                              aria-controls={isOpen ? `sp-cat-panel-${c.id}` : undefined}
+                              className="sr-only"
+                            />
+                            <span
+                              aria-hidden
+                              className="absolute inset-y-0 left-0 w-0.5 bg-accent opacity-0 transition-opacity group-has-[:checked]:opacity-100 motion-reduce:transition-none"
+                            />
+                            <span className="font-mono text-step--1 uppercase tracking-label text-text-muted transition-colors group-has-[:checked]:text-text motion-reduce:transition-none">
+                              {c.label}
+                            </span>
+                            <span
+                              aria-hidden
+                              className="h-2 w-2 shrink-0 rounded-full border border-text-muted transition-colors group-has-[:checked]:border-accent group-has-[:checked]:bg-accent motion-reduce:transition-none"
+                            />
+                          </label>
+
+                          {isOpen ? (
+                            <div
+                              id={`sp-cat-panel-${c.id}`}
+                              role="region"
+                              aria-label={`${c.label} questions`}
+                              className="border-t border-border"
+                            >
+                              <Reveal key={c.id} className="flex flex-col gap-5 px-4 py-5">
+                                <div className="flex flex-col gap-5">
+                                  {toRows(c.fields).map((row, ri) =>
+                                    row.length === 2 ? (
+                                      <div
+                                        key={ri}
+                                        className="grid grid-cols-1 gap-5 sm:grid-cols-2"
+                                      >
+                                        {row.map((f) => renderField(f))}
+                                      </div>
+                                    ) : (
+                                      renderField(row[0])
+                                    ),
+                                  )}
+                                </div>
+
+                                <div className="flex flex-col items-start gap-1 border-l border-border pl-4">
+                                  <p className="text-step--1 text-text-muted">
+                                    {startProject.notSureLead}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={askStudio}
+                                    className="font-mono text-step--1 uppercase tracking-label text-accent transition-opacity hover:opacity-80 motion-reduce:transition-none"
+                                  >
+                                    {startProject.notSureCta} →
+                                  </button>
+                                </div>
+                              </Reveal>
+                            </div>
+                          ) : null}
+                        </Fragment>
+                      );
+                    })}
                   </div>
                 </fieldset>
 
+                <p className="sr-only" aria-live="polite">
+                  {selected ? `Showing ${selected.label} questions.` : ""}
+                </p>
+
                 {selected ? (
-                  <Reveal key={selected.id} className="flex flex-col gap-8">
-                    <p className="sr-only" aria-live="polite">
-                      Showing questions for {selected.label}.
-                    </p>
-
-                    <div className="flex flex-col gap-5">
-                      {toRows(selected.fields).map((row, ri) =>
-                        row.length === 2 ? (
-                          <div key={ri} className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                            {row.map((f) => renderField(f))}
-                          </div>
-                        ) : (
-                          renderField(row[0])
-                        ),
-                      )}
-                    </div>
-
-                    <div className="flex flex-col items-start gap-1 border-l border-border pl-4">
-                      <p className="text-step--1 text-text-muted">{startProject.notSureLead}</p>
-                      <button
-                        type="button"
-                        onClick={askStudio}
-                        className="font-mono text-step--1 uppercase tracking-label text-accent transition-opacity hover:opacity-80 motion-reduce:transition-none"
-                      >
-                        {startProject.notSureCta} →
-                      </button>
-                    </div>
-
+                  <Reveal className="flex flex-col gap-8">
                     <fieldset className="flex min-w-0 flex-col gap-5">
                       <legend className="font-mono text-step--1 uppercase tracking-label text-text-muted">
                         {startProject.contactHeading}

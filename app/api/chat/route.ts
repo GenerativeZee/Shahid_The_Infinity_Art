@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { generateStudioResponse, type ChatMessage } from "@/lib/chat/chatService";
+import { logChatExchange } from "@/lib/chat/chatLogger";
 import { buildSystemPrompt } from "@/lib/chat/systemPrompt";
 
 // Bounds — cheap server-side protection against oversized / abusive payloads.
@@ -7,7 +8,15 @@ const MAX_MESSAGES = 20;
 const MAX_MESSAGE_CHARS = 2000;
 const MAX_TOTAL_CHARS = 14_000;
 
-type Body = { messages?: unknown };
+const SESSION_ID_RE = /^[A-Za-z0-9-]{8,64}$/;
+const MESSAGE_ID_RE = /^[A-Za-z0-9:_-]{8,80}$/;
+
+type Body = {
+  messages?: unknown;
+  sessionId?: unknown;
+  messageId?: unknown;
+  page?: unknown;
+};
 
 function parseMessages(raw: unknown): ChatMessage[] | null {
   if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_MESSAGES) return null;
@@ -34,6 +43,14 @@ function parseMessages(raw: unknown): ChatMessage[] | null {
   return out;
 }
 
+/** Normalise an in-site path; anything unexpected becomes "/". */
+function parsePage(raw: unknown): string {
+  if (typeof raw === "string" && raw.startsWith("/") && raw.length <= 128) {
+    return raw.split(/[?#]/)[0];
+  }
+  return "/";
+}
+
 const UNAVAILABLE = {
   error: "unavailable",
   message:
@@ -56,5 +73,27 @@ export async function POST(request: Request) {
     return NextResponse.json(UNAVAILABLE, { status: 503 });
   }
 
-  return NextResponse.json({ reply: result.reply });
+  const reply = result.reply;
+
+  // Conversation logging — strictly after the reply is returned, and only
+  // when the client sent a well-formed session id. Never blocks or fails
+  // the response (see lib/chat/chatLogger.ts).
+  const sessionId = typeof body?.sessionId === "string" ? body.sessionId : "";
+  const messageId = typeof body?.messageId === "string" ? body.messageId : "";
+  if (SESSION_ID_RE.test(sessionId) && MESSAGE_ID_RE.test(messageId)) {
+    const page = parsePage(body?.page);
+    const userText = messages[messages.length - 1].content;
+    after(() =>
+      logChatExchange({
+        sessionId,
+        page,
+        userMessageId: messageId,
+        userText,
+        assistantText: reply,
+        transcript: [...messages, { role: "assistant", content: reply }],
+      }),
+    );
+  }
+
+  return NextResponse.json({ reply });
 }
