@@ -1573,6 +1573,61 @@ material palette instead of monochrome gold.
   (strokes fall back to gold; ambient drops silently), and 4-radial-pool
   paint cost on a weak GPU.
 
+## Hero 11.2 — dimensional gold + light-trail motion (to the reference)
+
+The client sent two reference boards. Gap: I had a flat monoline + a
+left→right text wipe + ≤4% ambient pools. The reference wants **dimensional
+gold** (beveled logo AND wordmark), the strokes **raking right and
+dissolving into multi-colour light trails**, a **glowing baseline** the
+name is written onto, and the exact 6-phase colour timeline from the
+board.
+
+- **Dimensional gold wordmark.** `.hero-mark__wordmark` is now a
+  `background-clip: text` metallic gradient (light crown → dark bevel band
+  → warm base) + a `text-shadow` extrusion stack + a glow that warms into
+  gold via `--idn`. Plain `color: var(--color-accent)` fallback for
+  pre-`background-clip` engines. Bumped to `clamp(1.35rem, 7vw, 6rem)` so
+  it's dominant like the reference. Still `var(--font-display)`, still
+  the real accessible `<h1>` text, still the `--wrt` mask wipe on top.
+- **Strokes rake right into streaks.** Retuned transforms: through
+  `--ext`/`--wrt` each stroke translates ~520–640px right, lifts, and
+  `scaleX` up to ~×9 while `scaleY` compresses — a thin light streak that
+  fades ~0.56–0.6, exactly as the trails peak.
+- **New FX layer** (`HeroMark` `.hero-mark__fx`, viewBox 1400×460): 8
+  near-horizontal **speed trails** (`stroke-dasharray` + `--reveal`-driven
+  `stroke-dashoffset`, staggered by `--i`), one per palette tone, drawing
+  on from the left and streaking off; plus 3 big **arcs of light** under
+  one `blur(14px)` that fade in through translation and stay faint
+  forever (the reference's final frame).
+- **Glowing baseline** (`.hero-mark__base`) — a gold light-line with a
+  double `box-shadow` glow, drawing left→right with `--wrt`, its glow and
+  thickness settling to a fine rule via `--stl`. Replaces the old thin
+  `__rule`.
+- **Colour timeline = the reference board.** Six registered envelopes on
+  `.hero-scroll__pin`: teal enters at Tension (0.18), violet at
+  Disassembly (0.32), cyan at Translation (0.48), rose just after; a
+  `--tone` picks-up envelope peaks through Disassembly and resolves by
+  0.8; `--stl` recedes them all into a gold-dominant settle with faint
+  residual arcs/trails/pools. Palette read in `Hero.tsx` from `themes`
+  (verdigris teal, ember warm, signal rose) + the LED material's cyan —
+  plus **one addition the reference explicitly calls for**, a muted
+  `#8f5aa6` violet (Star Flex mood), the only tone not already a site
+  token. `:root` untouched.
+- **Unchanged:** the 10.1 pin, the 9.1 sync (synchronous Lenis-tick
+  write, no rAF hop, cached range, no transitions on scroll-bound props),
+  the eyebrow choreography, the reduced-motion resolved state (trails
+  forced off, wordmark unmasked, base settled).
+- **Budget:** 152.4 KB gzipped (+0.3). No deps.
+- **Not browser-verified.** Traced the colour timeline at 7 checkpoints
+  (follows the board), sync, a11y, hydration, overflow, regression.
+  Unverified: whether the gold text treatment + trails + baseline read as
+  the reference render (it's an AI 3D mock; this is a 2.5D SVG/CSS
+  evocation), the blind-tuned stroke/trail px, whether 8 trails + 3
+  blurred arcs + a 5-layer ambient hold 60fps on a weak Android, the
+  peak-Translation frame not tipping into "rainbow", and `color-mix()` /
+  `background-clip:text` / `@property` on pre-2023 browsers (documented
+  fallbacks / graceful degradation).
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

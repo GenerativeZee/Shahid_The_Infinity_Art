@@ -3,13 +3,20 @@ import { HeroMark } from "@/components/sections/HeroMark";
 import { business, hero, materials } from "@/content/site";
 import { themes } from "@/lib/themeEngine";
 
-// The Hero's curated multi-colour palette — all drawn from the site's own
-// vocabulary, gold-anchored: nocturne gold (--color-accent, live), a warm
-// tone from Ember, a cool one from Verdigris, and the LED material's
-// electric cyan for the deep shadow pool. Read here, never written to :root.
-const HERO_WARM = themes.ember.accent;
+// The Hero's curated multi-colour palette — gold-anchored, every tone a
+// low-saturation "material light" drawn from the site's own vocabulary:
+//   cool  = Verdigris teal        (ACP / acrylic)
+//   cyan  = the LED material blue  (LED signage)
+//   rose  = Signal coral          (print / rose)
+//   warm  = Ember copper          (wedding warmth)
+//   violet= the one addition the reference calls for (Star Flex mood) —
+//           a muted mauve, kept deliberately low-saturation.
+// Read here into local custom properties; :root is never written.
 const HERO_COOL = themes.verdigris.accent;
-const HERO_DEEP = materials.find((m) => m.name === "LED")?.accent ?? themes.signal.accent;
+const HERO_CYAN = materials.find((m) => m.name === "LED")?.accent ?? "#7fe3ff";
+const HERO_ROSE = themes.signal.accent;
+const HERO_WARM = themes.ember.accent;
+const HERO_VIOLET = "#8f5aa6";
 
 /**
  * The Hero identity reveal (∞ 11): the "iA" logo mark unfolds into the
@@ -40,9 +47,11 @@ export function Hero() {
         className="hero-scroll__pin flex h-dvh flex-col justify-end overflow-hidden"
         style={
           {
-            "--hero-warm": HERO_WARM,
             "--hero-cool": HERO_COOL,
-            "--hero-deep": HERO_DEEP,
+            "--hero-cyan": HERO_CYAN,
+            "--hero-rose": HERO_ROSE,
+            "--hero-warm": HERO_WARM,
+            "--hero-violet": HERO_VIOLET,
           } as CSSProperties
         }
       >

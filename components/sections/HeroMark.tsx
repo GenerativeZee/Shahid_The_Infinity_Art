@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { getLenis } from "@/lib/scroll";
 import { prefersReducedMotion } from "@/lib/tier";
 
@@ -40,6 +40,23 @@ import { prefersReducedMotion } from "@/lib/tier";
 
 const WORDMARK = "The Infinity Art";
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
+
+// Eight near-horizontal light streaks, gently raked up-right, staggered
+// across the band the wordmark occupies. Each carries one palette tone;
+// they draw on from the left and streak off right as --reveal advances
+// (a stroke-dash offset), peak through Disassembly/Translation, and are
+// nearly gone by Identity. viewBox 1400×460.
+const TRAILS = [
+  "M -180 250 Q 520 232 1500 176",
+  "M -180 300 Q 520 286 1500 214",
+  "M -180 205 Q 520 180 1500 120",
+  "M -180 340 Q 520 330 1500 262",
+  "M -180 168 Q 520 138 1500 86",
+  "M -180 268 Q 520 250 1500 150",
+  "M -180 224 Q 520 206 1500 196",
+  "M -180 312 Q 520 300 1500 238",
+];
+const TRAIL_TONES = ["gold", "cool", "violet", "cyan", "rose", "gold", "cyan", "cool"] as const;
 
 export function HeroMark() {
   const ref = useRef<HTMLHeadingElement>(null);
@@ -100,6 +117,33 @@ export function HeroMark() {
 
   return (
     <h1 ref={ref} className="hero-mark">
+      {/* FX layer — multi-colour speed trails + settle-persistent arcs of
+          light, spanning the full wordmark width, behind everything. */}
+      <svg
+        aria-hidden="true"
+        className="hero-mark__fx"
+        viewBox="0 0 1400 460"
+        fill="none"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <g className="hero-mark__arcs">
+          <path className="hero-mark__arc hero-mark__arc--cool" d="M -240 430 Q 460 250 1640 90" />
+          <path className="hero-mark__arc hero-mark__arc--violet" d="M -160 60 Q 720 210 1720 380" />
+          <path className="hero-mark__arc hero-mark__arc--rose" d="M 280 470 Q 980 320 1780 210" />
+        </g>
+        <g className="hero-mark__trails">
+          {TRAILS.map((d, i) => (
+            <path
+              key={i}
+              className={`hero-mark__trail hero-mark__trail--${TRAIL_TONES[i]}`}
+              style={{ "--i": i } as CSSProperties}
+              d={d}
+              pathLength={1}
+            />
+          ))}
+        </g>
+      </svg>
+
       <span aria-hidden="true" className="hero-mark__art">
         {/* Presence — the real logo mark, then it hands off to the SVG.
             Both fill the same box so the cross-fade is position-aligned. */}
@@ -112,10 +156,9 @@ export function HeroMark() {
           preserveAspectRatio="xMidYMid meet"
         >
           {/* Two monoline strokes, each a dark offset "shadow" copy plus a
-              body copy. The body colours are a color-mix of the gold anchor
-              toward one material tone — the V catches cool light, the A
-              catches warm — strongest mid-transformation, resolved by the
-              time the wordmark is legible. */}
+              body copy. As they separate they rake right and stretch into
+              thin streaks; the body colours mix the gold anchor toward one
+              material tone — V catches cool light, A catches warm. */}
           <g className="hero-mark__stroke hero-mark__stroke--v">
             <path className="hero-mark__stroke-sh" d="M 110 210 L 290 540 L 460 175" />
             <path className="hero-mark__stroke-body hero-mark__stroke-body--v" d="M 110 210 L 290 540 L 460 175" />
@@ -132,9 +175,11 @@ export function HeroMark() {
         </svg>
       </span>
 
-      {/* The real wordmark — accessible text, revealed by a left→right mask */}
+      {/* The real wordmark — accessible text, dimensional gold, written
+          left→right by a mask edge that rides the light. */}
       <span className="hero-mark__wordmark">{WORDMARK}</span>
-      <span aria-hidden="true" className="hero-mark__rule" />
+      {/* The glowing baseline the name is written onto, then a settled rule. */}
+      <span aria-hidden="true" className="hero-mark__base" />
 
       {debug ? (
         <output className="pointer-events-none fixed left-2 top-2 z-[200] rounded bg-black/80 px-2 py-1 font-mono text-[10px] leading-tight text-white">
