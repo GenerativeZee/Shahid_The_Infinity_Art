@@ -162,6 +162,30 @@
   }
 }
 
+/* Hero pin (Hero.tsx, ∞ 10.1 — client request). The section is taller
+   than the viewport; the inner wrapper is sticky, so the hero content
+   holds on screen while the extra scroll distance scrubs the artifact to
+   completion, then the pin releases. Layout only — no wheel interception,
+   native scroll (flick / scrollbar / PageDown) is untouched. Tune the
+   feel with the one height value: taller = more scroll to finish. */
+.hero-scroll {
+  height: 220dvh;
+}
+.hero-scroll__pin {
+  position: sticky;
+  top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No scrub — one viewport, no pin. */
+  .hero-scroll {
+    height: 100dvh;
+  }
+  .hero-scroll__pin {
+    position: static;
+  }
+}
+
 /* Hero artifact (HeroArtifact.tsx) — the studio's own dimensional sign,
    revealed by scroll. Scroll writes --reveal (0→1) onto .hero-artifact,
    synchronously on Lenis's tick; every value below is a plain calc() of

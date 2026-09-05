@@ -1431,6 +1431,41 @@ the studio name it read as a literal ∞ — the least interesting reading.
   on pre-2023 browsers, blur paint cost on a weak GPU. Camera tuning, if
   needed, is local to `.hero-artifact__cam` in globals.css.
 
+## Hero pin — 10.1 (client reversed the "no scroll-jack" rule)
+
+Iterations 9 and 10 both explicitly forbade scroll-pinning ("Absolutely
+no scroll locking / forced scroll / giant snap sections"). The client
+then asked directly: "when I scroll the page should not get scrolled
+until the animation gets completed." That supersedes the earlier rule.
+
+- **Done as layout, not wheel interception.** `.hero-scroll` (the
+  `<section>`) is `220dvh` tall; `.hero-scroll__pin` (an inner wrapper
+  holding the whole hero) is `position: sticky; top: 0`. The hero content
+  holds on screen while the extra ~120dvh of scroll scrubs `--reveal`
+  0→1, then the sticky wrapper reaches its parent's end and releases
+  normally. **No wheel/touch listener, no `preventDefault`, no custom
+  scroll physics** — native scroll (hard flick, scrollbar drag, PageDown,
+  momentum) is completely intact; you can still blow straight past.
+- **Progress now measures the tall section, not the artifact element**
+  (which is inside the sticky wrapper and stays at viewport top while
+  pinned): `--reveal = clamp(-section.top / ((sectionH - viewportH) *
+  0.9), 0, 1)`. The `×0.9` lands `--reveal` at 1 slightly before the pin
+  releases, so the finished sign is held for a beat. The ∞ 9.1 sync
+  architecture is otherwise unchanged (synchronous Lenis-tick write, no
+  rAF hop, range cached on resize / visualViewport-resize).
+- **Reduced motion drops the pin entirely** — a `prefers-reduced-motion`
+  block collapses `.hero-scroll` to `100dvh` and sets the pin `static`,
+  so there is no dead scroll; the artifact shows its arrival frame in a
+  normal one-viewport hero.
+- **Feel is one value** — `.hero-scroll { height: 220dvh }` in
+  globals.css. Taller = more scroll before the page moves on.
+- **Side effect:** the `nocturne` theme zone is now ~1.2 viewports
+  taller, so `ThemeEngine` holds the nocturne palette through the whole
+  pinned hero before blending to `verdigris` — correct, if anything.
+- **Not browser-verified** (no tooling here). Sticky + Lenis is the
+  documented combo and traced clean; possible sub-pixel shimmer on the
+  pinned content on some devices, and 220dvh may want tuning up or down.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

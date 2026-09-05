@@ -28,16 +28,24 @@ import { prefersReducedMotion } from "@/lib/tier";
  * the lettering, Light in the rake, Space in the crop, Material in the
  * ACP, Colour in the single accent, Balance in the asymmetric composition).
  *
- * Scroll model (kept exactly from ∞ 9.1): one CSS variable `--reveal`
- * (0→1), computed *synchronously* inside Lenis's own scroll tick — by then
- * Lenis has applied its transform for the frame, so getBoundingClientRect
- * is the position on screen right now. No requestAnimationFrame hop (that
- * left the artifact a frame behind and made it "catch up" after a flick),
- * no React state in the scroll path, and deliberately NO CSS transition on
+ * Scroll model (kept from ∞ 9.1): one CSS variable `--reveal` (0→1),
+ * computed *synchronously* inside Lenis's own scroll tick — by then Lenis
+ * has applied its transform for the frame, so getBoundingClientRect is the
+ * position on screen right now. No requestAnimationFrame hop (that left
+ * the artifact a frame behind and made it "catch up" after a flick), no
+ * React state in the scroll path, and deliberately NO CSS transition on
  * any scroll-bound property — Lenis's easing is the only smoothing. Every
  * artifact value in globals.css is a plain calc() of --reveal, so stopping
- * anywhere is a composed frame. Purely decorative → aria-hidden. Reduced
- * motion pins --reveal to 1: the arrival composition, static.
+ * anywhere is a composed frame.
+ *
+ * The Hero is pinned (∞ 10.1): progress is measured against the tall
+ * `.hero-scroll` section (not this element, which is inside the sticky
+ * wrapper and stays at the top of the viewport while pinned).
+ * `--reveal` reaches 1 at ~90% of the pin's scroll distance, so the
+ * finished sign is held on screen for a beat before the pin releases.
+ *
+ * Purely decorative → aria-hidden. Reduced motion pins --reveal to 1: the
+ * arrival composition, static.
  */
 
 const HATCH_ID = "hero-artifact-hatch";
@@ -80,16 +88,25 @@ export function HeroArtifact() {
     const showDebug = new URLSearchParams(window.location.search).has("herodebug");
     const lenis = getLenis();
 
-    // Cached here + on resize only — never per scroll frame. The Hero is
-    // h-dvh, so its height changes as the mobile URL bar shows/hides;
-    // reading it every frame would rescale the 0→1 range mid-scroll.
+    // The tall pinned section — progress is its scroll offset, not this
+    // element's (which sits in the sticky wrapper and stays put while
+    // pinned). Falls back to `wrap` if the markup ever changes.
+    const section = (wrap.closest(".hero-scroll") as HTMLElement | null) ?? wrap;
+
+    // Cached here + on resize only — never per scroll frame. Heights are in
+    // dvh, so they change as the mobile URL bar shows/hides; reading the
+    // range every frame would rescale the 0→1 progress mid-scroll.
     let range = 1;
     function measure() {
-      range = wrap!.getBoundingClientRect().height * 0.9 || 1;
+      // The pin's scroll distance = section height − one viewport. ×0.9 so
+      // --reveal hits 1 slightly before the pin releases (a held beat on
+      // the finished sign).
+      const dist = (section.getBoundingClientRect().height - window.innerHeight) * 0.9;
+      range = dist > 0 ? dist : 1;
     }
 
     function update() {
-      const top = wrap!.getBoundingClientRect().top;
+      const top = section.getBoundingClientRect().top;
       const p = clamp01(-top / range);
       wrap!.style.setProperty("--reveal", p.toFixed(4));
       if (showDebug) setDebug({ top: Math.round(top), range: Math.round(range), reveal: p });
