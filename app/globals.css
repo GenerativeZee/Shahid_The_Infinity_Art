@@ -163,9 +163,13 @@
 }
 
 /* Hero ribbon (HeroRibbon.tsx) — the first fabricated artifact. Scroll
-   writes --reveal (0→1) onto .hero-ribbon; every value below is a calc()
-   of it. transform / opacity / stroke-dashoffset only — nothing that
-   triggers layout. When the visitor stops scrolling it simply holds. */
+   writes --reveal (0→1) onto .hero-ribbon, synchronously on Lenis's tick;
+   every value below is a calc() of it. transform / opacity /
+   stroke-dashoffset only — nothing that triggers layout, and NO
+   `transition` on any of them: a temporal transition on a scroll-bound
+   property is what makes the artifact lag and then "catch up" after a
+   fast flick (∞ iteration 9.1). Smoothing lives in exactly one place —
+   Lenis's scroll easing. When the visitor stops scrolling it just holds. */
 .hero-ribbon {
   --reveal: 0;
 }
@@ -190,11 +194,12 @@
 }
 
 /* Shared "draw" — nothing at reveal 0, fully drawn by reveal ≈ 0.62,
-   the rest of the scroll is the settle. */
+   the rest of the scroll is the settle. Only the three structural strokes
+   animate their dash; the hatch texture (below) stays fully drawn and
+   just fades in, so its pattern tiling isn't re-painted every frame. */
 .hero-ribbon__shadow,
 .hero-ribbon__edge,
-.hero-ribbon__face,
-.hero-ribbon__tex {
+.hero-ribbon__face {
   fill: none;
   stroke-linecap: round;
   stroke-dasharray: 1;
@@ -217,9 +222,13 @@
   stroke-width: 46;
 }
 .hero-ribbon__tex {
+  fill: none;
   stroke: url(#hero-ribbon-hatch);
   stroke-width: 46;
-  opacity: 0.5;
+  stroke-linecap: round;
+  /* Fully drawn, no per-frame dash repaint — fades in late as surface
+     texture on the settled face, then rides the group transform. */
+  opacity: max(0, calc((var(--reveal) - 0.5) * 0.9));
 }
 
 /* A short bright segment that travels along the edge as the loop closes,

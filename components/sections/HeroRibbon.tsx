@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getLenis } from "@/lib/scroll";
 import { prefersReducedMotion } from "@/lib/tier";
 
@@ -17,11 +17,21 @@ import { prefersReducedMotion } from "@/lib/tier";
  * the way a folded strip of ACP would.
  *
  * Scroll drives it through a single CSS variable (`--reveal`, 0→1) written
- * on the existing Lenis tick, rAF-throttled, straight onto the DOM node —
- * never React state, so scrolling never re-renders. All motion is
- * transform / opacity / stroke-dashoffset; no layout property is touched.
- * Purely decorative → aria-hidden. Reduced motion pins it to the settled
- * final composition (see globals.css).
+ * straight onto the DOM node — never React state, so scrolling never
+ * re-renders. `--reveal` is computed *synchronously* inside Lenis's own
+ * scroll tick: by the time that fires, Lenis has already applied its
+ * scroll transform for the frame, so `getBoundingClientRect()` is the
+ * position the user is looking at right now. No extra requestAnimationFrame
+ * hop — that would leave the artifact one frame behind the page and make
+ * it visibly "catch up" after a fast flick (∞ iteration 9.1). Lenis's own
+ * easing is the only smoothing; the artifact tracks the same eased scroll
+ * position as the typography, frame for frame.
+ *
+ * All motion is transform / opacity / stroke-dashoffset — no layout
+ * property, and deliberately no CSS transition on any of them (a temporal
+ * transition on a scroll-bound property is exactly what re-creates the
+ * lag). Purely decorative → aria-hidden. Reduced motion pins it to the
+ * settled final composition (see globals.css).
  */
 
 // Same object, two framings — landscape sweep on desktop, vertical rise on
@@ -51,6 +61,7 @@ function RibbonPaths({ d }: { d: string }) {
 
 export function HeroRibbon() {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const [debug, setDebug] = useState<{ top: number; range: number; reveal: number } | null>(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -61,32 +72,50 @@ export function HeroRibbon() {
       return;
     }
 
+    const showDebug = new URLSearchParams(window.location.search).has("herodebug");
     const lenis = getLenis();
-    let rafId: number | null = null;
 
-    function apply() {
-      rafId = null;
-      if (!wrap) return;
-      const rect = wrap.getBoundingClientRect();
-      // 0 while the Hero fills the viewport → 1 once ~90% of it has
-      // scrolled past the top edge. A hard flick just clamps to 1.
-      const p = clamp01(-rect.top / (rect.height * 0.9));
-      wrap.style.setProperty("--reveal", p.toFixed(4));
+    // Cached only here + on resize — never per scroll frame. The Hero is
+    // `h-dvh`, so on mobile its height changes when the URL bar shows/hides;
+    // reading it every frame would silently rescale the 0→1 range while the
+    // user is moving through it.
+    let range = 1;
+    function measure() {
+      range = wrap!.getBoundingClientRect().height * 0.9 || 1;
     }
 
-    function onScroll() {
-      if (rafId === null) rafId = requestAnimationFrame(apply);
+    // Synchronous — see the file header. `--reveal` is the exact eased
+    // scroll position this frame, not a frame behind it.
+    function update() {
+      const top = wrap!.getBoundingClientRect().top;
+      const p = clamp01(-top / range);
+      wrap!.style.setProperty("--reveal", p.toFixed(4));
+      if (showDebug) setDebug({ top: Math.round(top), range: Math.round(range), reveal: p });
     }
 
-    apply();
-    lenis?.on("scroll", onScroll);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    function onResize() {
+      measure();
+      update();
+    }
+
+    measure();
+    update();
+
+    lenis?.on("scroll", update);
+    window.addEventListener("resize", onResize);
+    // The mobile URL bar showing/hiding changes the h-dvh height without a
+    // classic resize on some browsers — re-measure on the visual viewport too.
+    window.visualViewport?.addEventListener("resize", onResize);
+    // Fallback only if Lenis isn't running (it always is on this site) —
+    // don't leave the artifact frozen if that ever changes.
+    const useNative = !lenis;
+    if (useNative) window.addEventListener("scroll", update, { passive: true });
+
     return () => {
-      lenis?.off("scroll", onScroll);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (rafId !== null) cancelAnimationFrame(rafId);
+      lenis?.off("scroll", update);
+      window.removeEventListener("resize", onResize);
+      window.visualViewport?.removeEventListener("resize", onResize);
+      if (useNative) window.removeEventListener("scroll", update);
     };
   }, []);
 
@@ -129,6 +158,14 @@ export function HeroRibbon() {
       >
         <RibbonPaths d={PATH_MOBILE} />
       </svg>
+
+      {/* Opt-in sync check: add ?herodebug to the URL. Verifies --reveal
+          moves 0→1 over the intended range and stays locked to scroll. */}
+      {debug ? (
+        <output className="pointer-events-none fixed left-2 top-2 z-[200] rounded bg-black/80 px-2 py-1 font-mono text-[10px] leading-tight text-white">
+          top {debug.top} · range {debug.range} · reveal {debug.reveal.toFixed(3)}
+        </output>
+      ) : null}
     </div>
   );
 }

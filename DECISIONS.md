@@ -1337,6 +1337,44 @@ HDRI, the literal ∞ built from two torus rings, a 300dvh scroll-jack).
   smoothness on a mid-range Android. If the paths look wrong, the fix is
   local to `HeroRibbon.tsx` (`PATH_DESKTOP` / `PATH_MOBILE`).
 
+## Hero ribbon 9.1 — scroll/artifact synchronisation fix
+
+Iteration 9 shipped a "catch-up" feel: on a fast flick the page moved
+ahead and the ribbon animated toward the new position afterward.
+
+- **Root cause.** `HeroRibbon`'s scroll handler wrapped the `--reveal`
+  update in a `requestAnimationFrame`. But `lenis.on("scroll")` *already*
+  fires once per frame, after Lenis has applied that frame's scroll
+  transform — the extra rAF hop computed `--reveal` from the previous
+  frame's position and painted it a frame late. Invisible when scrolling
+  slowly; a persistent ~10%/frame trail on a hard flick, then a snap when
+  scrolling stops. Secondary: a redundant `window` `scroll` listener
+  racing Lenis, and `rect.height` (an `h-dvh` value) in the progress
+  denominator rescaling the 0→1 range mid-scroll as the mobile URL bar
+  moved. There were no CSS transitions on the artifact — that part was
+  already right.
+- **Fix.** `update()` now runs **synchronously inside `lenis.on("scroll")`**
+  — no rAF hop, matching the codebase's own `useCardProgress` /
+  ex-`useHeroProgress`. `--reveal` is the exact eased scroll position for
+  the frame, the same value the typography sits at. Lenis's easing is the
+  only smoothing; there is no second temporal stage. The hero height is
+  cached in `measure()` on init + `resize` + `visualViewport` resize —
+  never per scroll frame — so the range is dvh-stable. Redundant native
+  `scroll` listener dropped (kept only as a no-Lenis fallback).
+- **Minor paint relief.** The hatch-texture path no longer animates its
+  `stroke-dashoffset` every frame (pattern re-tiling); it stays fully
+  drawn and fades in late via opacity, then rides the group transform.
+  Only the three structural strokes animate their dash now.
+- **`?herodebug`** query param adds a small fixed readout (top / range /
+  reveal) to verify the value tracks scroll 0→1 over the intended range.
+  Off by default, no cost when absent.
+- Scope: `HeroRibbon.tsx` + the `.hero-ribbon*` CSS only. 151.9 → 152.1 KB
+  gzipped (the `useState` + debug readout). No deps, no transitions added.
+- **Not verified in a browser** (no tooling in this env). The diagnosis
+  and the fix follow the established scroll pattern; residual perceived
+  lag, if any, would most likely be Lenis's shared `lerp: 0.85` or SVG
+  paint cost on a low-end GPU.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
