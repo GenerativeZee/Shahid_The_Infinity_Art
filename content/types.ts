@@ -16,10 +16,13 @@ export type ProjectImage = {
 export type Project = {
   slug: string;
   name: string;
+  /** Real client name, per SPEC.md §11.2 — a bracketed placeholder until confirmed. */
   client: string;
+  /** Real location, per SPEC.md §11.2 — a bracketed placeholder until confirmed. */
   location: string;
   material: MaterialCategory;
-  year: number;
+  /** Real completion year, per SPEC.md §11.2 — a bracketed placeholder until confirmed. */
+  year: string;
   image: ProjectImage;
   featured?: boolean;
 };

@@ -356,6 +356,94 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   so a future session doesn't assume `<=4` was an arbitrary guess if it
   ever needs to reconcile against the real brief.
 
+## Spec revision — `redesign` branch
+
+Everything above this line was built against an informal brief that only
+ever existed as conversational context in earlier sessions — never checked
+into the repo, referenced only by bare `§` numbers in comments. The client
+sent a full rewritten spec and it's now checked in at `SPEC.md`, which is
+the single governing document going forward. Work continues on a new
+`redesign` branch off `master` (the M0–M7 build stays intact on `master`
+as a checkpoint). `SPEC.md` explicitly supersedes prior planning, per its
+own opening line.
+
+- **Tier thresholds (§9), corrected version.** This supersedes the
+  "Tier detection was silently downgrading most real phones" entry just
+  above — that entry's fix set *both* `deviceMemory` and
+  `hardwareConcurrency` to `<=2`; the client's read on the same evidence
+  keeps `hardwareConcurrency` at the original `<=4` and only lowers
+  `deviceMemory` to `<=2`. Final rule, live in `lib/tier.ts` and
+  `SPEC.md` §9: tier C if no WebGL2, `prefers-reduced-motion`, `saveData`,
+  slow-2g/2g/3g, `deviceMemory <= 2`, or `hardwareConcurrency <= 4`. The
+  live FPS probe also changed: 60-frame sample (was 90), demote tier A
+  below **40fps** (was 45), tier B below 25fps (unchanged). Rationale is
+  the same live repro as before (a phone reporting `deviceMemory === 4` —
+  the common case, since Chrome rounds actual RAM down to the nearest
+  power of two — ran the full tier-B scene fine once forced past the
+  gate) plus the client's own point: the frame sequence (§8.2) now ships
+  to *every* tier regardless, so the threshold only decides frame count
+  and whether the optional live scene loads — it matters less than it
+  did, so it isn't worth over-tuning further.
+- **Day/night hero pair (§11.3): real photography, not a render.** Shahid
+  is shooting it himself — phone locked in one position, one daylight
+  frame and one after-dark frame with the sign lit, ~2 hours of his time.
+  Exact framing/dimensions/filenames are specified in
+  `public/media/README.md` ("Day/night pair delivery"): landscape,
+  16:9 preferred, camera position must not move between the two shots
+  (the §5.1 mask reveal needs pixel-aligned frames), delivered as
+  `hero-day.jpg` / `hero-night.jpg` in a new `public/media/hero/`
+  directory. R1 builds against a labelled placeholder at that aspect
+  ratio; files are needed before R4, not R1.
+- **Board fabrication sequence (§8.2): baked from the existing R3F scene,
+  not Blender, and explicitly not shipping quality.** No Blender (or any
+  offline 3D renderer) is available in this environment. Rather than
+  block the whole pre-rendered-frames architecture on that gap, frames
+  get baked out of the hero's existing R3F scene (`components/hero/
+  Scene.tsx`) — same "pre-rendered, not live" architecture the spec
+  actually cares about, different tool than the one named. This buys a
+  real, testable pipeline (naming convention, preload batching, canvas
+  draw-and-skip, `sharp` compression) at R4, but the frames themselves
+  are placeholder-quality scaffolding — baking a realtime scene gets the
+  *performance* characteristics right, not the *quality* the whole
+  revision is for. They get replaced by a proper offline Blender render
+  before launch; this is logged now so a future session doesn't mistake
+  the R4 frames for shipping assets.
+- **Existing R3F hero/tier code: kept, re-scoped, not deleted.** It
+  becomes the candidate implementation for §8.3's optional tier-A live-3D
+  layer, judged honestly (keep or delete) at R5 — not the default hero
+  it was built as. The wedding-card fold (M7) is left untouched
+  mechanically; `SPEC.md` doesn't specify fold mechanics, so rule 2
+  applies (don't invent a reason to change working code the spec is
+  silent on).
+- **R0 — everything fabricated came back out**, per §11.2/§12 and rule 2
+  ("ask, don't invent"). All from the "sample content pass" and wedding
+  cover-texture entries above:
+  - `content/site.ts` — business phone/WhatsApp/address/geo back to
+    bracketed/placeholder values; the three trust numbers back to `[X]`.
+  - Every `projects[]` entry — `client`, `location` and `year` back to
+    bracketed placeholders (`Project.year` changed type from `number` to
+    `string` to hold `"[Year pending]"`). `name` and `material` stay
+    descriptive (e.g. "ACP Shopfront Board") since naming a *category* of
+    work isn't a claim about a specific business, only `client`/
+    `location`/`year` are. Slugs and image filenames that encoded the
+    fictional client names (e.g. `umiya-traders-acp-wide.jpg`) were
+    renamed to neutral, category-based names (e.g.
+    `acp-shopfront-board-wide.jpg`) — the old names would have leaked a
+    fake business name into the visible placeholder text itself.
+  - Deleted the 9 downloaded Unsplash stock photos
+    (`public/media/work/*.jpg`, `public/media/wedding/hero-flatlay.jpg`)
+    and `public/media/ATTRIBUTION.md`. `WorkGrid.tsx` and `Wedding.tsx`
+    revert to rendering `Placeholder` again.
+  - `WeddingScene.tsx`'s cover panel reverts to plain paper on both
+    faces — the texture-loading code from the "sample content pass" is
+    removed entirely. The fold's rotation/hinge mechanics are untouched.
+  - Deleted `components/ui/SiteImage.tsx` (unused after the above, and
+    architecturally contradicts §4.1 regardless of content — its
+    `next/image`-based replacement is real work deferred to R3, not
+    something to half-build now).
+  - JS budget dropped back to 141.9 KB gzipped (from 147.4) now that
+    `next/image`'s runtime is gone again.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

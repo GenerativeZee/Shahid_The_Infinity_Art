@@ -25,7 +25,7 @@ function hasWebGL2(): boolean {
   }
 }
 
-/** Dev-only override so any tier can be tested on any machine (§14). */
+/** Dev-only override so any tier can be tested on any machine (SPEC.md §9). */
 function tierOverride(): Tier | null {
   if (typeof window === "undefined") return null;
   const value = new URLSearchParams(window.location.search).get("tier");
@@ -33,22 +33,18 @@ function tierOverride(): Tier | null {
 }
 
 /**
- * Synchronous initial detection (§5.1) — must complete before first paint
- * of the hero. Missing APIs (Safari has no deviceMemory) are treated as
- * mid-range, never as high-end: guessing high is how you cook someone's
+ * Synchronous initial detection (SPEC.md §9) — must complete before first
+ * paint of the hero. Missing APIs (Safari has no deviceMemory) are treated
+ * as mid-range, never as high-end: guessing high is how you cook someone's
  * phone.
  *
- * The deviceMemory/hardwareConcurrency floors deliberately sit low (<=2,
- * not <=4). Chrome's Device Memory API rounds actual RAM down to the
- * nearest power of two, so most contemporary phones with 4-6GB report
- * exactly 4 — a <=4 floor was silently forcing the majority of real phones
- * to tier C's static fallback (confirmed live: a phone stuck on the tier-C
- * poster rendered the full tier-B scene fine once forced via ?tier=B). The
- * live FPS probe below (§5.2) is the actual safety net for a bad guess —
- * it measures real render cost after mount and downgrades one step if the
- * device can't sustain it — so the static pre-check only needs to catch
- * genuinely low-end hardware, not gate the entire mid-range on a rounding
- * quirk.
+ * The deviceMemory floor is <=2, not the spec's original <=4.
+ * hardwareConcurrency stays at <=4, per spec. Chrome's Device Memory API
+ * rounds actual RAM down to the nearest power of two, so most contemporary
+ * phones with 4-6GB report exactly 4 — the original <=4 floor was silently
+ * forcing the majority of real phones to tier C's static fallback
+ * (confirmed live: a phone stuck on the tier-C poster rendered the full
+ * tier-B scene fine once forced via ?tier=B). See DECISIONS.md.
  */
 export function detectTier(): Tier {
   const override = tierOverride();
@@ -66,7 +62,7 @@ export function detectTier(): Tier {
     prefersReducedMotion() ||
     isSlowConnection ||
     (nav?.deviceMemory !== undefined && nav.deviceMemory <= 2) ||
-    (nav?.hardwareConcurrency !== undefined && nav.hardwareConcurrency <= 2)
+    (nav?.hardwareConcurrency !== undefined && nav.hardwareConcurrency <= 4)
   ) {
     return "C";
   }
@@ -81,15 +77,17 @@ export function detectTier(): Tier {
   return isHighEnd ? "A" : "B";
 }
 
-const PROBE_FRAME_TARGET = 90;
+const PROBE_FRAME_TARGET = 60;
 const PROBE_MAX_MS = 2000;
 
 /**
- * The live-probe insurance (§5.2). Samples frame durations after the scene
- * mounts and reports the median FPS once enough samples exist — capped by
- * time as well as frame count, since 90 frames at a genuinely bad framerate
- * would otherwise take longer than the ~2s the probe is meant to react
- * within (§16 acceptance check).
+ * The live-probe insurance (SPEC.md §9). Samples frame durations after the
+ * scene mounts and reports the median FPS once enough samples exist —
+ * capped by time as well as frame count, since 60 frames at a genuinely bad
+ * framerate would otherwise take longer than the ~2s the probe is meant to
+ * react within (§16 acceptance check). Measured frame time is the real
+ * safety net for tier detection; the static checks above only need to
+ * catch genuinely low-end hardware, not gate the whole mid-range.
  */
 export function probeFps(onResult: (medianFps: number) => void, override?: Tier | null): () => void {
   if (override) return () => {};
@@ -118,9 +116,9 @@ export function probeFps(onResult: (medianFps: number) => void, override?: Tier 
   return () => cancelAnimationFrame(rafId);
 }
 
-/** One-way downgrade only (§5.2) — never upgrade mid-session. */
+/** One-way downgrade only (SPEC.md §9) — never upgrade mid-session. */
 export function downgradeFor(tier: Tier, medianFps: number): Tier | null {
-  if (tier === "A" && medianFps < 45) return "B";
+  if (tier === "A" && medianFps < 40) return "B";
   if (tier === "B" && medianFps < 25) return "C";
   return null;
 }

@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useRef } from "react";
+import { Placeholder } from "@/components/ui/Placeholder";
 import { Reveal } from "@/components/ui/Reveal";
-import { SiteImage } from "@/components/ui/SiteImage";
 import { useHeroStore } from "@/lib/store";
 import { wedding } from "@/content/site";
 
@@ -13,7 +13,8 @@ const WeddingCanvas = dynamic(() => import("@/components/wedding/WeddingCanvas")
 });
 
 /**
- * Tier A/B get the live scroll-driven fold (§9, M7); tier C — and anyone
+ * Tier A/B get the live scroll-driven fold (M7, kept as-is per SPEC.md
+ * rule 2 — the spec doesn't dictate fold mechanics); tier C — and anyone
  * whose tier hasn't been detected yet, including every server-rendered
  * pass — gets the same static placeholder used everywhere else, never a
  * blank gap.
@@ -30,9 +31,8 @@ export function Wedding() {
           {showFold ? (
             <WeddingCanvas sectionRef={sectionRef} />
           ) : (
-            <SiteImage
+            <Placeholder
               filename={wedding.image.filename}
-              alt={wedding.image.alt}
               aspect={wedding.image.aspect}
               className="rounded"
             />
