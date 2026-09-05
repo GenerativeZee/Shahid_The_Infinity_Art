@@ -237,6 +237,49 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   against the deployed preview, and testing on a real device per §15's own
   instruction ("a throttled desktop is not the same thing").
 
+## M7 — wedding card fold
+
+- **Built despite the JS budget being tight, not "comfortably" within it**
+  (§14 gates M7 on M6 being comfortably within budget) — the deciding
+  factor was that the marginal cost is near zero: `WeddingCanvas` is its
+  own `next/dynamic(..., { ssr: false })` boundary reusing the exact same
+  lazy three.js/R3F chunk the hero already loads, so it adds essentially
+  nothing to the always-loaded main bundle (141.6 → 141.9 KB gzipped,
+  confirmed via `check:budget` and `route-bundle-stats.json` — still 7
+  first-load chunks, three.js isolated in the same separate lazy chunk),
+  just a small amount of additional code inside the chunk that's already
+  lazy. The actual gating concern — real device performance — is still
+  unverified (see M6 note on no Lighthouse/device testing having run).
+- **Own local scroll progress, not the global heroProgress store.** The
+  fold is a separate, much shorter scroll moment scoped to its own section
+  (`components/wedding/useCardProgress.ts`), not part of the hero's 300dvh
+  track. Kept in a ref and read imperatively inside `useFrame`, same
+  discipline as heroProgress — never React state, never a per-scroll
+  re-render.
+- **Simpler pause strategy than the hero's**: `frameloop="always"` while
+  the card is in view, `"never"` otherwise (IntersectionObserver +
+  visibilitychange), rather than the hero's demand/invalidate/probe
+  machinery. Justified by scale — two planes, no environment map, no
+  post-processing — building the heavier machinery for a "tiny model"
+  would be over-engineering it.
+- **Tier-gated via the existing global `tier` in the zustand store**
+  (set once by the hero's `HeroCanvas`) rather than re-running detection.
+  Tier A/B get the live fold; tier C, and every server-rendered pass
+  (`tier` starts `null`), get the same static `Placeholder` used
+  everywhere else — no separate fallback path to maintain.
+- **Two bugs fixed on review before commit.** `WeddingScene`'s accent lookup
+  used `useRef(getAccentColor()).current` as a "lazy ref init" — tripped the
+  React Compiler-era `react-hooks/refs` lint rule (reading `.current` during
+  render), same family as [[reveal-dom-mutation]]; switched to
+  `useMemo(() => getAccentColor(), [])`, matching the hero's `Scene.tsx`
+  pattern exactly. Separately, `WeddingCanvas`'s pause logic derived `active`
+  from a single state variable updated by two independent listeners
+  (`prev && !document.hidden` in the visibilitychange handler) — once the
+  tab was hidden while the card was in view, tabbing back never resumed
+  rendering because `prev` was already `false`. Fixed by tracking
+  `intersecting` and `hidden` as separate state and deriving
+  `active = intersecting && !hidden`.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
