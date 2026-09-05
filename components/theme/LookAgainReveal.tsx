@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { Marker } from "@/components/theme/Marker";
+import { ProgressTrack } from "@/components/theme/ProgressTrack";
 import { prefersReducedMotion } from "@/lib/tier";
 import { whyThisWorksByMaterial } from "@/content/site";
 import type { MaterialCategory, ProjectImage } from "@/content/types";
@@ -183,32 +184,15 @@ export function LookAgainReveal({
                   <p className="measure text-step-0 text-text">{activeLayer!.text}</p>
                 </div>
 
-                <div role="group" aria-label="Story steps" className="flex items-center gap-3">
-                  <div className="relative flex gap-2">
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-x-2.5 top-1/2 h-px -translate-y-1/2 bg-border"
-                    />
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute left-2.5 top-1/2 h-px -translate-y-1/2 bg-accent transition-[width] duration-500"
-                      style={{ width: `calc((100% - 1.25rem) * ${stage / (layers.length - 1)})` }}
-                    />
-                    {layers.map((layer, i) => (
-                      <button
-                        key={layer.heading}
-                        type="button"
-                        aria-current={i === stage ? "step" : undefined}
-                        aria-label={layer.heading}
-                        onClick={() => setStage(i)}
-                        className={`relative z-10 h-5 w-5 rounded-full border transition-colors duration-200 ${
-                          i === stage
-                            ? "border-accent bg-accent"
-                            : "border-border bg-surface hover:border-text-muted"
-                        }`}
-                      />
-                    ))}
-                  </div>
+                <div className="flex items-center gap-3">
+                  <ProgressTrack
+                    count={layers.length}
+                    activeIndex={stage}
+                    onSelect={setStage}
+                    ariaLabel="Story steps"
+                    size="sm"
+                    dotAriaLabel={(i) => layers[i].heading}
+                  />
 
                   {stage < layers.length - 1 ? (
                     <button

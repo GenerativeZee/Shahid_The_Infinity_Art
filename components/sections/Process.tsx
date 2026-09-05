@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type SVGProps } from "react";
+import { ProgressTrack } from "@/components/theme/ProgressTrack";
 import { Reveal } from "@/components/ui/Reveal";
 import { usePrefersReducedMotion } from "@/lib/tier";
 import { process } from "@/content/site";
@@ -12,6 +13,12 @@ import { process } from "@/content/site";
  * free) rather than a real project photo — none of these steps have real
  * photography yet, and an abstract "idea -> object" visual is honest
  * where a staged photo pretending to be a real job wouldn't be.
+ *
+ * Reaching the last step (Installation) reveals a small, quiet callback
+ * to the hero's own logo mark — the ∞ iteration's one deliberate "the
+ * work is continuous, not a dead end" moment (see DECISIONS.md). It's
+ * the only place on the site the logo mark appears a second time, and
+ * only because a real state change (finishing the sequence) earns it.
  */
 const STEP_ICONS = [DesignIcon, ApprovalIcon, PrintIcon, InstallationIcon];
 
@@ -84,37 +91,41 @@ export function Process() {
                * honestly without promising a keyboard contract this
                * component doesn't fully implement.
                */}
-              <div role="group" aria-label="Process steps" className="relative flex gap-2">
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-border"
-                />
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-5 top-1/2 h-px -translate-y-1/2 bg-accent transition-[width] duration-500"
-                  style={{ width: `calc((100% - 2.5rem) * ${activeIndex / (process.length - 1)})` }}
-                />
-                {process.map((step, i) => (
-                  <button
-                    key={step.step}
-                    type="button"
-                    aria-current={i === activeIndex ? "step" : undefined}
-                    onClick={() => setActiveIndex(i)}
-                    className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border font-mono text-step--1 tabular-nums transition-colors duration-200 ${
-                      i === activeIndex
-                        ? "border-accent bg-accent text-ground"
-                        : "border-border bg-surface text-text-muted hover:border-text-muted hover:text-text"
-                    }`}
-                  >
-                    {String(step.step).padStart(2, "0")}
-                  </button>
-                ))}
-              </div>
+              <ProgressTrack
+                count={process.length}
+                activeIndex={activeIndex}
+                onSelect={setActiveIndex}
+                ariaLabel="Process steps"
+                dotContent={(i) => String(process[i].step).padStart(2, "0")}
+              />
 
               <div key={activeStep.step} className="flex flex-col gap-2" style={enterStyle}>
                 <h3 className="text-step-1 font-semibold text-text">{activeStep.name}</h3>
                 <p className="measure text-step-0 text-text-muted">{activeStep.description}</p>
               </div>
+
+              {activeIndex === process.length - 1 ? (
+                <div
+                  style={reduced ? undefined : { animation: "process-step-in 500ms ease both" }}
+                  className="flex items-center gap-2 text-text-muted"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-4 w-4 shrink-0 bg-accent"
+                    style={{
+                      WebkitMaskImage: "url(/logo/mark.png)",
+                      maskImage: "url(/logo/mark.png)",
+                      WebkitMaskSize: "contain",
+                      maskSize: "contain",
+                      WebkitMaskRepeat: "no-repeat",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskPosition: "center",
+                      maskPosition: "center",
+                    }}
+                  />
+                  <p className="text-step--1">The board goes up. The site comes next.</p>
+                </div>
+              ) : null}
             </div>
           </div>
         </Reveal>

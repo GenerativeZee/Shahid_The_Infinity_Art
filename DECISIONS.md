@@ -978,6 +978,61 @@ subject six ways.
   no new dependencies, still under 150 KB with headroom shrinking as
   expected across iterations.
 
+## ∞ The Infinity Thread
+
+Fourth iteration. Explicitly *not* a new feature — continuity between
+what already exists, per the client's own framing: "the infinity symbol
+is not the feature, continuity is the feature."
+
+- **Clarified a real mismatch before touching anything.** The brief
+  described `hero-day.jpg`/`hero-night.jpg` as existing working assets
+  with day/night *detection logic* to protect. Neither is true on this
+  branch: `DayNightReveal.tsx` renders labelled placeholder blocks (the
+  real shoot hasn't happened — see the earlier "Day/night pair delivery"
+  entry), and the only dynamic behaviour is a cursor-position mask
+  reveal, not a day/night mode switch. Flagged this to the client rather
+  than silently building against an assumption that doesn't match the
+  code, and treated "protect the Hero" as: touch nothing in
+  `components/hero/`, `ThemeEngine.tsx`, or `lib/themeEngine.ts` at all.
+  Verified via `git diff --stat` on those paths after finishing: zero
+  changes.
+- **The real "shared visual grammar" work was a genuine refactor, not a
+  decorative addition.** `Process.tsx` and `LookAgainReveal.tsx`'s "Why
+  This Works" stepper had independently implemented near-identical
+  line-behind-numbered-dots code. Extracted `components/theme/
+  ProgressTrack.tsx` once a second copy of the same pattern showed up —
+  satisfies "only abstract when it genuinely reduces duplication," not
+  abstraction for its own sake. `Marker.tsx` (extracted last iteration)
+  and `ProgressTrack.tsx` together are the actual "Infinity Thread
+  vocabulary" this iteration was asked to identify — line, dot, label,
+  direction, progression, all in one place instead of copy-pasted.
+- **The one memorable moment lives in Process, not the Hero.** Reaching
+  the last step (Installation) reveals a small reuse of the actual logo
+  mark (`public/logo/mark.png`, same CSS-mask technique already
+  established in `Hero.tsx`) next to the line "The board goes up. The
+  site comes next." — a real callback to Process being immediately
+  followed by Digital in the page's own section order (`app/page.tsx`),
+  not an abstract "everything is connected" gesture. This is the only
+  place on the site the logo mark appears a second time, and only
+  because finishing the sequence — a real state change — earns it.
+  Caught in self-review: the first draft marked this whole block
+  `aria-hidden="true"`, which would have hidden the actual sentence from
+  screen readers along with the decorative icon — fixed to hide only the
+  icon span.
+- **The literal `∞` character is not used anywhere in this iteration.**
+  Per the client's own "prefer curves, continuation, loops... over
+  repeatedly displaying the actual symbol" — the thread is the shared
+  line/dot/marker vocabulary and the one Process→Digital callback, not
+  a glyph.
+- **Nothing added to Shahid's Eye, Materials, Work's "What changed?",
+  Wedding, Digital, Quote, Footer, or navigation** — the brief's own
+  explicit "do not overbuild" list. `git status` after this iteration
+  touches exactly three files (`Process.tsx`, `LookAgainReveal.tsx`,
+  plus the new `ProgressTrack.tsx`).
+- **JS budget moved to 147.9 KB gzipped** (from 147.7) — a net-negative
+  amount of new markup (the refactor removes duplicated JSX) plus one
+  small conditional block; the ~0.2 KB is essentially noise.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
