@@ -1275,6 +1275,68 @@ data — those gates are unchanged and still listed below):
 
 Budget unchanged at 151.8 KB gzipped (metadata routes are server-only).
 
+## Hero physical artifact — "The Fabricated Loop" replaces day/night
+
+Eighth iteration. The client asked to drop the day/night Hero for
+something "similar in spirit to an older version" — the retired M3–M5
+R3F scroll hero (`components/hero/HeroStage`/`HeroCanvas`/`Scene` +
+`lib/heroTimeline.ts`, dead code since R1). Studied it, kept its *idea*
+(a fabricated object coming into being on scroll, then handing off to
+the next section), dropped its *implementation* (three/drei/
+postprocessing/gsap, tier + FPS-probe machinery, a runtime-fetched night
+HDRI, the literal ∞ built from two torus rings, a 300dvh scroll-jack).
+
+- **New `components/sections/HeroRibbon.tsx`** — one bent strip of
+  signage material, revealed as the Hero scrolls out of view. Built from
+  five stacked `<path>`s sharing one `d` (shadow · cut edge · face ·
+  hatch texture · lit highlight), each `pathLength={1}`. Scroll writes a
+  single `--reveal` (0→1) onto the wrapper via the existing Lenis tick,
+  rAF-throttled, straight to the DOM node — never React state. Every CSS
+  value on the artifact is a `calc()` of `--reveal`: a stroke-dash "draw"
+  for the form, a group `transform` (rise / unskew / square-up / slight
+  scale) for the turn into place, a travelling `stroke-dashoffset`
+  segment for light along the edge. `transform` / `opacity` /
+  `stroke-dashoffset` only — no layout property touched during scroll,
+  no `@keyframes`, no idle motion. It holds wherever scroll leaves it.
+- **Not a literal ∞** (brief §5): the path folds back on itself leaving
+  an inner cavity, the way a folded strip of ACP would. Two `d` strings —
+  a landscape sweep (`md:` up) and a vertical rise (phone) — same object,
+  two framings, per the brief's explicit allowance.
+- **First artifact of the exhibition.** It establishes the physical-object
+  vocabulary that Shahid's Eye, `ProcessArtifact` and `BuildItArtifact`
+  then work with — the Infinity Thread made literal in the Hero.
+- **Typography untouched.** The logo-mark wordmark, eyebrow, one line of
+  copy and two CTAs are byte-identical; only the centred day/night photo
+  panel was removed. The ribbon is the backmost layer (`aria-hidden`),
+  passing behind the mark and the copy scrim.
+- **Reduced motion** — `prefersReducedMotion()` pins `--reveal` to 1 and
+  a media block hard-sets the settled state: a finished, drawn, lit
+  artifact, no scroll response. Not "animation disabled."
+- **Removed** (obsolete): `components/hero/DayNightReveal.tsx`,
+  `HeroStage.tsx`, `HeroCanvas.tsx`, `Scene.tsx`, `shadowTexture.ts`,
+  `useHeroProgress.ts`, `lib/heroTimeline.ts`. All day/night CSS
+  (`.day-night-reveal*`, `@keyframes day-night-sweep`, `@property
+  --x/--y/--r`, `--reveal-radius` media queries). **`gsap` dependency**
+  (only `heroTimeline.ts` imported it).
+- **Kept**: `lib/store.ts` (Wedding reads `.tier`), `lib/scroll.ts`
+  (ThemeEngine + wedding + now HeroRibbon), `lib/tier.ts`,
+  three/@react-three/*/zustand/lenis (Wedding + ThemeEngine). Now-dead
+  surface not trimmed this pass: `store.ts`'s `heroProgress`/
+  `setHeroProgress`, `tier.ts`'s `detectTier`/`probeFps`/`downgradeFor`
+  (all only used by the deleted 3D hero) — left intact rather than risk
+  the Wedding tier read; flag for a future cleanup.
+- **Budget: 151.8 → 151.9 KB gzipped** (~flat — the new client
+  component roughly offsets the removed `DayNightReveal`). `gsap` was
+  lazy/dead, not in `/` first-load, so removing it is hygiene not a
+  saving. No new dependencies.
+- **No browser verification** (extension not connected in this env, as
+  every iteration since M6). The scroll plumbing, z-order, reduced-motion
+  and regression paths were traced in full. Unverified: the two hand-
+  authored bezier paths' actual elegance, the `slice`-crop framing at
+  375–430px, `transform-box: fill-box` on older Safari, and real scroll
+  smoothness on a mid-range Android. If the paths look wrong, the fix is
+  local to `HeroRibbon.tsx` (`PATH_DESKTOP` / `PATH_MOBILE`).
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

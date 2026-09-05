@@ -34,43 +34,15 @@
      --step-* scale above, which tops out far smaller. */
   --text-hero: clamp(3rem, 17vw, 15rem);
   --text-heading: clamp(2.5rem, 11vw, 8rem);
-
-  /* Day/night reveal radius (SPEC.md §5.1) — viewport-responsive, not
-     itself animated; --r below references it live so a resize is always
-     correct without a JS resize listener. */
-  --reveal-radius: 280px;
 }
 
-@media (max-width: 719px) {
-  :root {
-    --reveal-radius: 175px;
-  }
-}
-
-@media (max-width: 479px) {
-  :root {
-    --reveal-radius: 130px;
-  }
-}
-
-/* Typed so they can be animated by the touch auto-sweep keyframes below —
-   an untyped custom property can't be interpolated by CSS animations. */
-@property --x {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: -999px;
-}
-
-@property --y {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: -999px;
-}
-
-@property --r {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
+/* Hero ribbon scroll progress (0→1). Typed so it holds a real number and
+   can't be misparsed inside the calc() expressions that drive the
+   artifact's transform and stroke-dashoffset. */
+@property --reveal {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
 }
 
 @theme inline {
@@ -190,58 +162,97 @@
   }
 }
 
-/* Day/night hero reveal (SPEC.md §5.1). --x/--y/--r are mutated directly
-   via ref in DayNightReveal.tsx (desktop) or driven by the keyframes below
-   (touch) — never through React state, so a mousemove can never trigger a
-   re-render. */
-.day-night-reveal__night {
-  -webkit-mask-image: radial-gradient(
-    circle var(--r) at var(--x) var(--y),
-    #fff 0%,
-    #fff 38%,
-    rgb(255 255 255 / 72%) 58%,
-    rgb(255 255 255 / 35%) 74%,
-    rgb(255 255 255 / 10%) 88%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    circle var(--r) at var(--x) var(--y),
-    #fff 0%,
-    #fff 38%,
-    rgb(255 255 255 / 72%) 58%,
-    rgb(255 255 255 / 35%) 74%,
-    rgb(255 255 255 / 10%) 88%,
-    transparent 100%
-  );
+/* Hero ribbon (HeroRibbon.tsx) — the first fabricated artifact. Scroll
+   writes --reveal (0→1) onto .hero-ribbon; every value below is a calc()
+   of it. transform / opacity / stroke-dashoffset only — nothing that
+   triggers layout. When the visitor stops scrolling it simply holds. */
+.hero-ribbon {
+  --reveal: 0;
 }
 
-@media (hover: none) {
-  .day-night-reveal__night--sweep {
-    --r: var(--reveal-radius);
-    animation: day-night-sweep 9s ease-in-out infinite alternate;
-  }
+.hero-ribbon__svg {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
 }
 
-@keyframes day-night-sweep {
-  0% {
-    --x: 15%;
-    --y: 45%;
-  }
-  100% {
-    --x: 85%;
-    --y: 45%;
-  }
+/* The whole strip turns into place as it is revealed: rises, unskews,
+   squares up, grows very slightly toward the viewer. */
+.hero-ribbon__group {
+  transform-box: fill-box;
+  transform-origin: 50% 60%;
+  transform: translateY(calc((1 - var(--reveal)) * 5%))
+    rotate(calc((1 - var(--reveal)) * -7deg))
+    skewY(calc((1 - var(--reveal)) * 4deg))
+    scale(calc(0.9 + var(--reveal) * 0.1));
+  will-change: transform;
+}
+
+/* Shared "draw" — nothing at reveal 0, fully drawn by reveal ≈ 0.62,
+   the rest of the scroll is the settle. */
+.hero-ribbon__shadow,
+.hero-ribbon__edge,
+.hero-ribbon__face,
+.hero-ribbon__tex {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: clamp(0, calc(1 - var(--reveal) / 0.62), 1);
+}
+
+/* A soft dark offset stroke reads as a contact shadow behind the type —
+   no blur filter, which would recomposite every scroll frame. */
+.hero-ribbon__shadow {
+  stroke: #000000;
+  stroke-width: 70;
+  opacity: 0.24;
+}
+.hero-ribbon__edge {
+  stroke: var(--color-border);
+  stroke-width: 58;
+}
+.hero-ribbon__face {
+  stroke: var(--color-surface-raised);
+  stroke-width: 46;
+}
+.hero-ribbon__tex {
+  stroke: url(#hero-ribbon-hatch);
+  stroke-width: 46;
+  opacity: 0.5;
+}
+
+/* A short bright segment that travels along the edge as the loop closes,
+   then dims to a resting glint. Held invisible until the ribbon is part
+   drawn, so no stray dot floats over empty space early on. */
+.hero-ribbon__highlight {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 0.06 0.94;
+  stroke-dashoffset: calc(0.62 - var(--reveal) * 0.92);
+  opacity: max(0, calc((var(--reveal) - 0.2) * 0.62));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .day-night-reveal__night {
-    -webkit-mask-image: none;
-    mask-image: none;
-    opacity: 1;
+  /* No scroll animation — a finished, settled artifact. */
+  .hero-ribbon__group {
+    transform: scale(1);
   }
-
-  .day-night-reveal__night--sweep {
-    animation: none;
+  .hero-ribbon__shadow,
+  .hero-ribbon__edge,
+  .hero-ribbon__face,
+  .hero-ribbon__tex,
+  .hero-ribbon__highlight {
+    stroke-dashoffset: 0;
+  }
+  .hero-ribbon__shadow {
+    opacity: 0.26;
+  }
+  .hero-ribbon__highlight {
+    stroke-dasharray: none;
+    opacity: 0.4;
   }
 }
 
