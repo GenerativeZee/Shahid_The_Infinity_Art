@@ -204,6 +204,39 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   separate ~1.1 MB lazy chunk that does NOT count toward this budget
   (verified directly against `route-bundle-stats.json`, not just trusted).
 
+## M6 — performance pass
+
+- **Fixed a real one-line-accent-change violation (§16 acceptance check):**
+  `Scene.tsx` had `#7fe3ff` hardcoded a second time for the letters'
+  emissive colour, independent of `--color-accent` in `app/globals.css`.
+  Added `lib/theme.ts` (`getAccentColor()`, reads the CSS variable via
+  `getComputedStyle` at runtime) so the 3D scene now derives its accent
+  from the same single source instead of duplicating it. Caught by
+  actually re-checking the acceptance checklist against the code, not by
+  assuming it was fine.
+- **Confirmed, not just assumed, that three/R3F/drei/postprocessing are
+  code-split out of the main bundle**: inspected
+  `.next/diagnostics/route-bundle-stats.json` directly rather than trusting
+  the gzip number alone — the "/" route's first-load set is 7 small chunks
+  totaling 141.6 KB gzipped; the 3D libraries land in a separate ~1.08 MB
+  raw / ~0.30 MB gzipped chunk that isn't in that list at all, confirming
+  the `next/dynamic(..., { ssr: false })` boundary around `HeroCanvas`
+  is actually doing its job. 0.30 MB is comfortably inside the 2.5 MB lazy
+  payload budget (§11) — we have no Draco/meshopt/KTX2 assets to compress
+  since the geometry is procedural, not loaded from files.
+- **Lighthouse / real-device testing not run from this session.** No
+  browser automation was available here (the Chrome extension never
+  connected) and there's no headless Chrome in this environment to drive
+  `lighthouse` CLI against. The architecture satisfies the *intent* of
+  every §16 item that can be verified by reading code and build output
+  (disposal on unmount, viewport/visibility pausing, frameloop gating, the
+  one-line accent, the lazy-chunk boundary) — but the actual Lighthouse
+  score, real 4G timing, and how the hero *feels* on a real mid-range
+  Android have not been measured and must be checked before this milestone
+  is considered done. Recommend running Lighthouse (throttled 4G, mobile)
+  against the deployed preview, and testing on a real device per §15's own
+  instruction ("a throttled desktop is not the same thing").
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

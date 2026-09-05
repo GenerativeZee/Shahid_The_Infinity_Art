@@ -8,8 +8,8 @@ import * as THREE from "three";
 import { useHeroStore } from "@/lib/store";
 import { createHeroBeatState, createHeroTimeline } from "@/lib/heroTimeline";
 import { createShadowTexture } from "./shadowTexture";
+import { getAccentColor } from "@/lib/theme";
 
-const ACCENT = "#7fe3ff";
 const BASE_BOARD_THICKNESS = 0.02;
 const BASE_LETTER_DEPTH = 0.14;
 const EXTRA_BOARDS = 8;
@@ -31,6 +31,7 @@ export function Scene({ tier }: { tier: "A" | "B" }) {
   const beatState = useMemo(() => createHeroBeatState(), []);
   const timeline = useMemo(() => createHeroTimeline(beatState), [beatState]);
   const shadowTexture = useMemo(() => (tier === "B" ? createShadowTexture() : null), [tier]);
+  const accent = useMemo(() => getAccentColor(), []);
 
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const boardGroupRef = useRef<THREE.Group>(null);
@@ -131,7 +132,7 @@ export function Scene({ tier }: { tier: "A" | "B" }) {
               ior={1.49}
               clearcoat={1}
               roughness={0.1}
-              emissive={ACCENT}
+              emissive={accent}
               emissiveIntensity={0}
             />
           ) : (
@@ -139,7 +140,7 @@ export function Scene({ tier }: { tier: "A" | "B" }) {
               ref={letterMatB}
               color="#e8fbff"
               roughness={0.3}
-              emissive={ACCENT}
+              emissive={accent}
               emissiveIntensity={0}
             />
           )}
@@ -153,11 +154,11 @@ export function Scene({ tier }: { tier: "A" | "B" }) {
               ior={1.49}
               clearcoat={1}
               roughness={0.1}
-              emissive={ACCENT}
+              emissive={accent}
               emissiveIntensity={0}
             />
           ) : (
-            <meshStandardMaterial color="#e8fbff" roughness={0.3} emissive={ACCENT} emissiveIntensity={0} />
+            <meshStandardMaterial color="#e8fbff" roughness={0.3} emissive={accent} emissiveIntensity={0} />
           )}
         </mesh>
       </group>
