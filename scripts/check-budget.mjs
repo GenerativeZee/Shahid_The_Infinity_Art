@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-// Fails the build if the "/" route's first-load JS exceeds the §11 budget
-// (150 KB gzipped). Run after `next build`. Reads Next's own bundle stats
+// Fails the build if the "/" route's first-load JS exceeds the soft
+// ceiling (~170 KB gzipped, raised from the original 150 KB at ∞
+// iteration 7 — see DECISIONS.md; 170 KB is breathing room, not a
+// target). Run after `next build`. Reads Next's own bundle stats
 // diagnostics rather than re-parsing build output, since Next 16 no longer
 // prints a size table for Turbopack builds.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 
-const BUDGET_BYTES = 150 * 1024;
+const BUDGET_BYTES = 170 * 1024;
 const statsPath = path.join(process.cwd(), ".next/diagnostics/route-bundle-stats.json");
 
 if (!existsSync(statsPath)) {

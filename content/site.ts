@@ -210,21 +210,28 @@ export const process: ProcessStep[] = [
     step: 1,
     name: "Design",
     description: "We measure the site, take your brief and send a proof before anything is cut or printed.",
+    visual: "A hairline drawing of the sign — outline, lettering and alignment guides, designed but not yet built.",
+    lens: "type",
   },
   {
     step: 2,
     name: "Approval",
     description: "You sign off the design and size. Nothing goes to production without your yes.",
+    visual: "The guides are cleared; the outline and lettering commit, with an approval mark in the corner.",
   },
   {
     step: 3,
     name: "Print",
     description: "Material is printed, cut or fabricated in-house and quality-checked.",
+    visual: "The panel gains a solid ACP surface, a printed texture and the depth of a real board.",
+    lens: "material",
   },
   {
     step: 4,
     name: "Installation",
     description: "We install on-site on the date we gave you — that date is a promise, not an estimate.",
+    visual: "The finished panel is mounted on a wall, lit along its edge, casting a shadow — now it is in a place.",
+    lens: "space",
   },
 ];
 

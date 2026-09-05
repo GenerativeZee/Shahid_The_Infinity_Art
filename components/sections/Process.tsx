@@ -1,26 +1,38 @@
 "use client";
 
-import { useRef, useState, type SVGProps } from "react";
+import { useRef, useState } from "react";
+import { Marker } from "@/components/theme/Marker";
+import { ProcessArtifact } from "@/components/sections/ProcessArtifact";
 import { ProgressTrack } from "@/components/theme/ProgressTrack";
 import { Reveal } from "@/components/ui/Reveal";
 import { usePrefersReducedMotion } from "@/lib/tier";
-import { process } from "@/content/site";
+import { eyeLenses, process } from "@/content/site";
 
 /**
- * Evolves the four static cards into a clickable/swipeable stepper (v4
- * interactive pass — see DECISIONS.md). Each stage shows an abstract,
- * theme-tinted illustration (stroke="currentColor", so it re-themes for
- * free) rather than a real project photo — none of these steps have real
- * photography yet, and an abstract "idea -> object" visual is honest
- * where a staged photo pretending to be a real job wouldn't be.
+ * One sign panel, four states — Design → Approval → Print → Installation.
+ * The stepper stays (click a number, arrow-key, or swipe on touch), but
+ * the centrepiece is now a single artefact that physically transforms in
+ * place rather than four separate icons (∞ iteration 7 — see
+ * DECISIONS.md). All of the transformation lives in `ProcessArtifact`;
+ * this component only owns which state is active.
  *
- * Reaching the last step (Installation) reveals a small, quiet callback
- * to the hero's own logo mark — the ∞ iteration's one deliberate "the
- * work is continuous, not a dead end" moment (see DECISIONS.md). It's
- * the only place on the site the logo mark appears a second time, and
- * only because a real state change (finishing the sequence) earns it.
+ * A decorative `Marker` on the artefact carries the Shahid's Eye lens
+ * each stage foregrounds (Type positioned → Material carries it → Space
+ * changes how it reads), so the design decisions from that section are
+ * seen surviving into the finished, mounted board.
+ *
+ * Reaching Installation still reveals the quiet logo-mark callback to the
+ * Digital section that immediately follows it in the page — the board
+ * goes up, the work continues.
  */
-const STEP_ICONS = [DesignIcon, ApprovalIcon, PrintIcon, InstallationIcon];
+
+// Where the lens marker points, per state (percent of the artefact box).
+// Approval (index 1) has no lens — it is a decision, not an observation.
+const LENS_MARKER: Record<number, { x: number; y: number }> = {
+  0: { x: 50, y: 44 },
+  2: { x: 33, y: 38 },
+  3: { x: 57, y: 18 },
+};
 
 export function Process() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -47,11 +59,12 @@ export function Process() {
   }
 
   const activeStep = process[activeIndex];
-  const ActiveIcon = STEP_ICONS[activeIndex];
   const reduced = usePrefersReducedMotion();
-  const enterStyle = reduced
-    ? undefined
-    : { animation: "process-step-in 400ms ease both" };
+  const enterStyle = reduced ? undefined : { animation: "process-step-in 400ms ease both" };
+
+  const lensId = activeStep.lens;
+  const lensLabel = lensId ? eyeLenses.find((l) => l.id === lensId)?.label : undefined;
+  const markerPos = LENS_MARKER[activeIndex];
 
   return (
     <section id="process" className="bg-surface px-6 py-section md:px-12">
@@ -61,8 +74,8 @@ export function Process() {
             <p className="font-mono text-step--1 uppercase tracking-label text-accent">Process</p>
             <h2 className="text-heading">How a job runs</h2>
             <p className="measure text-step-0 text-text-muted">
-              Four steps, every time. Click through to watch a job take shape — the date we give
-              you at step four is a promise, not an estimate.
+              Four steps, every time. Step through them to watch one board take shape — the same
+              piece, from a drawing to a sign on a wall.
             </p>
           </div>
         </Reveal>
@@ -73,13 +86,23 @@ export function Process() {
             onKeyDown={onKeyDown}
           >
             <div
-              className="relative flex aspect-square w-full max-w-sm shrink-0 touch-pan-y items-center justify-center self-center overflow-hidden rounded border border-border bg-ground text-accent"
+              className="relative flex aspect-[4/3] w-full max-w-md shrink-0 touch-pan-y items-center justify-center self-center overflow-hidden rounded border border-border bg-ground"
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
             >
-              <div key={activeStep.step} style={enterStyle}>
-                <ActiveIcon className="h-24 w-24 md:h-32 md:w-32" />
-              </div>
+              <ProcessArtifact
+                state={activeIndex}
+                label={`Stage ${activeStep.step} of ${process.length} — ${activeStep.name}. ${activeStep.visual}`}
+              />
+              {lensLabel && markerPos ? (
+                <Marker
+                  key={activeIndex}
+                  xPercent={markerPos.x}
+                  yPercent={markerPos.y}
+                  label={lensLabel}
+                  animate={!reduced}
+                />
+              ) : null}
             </div>
 
             <div className="flex flex-1 flex-col gap-6">
@@ -97,6 +120,7 @@ export function Process() {
                 onSelect={setActiveIndex}
                 ariaLabel="Process steps"
                 dotContent={(i) => String(process[i].step).padStart(2, "0")}
+                dotAriaLabel={(i) => `${process[i].step} — ${process[i].name}`}
               />
 
               <div key={activeStep.step} className="flex flex-col gap-2" style={enterStyle}>
@@ -131,44 +155,5 @@ export function Process() {
         </Reveal>
       </div>
     </section>
-  );
-}
-
-function DesignIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <rect x="8" y="8" width="48" height="48" rx="2" strokeDasharray="4 4" />
-      <path d="M8 32h48M32 8v48" strokeDasharray="2 4" opacity="0.5" />
-      <path d="M18 44l10-18 8 10 6-8 4 6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ApprovalIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <circle cx="32" cy="32" r="24" />
-      <path d="M21 33l7 7 15-16" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function PrintIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <rect x="12" y="14" width="40" height="9" />
-      <rect x="12" y="27.5" width="40" height="9" opacity="0.7" />
-      <rect x="12" y="41" width="40" height="9" opacity="0.4" />
-    </svg>
-  );
-}
-
-function InstallationIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <rect x="10" y="16" width="44" height="24" rx="1" />
-      <path d="M32 40v8M22 56h20" strokeLinecap="round" />
-      <path d="M20 24h24M20 32h16" strokeLinecap="round" opacity="0.6" />
-    </svg>
   );
 }

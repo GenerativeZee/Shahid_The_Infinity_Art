@@ -45,6 +45,19 @@ export type ProcessStep = {
   step: number;
   name: string;
   description: string;
+  /**
+   * One honest sentence describing how the Process artefact looks at this
+   * stage — the method, not a fabricated project fact. Used as the SVG's
+   * accessible label so the transformation is legible to a screen reader.
+   */
+  visual: string;
+  /**
+   * The Shahid's Eye lens this stage foregrounds, if any. Drives the
+   * marker on the artefact — the visitor sees that decision survive into
+   * material and installation. Approval is a decision beat, not an
+   * observation, so it has none.
+   */
+  lens?: EyeLensId;
 };
 
 /**

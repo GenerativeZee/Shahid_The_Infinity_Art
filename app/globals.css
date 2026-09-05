@@ -271,6 +271,22 @@
   }
 }
 
+/* Process artefact (ProcessArtifact.tsx) — one sign panel that gains
+   definition, then material, then a wall, across the four Process states.
+   Each layer cross-fades (and the lettering changes colour) as the state
+   changes; every fade is a physical event — guides cleared, surface
+   applied, board mounted — never decoration. Dropped entirely under
+   reduced motion: the artefact still renders each state in full, just
+   with no tween. */
+@media (prefers-reduced-motion: no-preference) {
+  .process-artifact [data-layer] {
+    transition:
+      opacity 550ms ease,
+      fill 400ms ease,
+      stroke 400ms ease;
+  }
+}
+
 /* Process stepper (Process.tsx) — fade-in when a step is selected, JS
    skips the inline animation style entirely under reduced motion. */
 @keyframes process-step-in {

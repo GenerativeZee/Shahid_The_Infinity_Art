@@ -1102,6 +1102,77 @@ and sparse on purpose: three notes across eight projects.
   isn't formally held to is now thin (~1.2 KB) — the next iteration
   touching the always-loaded bundle should expect to trim something.
 
+## Physically transforming Process
+
+Sixth iteration. The four-icon stepper becomes **one sign panel that
+comes into existence** across the same Design → Approval → Print →
+Installation steps. The Infinity Thread made physical: an idea continues,
+unbroken, all the way to the wall.
+
+- **One object, four states, never four illustrations.** New
+  `components/sections/ProcessArtifact.tsx` is a single `<svg>` (viewBox
+  360×270, 4:3) whose child nodes *persist* across every state — the
+  component never remounts and carries no `key`. Only per-layer `opacity`
+  and the wordmark's `fill`/`stroke` change with the `state` prop; a
+  cross-fade is the only motion. The four beats:
+  - **Design** — dashed outline, hairline lettering, accent construction
+    guides + a dimension line. Drawn, not built.
+  - **Approval** — guides clear, the outline goes solid accent, the
+    lettering inks in (`fill` transparent → `--color-text`), a small
+    corner tick appears (the old `ApprovalIcon` check path, distilled).
+    No fake signature or date.
+  - **Print** — an `--color-surface-raised` ACP face fades in, a rotated
+    hairline `<pattern>` lays a printed texture over it, an offset
+    ground-coloured rect gives the board depth, the lettering gains a 1px
+    engraved drop-shadow.
+  - **Installation** — a `--color-surface` wall fades in behind
+    everything (painted first in document order, so z-order is correct),
+    a blurred accent glow and a blurred black cast shadow establish the
+    panel mounted proud of a lit wall, two mounting points appear.
+- **The subject is the studio's own name** (`INFINITY ART`, forced to
+  190 units via `textLength`/`lengthAdjust` so it can't overflow the
+  panel) — the same object Shahid's Eye examines. A decorative `Marker`
+  on the artefact carries the lens each stage foregrounds: **Type**
+  (positioned) → *(Approval: none — a decision, not an observation)* →
+  **Material** (carries the type) → **Space** (changes how it reads on a
+  wall). Those three come straight from the brief's own example sentence.
+  `ProcessStep` gained `lens?: EyeLensId` and a required `visual`
+  sentence (the artefact's accessible label, method-truthful, no
+  invented facts).
+- **Reused, not rebuilt.** `ProgressTrack` (unchanged) still drives the
+  four numbered dots — now with `dotAriaLabel` so a screen reader hears
+  "1 — Design", not "01". `Marker` (unchanged, decorative mode) does the
+  pointing, exactly as in Shahid's Eye. Arrow keys, touch-swipe, the
+  `process-step-in` text transition, and the Process → Digital logo-mark
+  callback are all kept verbatim. All colour is existing `--color-*`
+  tokens, so the artefact re-tints with the `verdigris` scroll theme for
+  free — same benefit the old `stroke="currentColor"` icons had.
+- **Motion lives in one CSS rule.** `.process-artifact [data-layer] {
+  transition: opacity / fill / stroke }` in `globals.css`, inside the
+  existing `prefers-reduced-motion: no-preference` guard — so reduced
+  motion drops the tween entirely and every state still renders in full.
+  No transformed/translated layers (the depth and shadow offsets are
+  static SVG `transform` attributes, faded in, not animated) — avoids the
+  "px in an SVG CSS transform" ambiguity and needs no `transform-box`.
+  No idle/looping animation anywhere.
+- **The 4 inline icon components are deleted** (`DesignIcon` …
+  `InstallationIcon`, ~40 lines) — their job is now the artefact's. The
+  `ApprovalIcon` check path survives, inlined into the artefact's tick.
+- **Budget ceiling raised 150 → 170 KB** per the client's iteration-7
+  instruction ("breathing room, not a target"). `scripts/check-budget.mjs`
+  updated to match, or the build script would hard-fail the moment the
+  bundle crossed 150. Actual result: **149.9 KB gzipped** (from 148.8) —
+  +1.1 KB; the SVG markup gzips well and deleting four icon components
+  paid for most of it. The headroom was available but not spent.
+- **No browser verification.** The Chrome extension still isn't connected
+  in this environment (every iteration since M6). The artefact geometry —
+  every rect/line/marker coordinate against the 360×270 viewBox and the
+  responsive box at 375–1440 — was worked out on paper, not seen
+  rendered. One real risk a trace can't settle: whether the `textLength`
+  wordmark and the `blur()`/`<pattern>` treatments read as premium at
+  small sizes. If not, the fix is local to `ProcessArtifact.tsx` (abstract
+  wordmark bars; lighter/removed blur).
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
