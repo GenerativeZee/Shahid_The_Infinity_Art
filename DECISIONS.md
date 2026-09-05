@@ -1466,6 +1466,61 @@ until the animation gets completed." That supersedes the earlier rule.
   documented combo and traced clean; possible sub-pixel shimmer on the
   pinned content on some devices, and 220dvh may want tuning up or down.
 
+## Hero 11 — the logo becomes the wordmark
+
+The iteration-10 sign specimen was replaced: it read as "an object," not
+identity. New concept — the gold monoline **"iA" mark unfolds into the
+wordmark "THE INFINITY ART"**. "i" and "A" are literally the initials
+(Infinity, Art) opening into the name.
+
+- **`HeroArtifact.tsx` → `HeroMark.tsx`** (renamed, full rewrite; all
+  `.hero-artifact*` CSS removed). The `<h1>` now contains the real text
+  "The Infinity Art" (the accessible brand name — no more `aria-label`)
+  plus the decorative `aria-hidden` stage.
+- **The mark is a raster PNG, so no true path-morph.** Presence shows the
+  real `mark.png` (existing CSS-mask technique). Across `--reveal`
+  0.13–0.22 it cross-fades to an SVG monoline copy sharing the exact same
+  box (both `min(58vw,22rem)` × the logo's 1000:642), so the hand-off is
+  position-aligned and the split motion (starting at 0.18) hides any
+  shape imperfection. §1's "use the real logo" is honoured for
+  recognition; the SVG is only the animatable stand-in, per §3's explicit
+  allowance.
+- **The strokes write the name.** Two monoline `<path>`s (the check/"i",
+  the hooked "A") + the dot, gold `<linearGradient>` from `--color-accent`.
+  As sub-progress `--sep` → `--ext` engage they rotate toward horizontal,
+  `scaleX`-stretch and travel right; the wordmark `<span>` is revealed
+  left→right by a `mask-image: linear-gradient` whose hard edge tracks
+  `--wrt` (the leading stroke). Strokes fade over 0.64–0.86; one residual
+  `--color-accent` rule (`scaleX(--stl)`) settles under "ART". Overlap
+  handoff — no frame where logo cleanly becomes text (§8).
+- **Colour from the whole site (§10–12).** `Hero.tsx` reads
+  `themes.ember.accent` / `themes.verdigris.accent` (from `lib/themeEngine`,
+  not duplicated) into `--hero-warm` / `--hero-cool` on the pin. The
+  ambient wash is nocturne gold with a ≤4% warm bias entering at the
+  split and a ≤3% cool bias during the writing — `color-mix()` at tiny
+  percentages, "materials through one light," never a visible gradient.
+  `:root` is never touched.
+- **Scroll unchanged.** The 10.1 pin (`.hero-scroll` 220dvh + sticky) and
+  the 9.1 sync (synchronous Lenis-tick write of one `--reveal`, no rAF
+  hop, cached range, no transitions on scroll-bound props) are carried
+  over verbatim. `--reveal` is written onto `.hero-scroll__pin` so the
+  ambient and the wordmark inherit it. Five phase sub-progress vars
+  (`--sep --ext --wrt --stl --xfade`) are registered `@property`
+  `<number>`s derived from `--reveal`.
+- **Reduced motion:** section collapses to 100dvh, pin dropped, `--reveal`
+  pinned to 1, strokes hidden, wordmark unmasked, rule shown → the
+  resolved identity, static.
+- **Budget:** 152.4 → 152.1 KB gzipped (the new component is smaller). No
+  deps. Copy (label, tagline, both CTAs) unchanged.
+- **Not browser-verified** (no tooling here). The scroll sync, a11y,
+  hydration, overflow and regression paths were traced. Unverified: the
+  two hand-authored monoline paths' fidelity to the real mark, whether
+  the cross-fade reads as seamless, the stroke-travel px values, whether
+  the mask edge visually connects to the leading stroke, `@property
+  <number>` on Firefox < 128, and `color-mix()` in gradients on pre-2023
+  browsers (graceful degradation on both). Stroke tuning is local to
+  `.hero-mark__stroke--*` in globals.css.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

@@ -171,142 +171,213 @@
 .hero-scroll {
   height: 220dvh;
 }
+
+/* Phase sub-progress — all derived from --reveal, registered so the
+   nested calc()s resolve to real numbers. Set once on the pin; inherited. */
+@property --sep {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --ext {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --wrt {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --stl {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --xfade {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
 .hero-scroll__pin {
   position: sticky;
   top: 0;
+  --reveal: 0;
+  --sep: clamp(0, calc((var(--reveal) - 0.18) / 0.16), 1); /* separation */
+  --ext: clamp(0, calc((var(--reveal) - 0.34) / 0.16), 1); /* extension  */
+  --wrt: clamp(0, calc((var(--reveal) - 0.46) / 0.24), 1); /* writing    */
+  --stl: clamp(0, calc((var(--reveal) - 0.82) / 0.18), 1); /* settle     */
+  --xfade: clamp(0, calc((var(--reveal) - 0.13) / 0.09), 1); /* png→svg  */
+}
+
+/* Hero identity reveal (HeroMark.tsx, ∞ 11) — the "iA" mark unfolds into
+   the wordmark "THE INFINITY ART". Scroll writes --reveal (0→1) onto
+   .hero-scroll__pin synchronously on Lenis's tick; every value below is a
+   plain calc() of it (or of a sub-progress above). transform / opacity /
+   mask only — nothing that triggers layout, and NO `transition` on any
+   scroll-bound property (that caused the ∞ 9.1 "catch-up"). Stop anywhere
+   and it is a composed frame. */
+.hero-mark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(94vw, 68rem);
+  margin: 0;
+}
+
+/* The mark stage — the real logo and the SVG monoline copy fill the same
+   box (the logo's own 1000:642), so the hand-off cross-fade is aligned. */
+.hero-mark__art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: min(58vw, 22rem);
+  aspect-ratio: 1000 / 642;
+  overflow: visible;
+  transform: translate(-50%, -50%);
+}
+.hero-mark__png {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-accent);
+  -webkit-mask: url(/logo/mark.png) center / contain no-repeat;
+  mask: url(/logo/mark.png) center / contain no-repeat;
+  opacity: calc(1 - var(--xfade));
+}
+.hero-mark__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: var(--xfade);
+}
+
+/* The monoline strokes. transform-box: view-box so the % origins and the
+   px translates resolve in the 1000×642 viewBox. At --reveal ≤ 0.13 every
+   sub-progress is 0, so the strokes sit assembled over the real mark. */
+.hero-mark__stroke {
+  transform-box: view-box;
+}
+.hero-mark__stroke--v {
+  transform-origin: 28% 58%;
+  transform: translate(calc(var(--sep) * -80px + var(--ext) * -190px), calc(var(--sep) * 40px))
+    rotate(calc(var(--sep) * -24deg))
+    scale(calc(1 + var(--ext) * 1.7), calc(1 - var(--sep) * 0.55));
+  opacity: calc(1 - clamp(0, calc((var(--reveal) - 0.64) / 0.18), 1));
+}
+.hero-mark__stroke--a {
+  transform-origin: 69% 37%;
+  transform: translate(
+      calc(var(--sep) * 40px + var(--ext) * 210px + var(--wrt) * 150px),
+      calc(var(--sep) * 70px)
+    )
+    rotate(calc(var(--sep) * 16deg))
+    skewX(calc(var(--sep) * -22deg))
+    scale(calc(1 + var(--ext) * 2 + var(--wrt) * 0.7), calc(1 - var(--sep) * 0.5));
+  opacity: calc(1 - clamp(0, calc((var(--reveal) - 0.7) / 0.16), 1));
+}
+.hero-mark__dot {
+  transform-box: view-box;
+  transform-origin: 52% 9%;
+  transform: translate(calc(var(--sep) * 160px), calc(var(--sep) * -20px))
+    scale(calc(1 - var(--sep) * 0.45));
+  opacity: calc(1 - var(--wrt));
+}
+
+/* The real wordmark — accessible text, written left→right by a mask edge
+   that tracks the leading stroke. */
+.hero-mark__wordmark {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 120%;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: clamp(1.15rem, 5.4vw, 4.75rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-text);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0,
+    #000 calc(var(--wrt) * 106%),
+    transparent calc(var(--wrt) * 106% + 5%)
+  );
+  mask-image: linear-gradient(
+    90deg,
+    #000 0,
+    #000 calc(var(--wrt) * 106%),
+    transparent calc(var(--wrt) * 106% + 5%)
+  );
+}
+
+/* Residual accent rule — the last stroke, settled into a baseline mark. */
+.hero-mark__rule {
+  position: absolute;
+  left: 50%;
+  bottom: -0.35em;
+  height: 2px;
+  width: 34%;
+  background: var(--color-accent);
+  transform-origin: left center;
+  transform: translateX(-4%) scaleX(var(--stl));
+  opacity: calc(var(--stl) * 0.9);
+}
+
+/* Ambient wash — nocturne gold, with a ≤4% warm (ember) bias entering at
+   the split and a ≤3% cool (verdigris) bias during the writing. The whole
+   website's palette, concentrated. Never a visible gradient. */
+.hero-mark__ambient {
+  background:
+    radial-gradient(
+      52% 44% at 33% 52%,
+      color-mix(
+        in srgb,
+        var(--hero-warm) calc(clamp(0, calc((var(--reveal) - 0.2) / 0.3), 1) * 4%),
+        transparent
+      ),
+      transparent 64%
+    ),
+    radial-gradient(
+      52% 44% at 67% 50%,
+      color-mix(
+        in srgb,
+        var(--hero-cool) calc(clamp(0, calc((var(--reveal) - 0.46) / 0.3), 1) * 3%),
+        transparent
+      ),
+      transparent 64%
+    ),
+    radial-gradient(
+      118% 76% at 50% 44%,
+      color-mix(in srgb, var(--color-accent) calc(5% + var(--reveal) * 5%), transparent),
+      transparent 72%
+    );
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* No scrub — one viewport, no pin. */
+  /* No scrub — one viewport, no pin, the resolved identity composition. */
   .hero-scroll {
     height: 100dvh;
   }
   .hero-scroll__pin {
     position: static;
   }
-}
-
-/* Hero artifact (HeroArtifact.tsx) — the studio's own dimensional sign,
-   revealed by scroll. Scroll writes --reveal (0→1) onto .hero-artifact,
-   synchronously on Lenis's tick; every value below is a plain calc() of
-   it. transform / opacity only — nothing that triggers layout, and NO
-   `transition` on any scroll-bound property: a temporal transition there
-   is what makes the artifact lag and then "catch up" after a fast flick
-   (∞ 9.1). Smoothing lives in exactly one place — Lenis's scroll easing.
-   Stop anywhere and it is a composed frame. */
-.hero-artifact {
-  --reveal: 0;
-}
-
-.hero-artifact__svg {
-  position: absolute;
-  inset: 0;
-  height: 100%;
-  width: 100%;
-}
-
-/* The camera — a restrained dolly. transform-box: view-box so the % origin
-   and % translate resolve against the 1200×900 viewBox, not the giant
-   wall rect's bounding box. */
-.hero-artifact__cam {
-  transform-box: view-box;
-  transform-origin: 30% 42%;
-  transform: translate(calc(-3% + var(--reveal) * 5%), calc(var(--reveal) * -3%))
-    scale(calc(1.55 - var(--reveal) * 0.55))
-    skewY(calc((1 - var(--reveal)) * -1.6deg));
-  will-change: transform;
-}
-@media (min-width: 768px) {
-  .hero-artifact__cam {
-    transform-origin: 24% 44%;
-    transform: translate(calc(-5% + var(--reveal) * 8%), calc(var(--reveal) * -3%))
-      scale(calc(1.6 - var(--reveal) * 0.55))
-      skewY(calc((1 - var(--reveal)) * -1.2deg));
-  }
-}
-
-/* Presence → material → structure → identity → light → arrival, every
-   band a plain clamp() of --reveal. */
-.hero-artifact__wall {
-  /* Arrival — the gallery wall resolves last */
-  opacity: clamp(0, calc((var(--reveal) - 0.8) / 0.2), 1);
-}
-.hero-artifact__edge {
-  /* Presence — the lit cut edge is the first thing there */
-  opacity: calc(0.5 + clamp(0, calc(var(--reveal) / 0.1), 1) * 0.5);
-}
-.hero-artifact__depth {
-  opacity: clamp(0, calc((var(--reveal) - 0.06) / 0.2), 1);
-}
-.hero-artifact__surface {
-  /* A faint dark plane from the start, full ACP face by ~0.3 */
-  opacity: calc(0.12 + clamp(0, calc((var(--reveal) - 0.06) / 0.22), 1) * 0.88);
-}
-.hero-artifact__hatch {
-  opacity: calc(clamp(0, calc((var(--reveal) - 0.16) / 0.26), 1) * 0.55);
-}
-.hero-artifact__guides {
-  /* On from the start, cleared by ~0.5 */
-  opacity: clamp(0, calc((0.5 - var(--reveal)) / 0.22), 0.5);
-}
-.hero-artifact__bolts {
-  opacity: clamp(0, calc((var(--reveal) - 0.4) / 0.22), 1);
-}
-.hero-artifact__castshadow {
-  opacity: calc(0.1 + clamp(0, calc((var(--reveal) - 0.15) / 0.6), 1) * 0.3);
-}
-.hero-artifact__glow {
-  opacity: calc(clamp(0, calc((var(--reveal) - 0.78) / 0.22), 1) * 0.15);
-}
-
-/* Identity — the lettering rises out of the face and inks solid */
-.hero-artifact__letters {
-  transform-box: view-box;
-  transform: translateY(calc((1 - var(--reveal)) * 1.4%));
-  opacity: clamp(0, calc((var(--reveal) - 0.5) / 0.22), 1);
-}
-.hero-artifact__letterHair {
-  opacity: clamp(0, calc((0.66 - var(--reveal)) / 0.16), 1);
-}
-.hero-artifact__letterSolid {
-  opacity: clamp(0, calc((var(--reveal) - 0.58) / 0.14), 1);
-}
-.hero-artifact__highlight {
-  opacity: calc(clamp(0, calc((var(--reveal) - 0.78) / 0.16), 1) * 0.5);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* No scroll response — the arrival composition, static. */
-  .hero-artifact__cam {
-    transform: scale(1);
-  }
-  .hero-artifact__letters {
-    transform: none;
-  }
-  .hero-artifact__wall,
-  .hero-artifact__depth,
-  .hero-artifact__surface,
-  .hero-artifact__edge,
-  .hero-artifact__bolts,
-  .hero-artifact__letters,
-  .hero-artifact__letterSolid {
-    opacity: 1;
-  }
-  .hero-artifact__hatch {
-    opacity: 0.55;
-  }
-  .hero-artifact__guides,
-  .hero-artifact__letterHair {
+  .hero-mark__png,
+  .hero-mark__svg {
     opacity: 0;
   }
-  .hero-artifact__castshadow {
-    opacity: 0.4;
+  .hero-mark__wordmark {
+    -webkit-mask-image: none;
+    mask-image: none;
   }
-  .hero-artifact__glow {
-    opacity: 0.15;
-  }
-  .hero-artifact__highlight {
-    opacity: 0.5;
+  .hero-mark__rule {
+    transform: translateX(-4%) scaleX(1);
+    opacity: 0.9;
   }
 }
 
