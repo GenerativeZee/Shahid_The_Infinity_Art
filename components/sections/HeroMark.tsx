@@ -111,30 +111,24 @@ export function HeroMark() {
           fill="none"
           preserveAspectRatio="xMidYMid meet"
         >
-          <defs>
-            <linearGradient id="hero-mark-gold" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stopColor="color-mix(in srgb, var(--color-accent) 55%, #000000)" />
-              <stop offset="0.5" stopColor="var(--color-accent)" />
-              <stop offset="1" stopColor="color-mix(in srgb, var(--color-accent) 72%, #ffffff)" />
-            </linearGradient>
-          </defs>
-
-          <g
-            stroke="url(#hero-mark-gold)"
-            strokeWidth="72"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* the checkmark / left "i" stroke */}
-            <path className="hero-mark__stroke hero-mark__stroke--v" d="M 110 210 L 290 540 L 460 175" />
-            {/* the "A" — apex, legs, hooked return */}
+          {/* Two monoline strokes, each a dark offset "shadow" copy plus a
+              body copy. The body colours are a color-mix of the gold anchor
+              toward one material tone — the V catches cool light, the A
+              catches warm — strongest mid-transformation, resolved by the
+              time the wordmark is legible. */}
+          <g className="hero-mark__stroke hero-mark__stroke--v">
+            <path className="hero-mark__stroke-sh" d="M 110 210 L 290 540 L 460 175" />
+            <path className="hero-mark__stroke-body hero-mark__stroke-body--v" d="M 110 210 L 290 540 L 460 175" />
+          </g>
+          <g className="hero-mark__stroke hero-mark__stroke--a">
+            <path className="hero-mark__stroke-sh" d="M 510 560 L 690 55 L 880 430 L 600 375" />
             <path
-              className="hero-mark__stroke hero-mark__stroke--a"
+              className="hero-mark__stroke-body hero-mark__stroke-body--a"
               d="M 510 560 L 690 55 L 880 430 L 600 375"
             />
           </g>
           {/* the "i" tittle */}
-          <circle className="hero-mark__dot" cx="520" cy="55" r="34" fill="var(--color-accent)" />
+          <circle className="hero-mark__dot" cx="520" cy="55" r="34" />
         </svg>
       </span>
 

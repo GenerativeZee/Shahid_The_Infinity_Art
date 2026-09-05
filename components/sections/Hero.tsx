@@ -1,7 +1,15 @@
 import type { CSSProperties } from "react";
 import { HeroMark } from "@/components/sections/HeroMark";
-import { business, hero } from "@/content/site";
+import { business, hero, materials } from "@/content/site";
 import { themes } from "@/lib/themeEngine";
+
+// The Hero's curated multi-colour palette — all drawn from the site's own
+// vocabulary, gold-anchored: nocturne gold (--color-accent, live), a warm
+// tone from Ember, a cool one from Verdigris, and the LED material's
+// electric cyan for the deep shadow pool. Read here, never written to :root.
+const HERO_WARM = themes.ember.accent;
+const HERO_COOL = themes.verdigris.accent;
+const HERO_DEEP = materials.find((m) => m.name === "LED")?.accent ?? themes.signal.accent;
 
 /**
  * The Hero identity reveal (∞ 11): the "iA" logo mark unfolds into the
@@ -32,8 +40,9 @@ export function Hero() {
         className="hero-scroll__pin flex h-dvh flex-col justify-end overflow-hidden"
         style={
           {
-            "--hero-warm": themes.ember.accent,
-            "--hero-cool": themes.verdigris.accent,
+            "--hero-warm": HERO_WARM,
+            "--hero-cool": HERO_COOL,
+            "--hero-deep": HERO_DEEP,
           } as CSSProperties
         }
       >
@@ -55,7 +64,7 @@ export function Hero() {
         />
 
         <div className="relative z-40 flex flex-col gap-6 px-6 pb-16 pt-32 md:px-12 md:pb-24">
-          <p className="font-mono text-step--1 uppercase tracking-label text-accent">
+          <p className="hero-eyebrow font-mono text-step--1 uppercase tracking-label text-accent">
             {business.legalName}
           </p>
           <p className="measure text-step-1 text-text-muted">{hero.headline}</p>

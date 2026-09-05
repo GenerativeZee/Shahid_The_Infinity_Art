@@ -1521,6 +1521,58 @@ wordmark "THE INFINITY ART"**. "i" and "A" are literally the initials
   browsers (graceful degradation on both). Stroke tuning is local to
   `.hero-mark__stroke--*` in globals.css.
 
+## Hero 11.1 — geometric reorganisation + curated multi-colour
+
+Refinement of the ∞ 11 logo→wordmark reveal (concept confirmed correct by
+the client). Two asks: make it read as geometry reorganising rather than a
+wipe, and give it a curated multi-colour treatment from the site's own
+material palette instead of monochrome gold.
+
+- **Strokes now read as writing lines.** Each of the two monoline strokes
+  is a `<g>` with a dark offset "shadow" copy plus a body copy (offset
+  layers = shallow physical depth, §16). Retuned transforms: the V rises
+  toward the wordmark's cap-line, the "A" drops toward its baseline, both
+  straighten (`rotate` ~27°/19°) and stretch wide (`scaleX` ×2.4/×2.9)
+  through `--sep`/`--ext` — so the letters are revealed *between* two
+  horizontal guide strokes, and the residual accent rule is the baseline
+  that's left. More "strokes become letters" than a bare mask wipe.
+- **Curated multi-colour, all site tokens, gold-anchored.** New
+  `--tone` envelope (rises through separation, resolved by the time the
+  wordmark is legible). The V-stroke body is
+  `color-mix(--color-accent, --hero-cool …)` (cool light), the "A" is
+  `color-mix(--color-accent, --hero-warm …)` (warm light); each has a
+  plain `--color-accent` fallback declaration for pre-`color-mix`
+  browsers. `Hero.tsx` reads the palette — `--hero-warm` = `themes.ember.accent`,
+  `--hero-cool` = `themes.verdigris.accent`, `--hero-deep` = the LED
+  material's `#7fe3ff` from `content/site` `materials` — never writing
+  `:root`.
+- **Background = coloured light in a dark gallery.** `.hero-mark__ambient`
+  is four radial pools: a gold anchor at centre, a warm (ember) pool
+  entering left at the split, a cool (verdigris) pool entering right
+  during the writing, a deep LED-cyan pool low in the shadow. Every mix
+  ≤4%; all recede via `(1 - --stl·…)` as the identity settles. Warm and
+  cool read as one warm and one cool *family* over dominant dark — not a
+  rainbow. Traced at r = 0.10/0.25/0.40/0.55/0.70/0.85/1.00: colour rises
+  to a peak around 0.55 then resolves to a clean off-white wordmark +
+  gold rule + faint gold-dominant wash.
+- **Eyebrow yields the moment.** `.hero-eyebrow` opacity is choreographed
+  — full at presence, down to ~0.12 through the transformation, back to
+  ~0.87 once the identity locks (§20). Content unchanged (still the
+  accessible/SEO label).
+- **Unchanged:** the 10.1 pin, the 9.1 sync (synchronous Lenis-tick write
+  of one `--reveal`, no rAF hop, cached range, no transitions on
+  scroll-bound props), the `<h1>` real-text accessibility, the reduced-
+  motion resolved state (+ eyebrow at 0.55, ambient still shows its
+  settled wash).
+- **Budget:** 152.1 KB gzipped, unchanged (CSS/SVG only). No deps.
+- **Not browser-verified.** Traced: sync, the colour timeline at seven
+  checkpoints, a11y, hydration, overflow, regression. Unverified: whether
+  the strokes visually read as "becoming" the letters, the blind-tuned
+  transform px, whether four faint pools stay "material light" not
+  "gradient", `color-mix()` percentage-`calc()` on pre-2023 browsers
+  (strokes fall back to gold; ambient drops silently), and 4-radial-pool
+  paint cost on a weak GPU.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

@@ -199,6 +199,28 @@
   inherits: true;
   initial-value: 0;
 }
+/* Material-light envelope — rises through separation, resolved by the time
+   the wordmark is legible. Plus three ambient-pool envelopes. */
+@property --tone {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --amb-warm {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --amb-cool {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --amb-deep {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
 
 .hero-scroll__pin {
   position: sticky;
@@ -209,6 +231,13 @@
   --wrt: clamp(0, calc((var(--reveal) - 0.46) / 0.24), 1); /* writing    */
   --stl: clamp(0, calc((var(--reveal) - 0.82) / 0.18), 1); /* settle     */
   --xfade: clamp(0, calc((var(--reveal) - 0.13) / 0.09), 1); /* png→svg  */
+  --tone: calc(
+    clamp(0, calc((var(--reveal) - 0.15) / 0.3), 1) *
+      clamp(0, calc((0.82 - var(--reveal)) / 0.18), 1)
+  );
+  --amb-warm: calc(clamp(0, calc((var(--reveal) - 0.18) / 0.28), 1) * (1 - var(--stl) * 0.55));
+  --amb-cool: calc(clamp(0, calc((var(--reveal) - 0.4) / 0.28), 1) * (1 - var(--stl) * 0.55));
+  --amb-deep: calc(clamp(0, calc((var(--reveal) - 0.28) / 0.3), 1) * (1 - var(--stl) * 0.4));
 }
 
 /* Hero identity reveal (HeroMark.tsx, ∞ 11) — the "iA" mark unfolds into
@@ -258,32 +287,63 @@
 
 /* The monoline strokes. transform-box: view-box so the % origins and the
    px translates resolve in the 1000×642 viewBox. At --reveal ≤ 0.13 every
-   sub-progress is 0, so the strokes sit assembled over the real mark. */
+   sub-progress is 0, so the strokes sit assembled over the real mark, then
+   they straighten and stretch into two horizontal writing lines the
+   wordmark is built between. */
 .hero-mark__stroke {
   transform-box: view-box;
 }
+.hero-mark__stroke-sh,
+.hero-mark__stroke-body {
+  fill: none;
+  stroke-width: 72;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-box: view-box;
+}
+/* Dark offset copy — shallow physical depth (§16). */
+.hero-mark__stroke-sh {
+  stroke: color-mix(in srgb, #000000 58%, var(--color-accent));
+  transform: translate(5px, 7px);
+  opacity: 0.4;
+}
+/* Body — gold anchor mixed toward one material tone, strongest mid-way. */
+.hero-mark__stroke-body--v {
+  stroke: var(--color-accent);
+  stroke: color-mix(in srgb, var(--color-accent), var(--hero-cool) calc(var(--tone) * 58%));
+}
+.hero-mark__stroke-body--a {
+  stroke: var(--color-accent);
+  stroke: color-mix(in srgb, var(--color-accent), var(--hero-warm) calc(var(--tone) * 58%));
+}
+
 .hero-mark__stroke--v {
   transform-origin: 28% 58%;
-  transform: translate(calc(var(--sep) * -80px + var(--ext) * -190px), calc(var(--sep) * 40px))
-    rotate(calc(var(--sep) * -24deg))
-    scale(calc(1 + var(--ext) * 1.7), calc(1 - var(--sep) * 0.55));
-  opacity: calc(1 - clamp(0, calc((var(--reveal) - 0.64) / 0.18), 1));
+  transform: translate(
+      calc(var(--sep) * -40px + var(--ext) * -110px),
+      calc(var(--sep) * -70px + var(--ext) * -30px)
+    )
+    rotate(calc(var(--sep) * -27deg))
+    scale(calc(1 + var(--ext) * 2.4), calc(1 - var(--sep) * 0.6));
+  opacity: calc(1 - clamp(0, calc((var(--reveal) - 0.62) / 0.18), 1));
 }
 .hero-mark__stroke--a {
-  transform-origin: 69% 37%;
+  transform-origin: 66% 45%;
   transform: translate(
-      calc(var(--sep) * 40px + var(--ext) * 210px + var(--wrt) * 150px),
-      calc(var(--sep) * 70px)
+      calc(var(--sep) * 20px + var(--ext) * 70px + var(--wrt) * 110px),
+      calc(var(--sep) * 40px + var(--ext) * 95px)
     )
-    rotate(calc(var(--sep) * 16deg))
-    skewX(calc(var(--sep) * -22deg))
-    scale(calc(1 + var(--ext) * 2 + var(--wrt) * 0.7), calc(1 - var(--sep) * 0.5));
-  opacity: calc(1 - clamp(0, calc((var(--reveal) - 0.7) / 0.16), 1));
+    rotate(calc(var(--sep) * 19deg))
+    skewX(calc(var(--sep) * -24deg))
+    scale(calc(1 + var(--ext) * 2.9 + var(--wrt) * 0.5), calc(1 - var(--sep) * 0.55));
+  opacity: calc(1 - clamp(0, calc((var(--reveal) - 0.7) / 0.15), 1));
 }
 .hero-mark__dot {
   transform-box: view-box;
   transform-origin: 52% 9%;
-  transform: translate(calc(var(--sep) * 160px), calc(var(--sep) * -20px))
+  fill: var(--color-accent);
+  fill: color-mix(in srgb, var(--color-accent), var(--hero-cool) calc(var(--tone) * 32%));
+  transform: translate(calc(var(--sep) * 170px), calc(var(--sep) * -22px))
     scale(calc(1 - var(--sep) * 0.45));
   opacity: calc(1 - var(--wrt));
 }
@@ -329,34 +389,41 @@
   opacity: calc(var(--stl) * 0.9);
 }
 
-/* Ambient wash — nocturne gold, with a ≤4% warm (ember) bias entering at
-   the split and a ≤3% cool (verdigris) bias during the writing. The whole
-   website's palette, concentrated. Never a visible gradient. */
+/* Ambient wash — coloured light falling into a dark gallery, never a
+   gradient. A gold pool anchors the centre; a warm (ember) pool enters
+   left as the mark splits, a cool (verdigris) pool enters right as the
+   name is written, and a deep LED-cyan pool sits low in the shadow. Every
+   mix is ≤4%; all recede as the identity settles. Dark stays dominant. */
 .hero-mark__ambient {
   background:
     radial-gradient(
-      52% 44% at 33% 52%,
-      color-mix(
-        in srgb,
-        var(--hero-warm) calc(clamp(0, calc((var(--reveal) - 0.2) / 0.3), 1) * 4%),
-        transparent
-      ),
-      transparent 64%
+      44% 40% at 29% 47%,
+      color-mix(in srgb, var(--hero-warm) calc(var(--amb-warm) * 4%), transparent),
+      transparent 66%
     ),
     radial-gradient(
-      52% 44% at 67% 50%,
-      color-mix(
-        in srgb,
-        var(--hero-cool) calc(clamp(0, calc((var(--reveal) - 0.46) / 0.3), 1) * 3%),
-        transparent
-      ),
-      transparent 64%
+      44% 40% at 71% 45%,
+      color-mix(in srgb, var(--hero-cool) calc(var(--amb-cool) * 3.2%), transparent),
+      transparent 66%
     ),
     radial-gradient(
-      118% 76% at 50% 44%,
-      color-mix(in srgb, var(--color-accent) calc(5% + var(--reveal) * 5%), transparent),
-      transparent 72%
+      66% 46% at 52% 84%,
+      color-mix(in srgb, var(--hero-deep) calc(var(--amb-deep) * 3%), transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      120% 78% at 50% 42%,
+      color-mix(in srgb, var(--color-accent) calc(4% + var(--reveal) * 4%), transparent),
+      transparent 74%
     );
+}
+
+/* The small eyebrow label yields the moment to the resolving wordmark,
+   then returns quietly once the identity has locked. */
+.hero-eyebrow {
+  opacity: calc(
+    0.12 + clamp(0, calc((0.3 - var(--reveal)) / 0.3), 1) * 0.88 + var(--stl) * 0.75
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -378,6 +445,9 @@
   .hero-mark__rule {
     transform: translateX(-4%) scaleX(1);
     opacity: 0.9;
+  }
+  .hero-eyebrow {
+    opacity: 0.55;
   }
 }
 
