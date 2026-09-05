@@ -55,7 +55,7 @@ export const whatsappHref = `https://wa.me/${business.whatsapp}?text=${encodeURI
 
 export const nav = [
   { label: "Work", href: "#work" },
-  { label: "Kya Banate Hain", href: "#services" },
+  { label: "Services", href: "#services" },
   { label: "Wedding Cards", href: "#wedding" },
   { label: "Process", href: "#process" },
   { label: "Digital", href: "#digital" },
@@ -64,11 +64,23 @@ export const nav = [
 
 export const hero = {
   eyebrow: "The Infinity Art",
-  headline: "Aapki dukaan, doosron se alag.",
+  headline: "Your shopfront, unmistakably yours.",
   subhead:
     "Signage, printing, wedding cards and brand identity — designed, fabricated and installed by one studio.",
   primaryCta: { label: "WhatsApp Us", href: whatsappHref },
   secondaryCta: { label: "See Work", href: "#work" },
+};
+
+export const work = {
+  eyebrow: "Work",
+  headline: "Our Work",
+  body: "Signage, print and wedding work we've made for shops, clinics and families — filter by material to see what we do best.",
+};
+
+export const servicesIntro = {
+  eyebrow: "Services",
+  headline: "What We Make",
+  body: "Real materials, honest price ranges. Talk to us about your exact size and we'll confirm a number on WhatsApp.",
 };
 
 export const trust: TrustNumber[] = [
@@ -190,7 +202,7 @@ export const process: ProcessStep[] = [
 
 export const wedding = {
   eyebrow: "Wedding Cards",
-  headline: "Aapki shaadi, aapka style.",
+  headline: "Your wedding, your style.",
   body: "Custom wedding invitations on textured paper, with gold foil and insert cards — designed around your colours, not a catalogue template.",
   cta: { label: "Talk to Us", href: whatsappHref },
   image: {

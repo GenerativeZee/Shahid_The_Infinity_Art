@@ -650,6 +650,34 @@ into `redesign` or `redesign-blue` unless asked.
   `redesign` picked this branch up automatically via the filesystem the
   moment it was checked out; no separate server needed to preview it.
 
+## Copy pass — English throughout, no Hinglish
+
+Client feedback: Shahid is educated and reads English fluently, so the
+Hinglish headlines were making the site read less professional to him,
+not warmer. Supersedes `SPEC.md` §12's "English headlines; Hinglish
+where it should feel warm" (noted there, not silently dropped).
+
+- **Four headlines translated, not just deleted.** `hero.headline`
+  ("Aapki dukaan, doosron se alag.") → "Your shopfront, unmistakably
+  yours."; `wedding.headline` ("Aapki shaadi, aapka style.") → "Your
+  wedding, your style."; the Work section's h2 ("Kahaan se banwaayi?")
+  → "Our Work"; the Services nav label and eyebrow ("Kya Banate Hain")
+  → "Services". Kept the same intent (a shopfront that stands apart, a
+  wedding suite that's personal, work worth showing) rather than
+  producing generic replacements.
+- **Found and fixed a pre-existing content-architecture gap while
+  touching this text.** `Work.tsx` and `Services.tsx` hardcoded their
+  eyebrow/heading/body text directly in JSX — the two Hinglish phrases
+  lived there, not in `content/site.ts`, unlike `wedding`/`digital`/
+  `quote`, which already properly source from it. Added matching `work`
+  and `servicesIntro` objects to `content/site.ts` and pointed both
+  components at them, closing the "single source of copy" gap (§12's
+  own stated principle) for these two sections specifically. Left
+  `Process.tsx`/`Digital.tsx`'s equivalent hardcoding alone — their text
+  was already English and untouched by this request; fixing it isn't
+  part of what was asked, flagging it here so a future pass doesn't
+  treat the inconsistency as unnoticed.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,

@@ -379,6 +379,10 @@ All copy lives in `content/site.ts`, typed (`Project`, `Service`,
 - Real client names and locations under real photographs. One named shop beats ten stock logos.
 - Exactly three trust numbers, stated once: years in business, boards installed, cities covered.
 - English headlines; Hinglish where it should feel warm.
+
+  > **Superseded** — Shahid reads English fluently and asked for
+  > professional English copy throughout, no Hinglish. All headlines
+  > (hero, Work, Services, Wedding) are now English. See `DECISIONS.md`.
 - No "solutions", no "we provide", no "one-stop".
 
 ## 13. SEO, accessibility, conversion
