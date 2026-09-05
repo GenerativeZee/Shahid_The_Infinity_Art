@@ -22,9 +22,15 @@ export default function Home() {
       <AmbientGlow />
       <SiteNav />
       <main id="main" className="flex flex-col">
+        {/* nocturne wraps the pinned Hero only — otherwise the 220dvh pin
+            makes the zone ~2.5 viewports tall and ThemeEngine's scroll
+            blend crawls. The trust strip + materials are the transition
+            into the verdigris chapter. */}
         <div data-theme-zone="nocturne">
           <Hero />
+        </div>
 
+        <div data-theme-zone="verdigris">
           <section className="flex flex-wrap gap-x-8 gap-y-4 border-y border-border bg-surface px-6 py-8 md:px-12">
             {trust.map((t) => (
               <div key={t.label} className="flex items-baseline gap-2">
@@ -37,9 +43,7 @@ export default function Home() {
           </section>
 
           <MaterialExplorer items={materials} />
-        </div>
 
-        <div data-theme-zone="verdigris">
           <Work />
           <ShahidsEye />
           <Services />

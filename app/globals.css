@@ -609,8 +609,8 @@
     clamp(0, calc((var(--reveal) - 0.12) / 0.26), 1) *
       clamp(0, calc((0.9 - var(--reveal)) / 0.28), 1)
   );
-  opacity: calc(1 - var(--nav-q) * 0.5);
-  transform: translateY(calc(var(--nav-q) * -3px));
+  opacity: calc(1 - var(--nav-q) * 0.88);
+  transform: translateY(calc(var(--nav-q) * -6px));
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 22%, transparent);
   transition:
     background-color 400ms ease,
