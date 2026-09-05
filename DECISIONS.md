@@ -316,6 +316,20 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   themselves (image bytes are static assets, not JS). Worth watching:
   there's very little headroom left for anything else that touches the
   always-loaded bundle.
+- **The live wedding fold's cover face now textures with the same sample
+  photo**, not just plain paper — a first look at the section showed a
+  plain beige rectangle (the procedural card closed, no artwork), which
+  read as broken/unfinished rather than "intentional placeholder."
+  `WeddingScene.tsx` loads `/media/wedding/hero-flatlay.jpg` via a plain
+  `THREE.TextureLoader` in a `useEffect` (not drei's `useTexture`, to
+  avoid adding a Suspense boundary for one texture) and disposes it on
+  unmount/replacement. The cover panel is now two single-sided planes —
+  front (`FrontSide`, textured) and back (`BackSide`, plain paper) at a
+  hairline z offset — instead of one `DoubleSide` plane, so the outside
+  of the closed card shows the photo and the inside (revealed on open)
+  stays blank paper, like a real card. The photo is 4:3 but the cover
+  plane is 3:4 portrait, so the texture is center-cropped via UV
+  repeat/offset (object-fit: cover equivalent) rather than stretched.
 
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
