@@ -85,6 +85,7 @@ export function SiteNav() {
                 key={l.href}
                 href={l.href}
                 aria-current={activeId === l.section ? "true" : undefined}
+                data-accent={l.accent ? "" : undefined}
                 className="site-nav__link"
               >
                 {l.label}
@@ -130,6 +131,7 @@ export function SiteNav() {
                 key={l.href}
                 href={l.href}
                 aria-current={activeId === l.section ? "true" : undefined}
+                data-accent={l.accent ? "" : undefined}
                 onClick={closeMenu}
                 className="site-nav__menu-link"
               >

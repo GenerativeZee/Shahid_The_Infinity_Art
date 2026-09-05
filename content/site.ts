@@ -75,10 +75,12 @@ export const nav = [
 export const siteNav = {
   brand: { label: "The Infinity Art", href: "#top" },
   links: [
-    { label: "Work", href: "#work", section: "work" },
-    { label: "What We Do", href: "#services", section: "services" },
-    { label: "Process", href: "#process", section: "process" },
-    { label: "Studio", href: "#studio", section: "studio" },
+    { label: "Work", href: "#work", section: "work", accent: false },
+    { label: "What We Do", href: "#services", section: "services", accent: false },
+    { label: "Process", href: "#process", section: "process", accent: false },
+    { label: "Studio", href: "#studio", section: "studio", accent: false },
+    // The invitation to the Build It playground — accented so it draws the eye.
+    { label: "Build Yours", href: "#build", section: "build", accent: true },
   ],
   action: { label: "Get a Quote", href: "#quote" },
 } as const;

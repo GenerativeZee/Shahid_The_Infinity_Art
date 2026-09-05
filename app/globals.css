@@ -669,10 +669,16 @@
 .site-nav__links {
   display: none;
 }
-@media (min-width: 768px) {
+/* Five links + an action — needs a little more room than one md breakpoint. */
+@media (min-width: 60rem) {
   .site-nav__links {
     display: flex;
     align-items: center;
+    gap: 1.5rem;
+  }
+}
+@media (min-width: 75rem) {
+  .site-nav__links {
     gap: 2rem;
   }
 }
@@ -681,6 +687,22 @@
   color: var(--color-text-muted);
   padding-block: 0.35rem;
   transition: color 200ms ease;
+}
+/* The Build It invitation — gold, with a small registration dot. */
+.site-nav__link[data-accent] {
+  color: var(--color-accent);
+}
+.site-nav__link[data-accent]::before {
+  content: "";
+  display: inline-block;
+  width: 0.32rem;
+  height: 0.32rem;
+  margin-right: 0.5rem;
+  background: var(--color-accent);
+  vertical-align: 0.08em;
+}
+.site-nav__link[data-accent]:hover {
+  color: color-mix(in srgb, var(--color-accent), #ffffff 20%);
 }
 .site-nav__link::after {
   content: "";
@@ -728,7 +750,7 @@
 .site-nav__menu-btn:hover {
   color: var(--color-text);
 }
-@media (min-width: 768px) {
+@media (min-width: 60rem) {
   .site-nav__menu-btn {
     display: none;
   }
@@ -774,7 +796,11 @@
 .site-nav__menu-link[aria-current] {
   color: var(--color-text);
 }
-.site-nav__menu-link[aria-current]::before {
+.site-nav__menu-link[data-accent] {
+  color: var(--color-accent);
+}
+.site-nav__menu-link[aria-current]::before,
+.site-nav__menu-link[data-accent]::before {
   content: "";
   display: inline-block;
   width: 0.4rem;
