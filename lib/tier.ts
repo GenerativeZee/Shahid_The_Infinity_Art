@@ -37,6 +37,18 @@ function tierOverride(): Tier | null {
  * of the hero. Missing APIs (Safari has no deviceMemory) are treated as
  * mid-range, never as high-end: guessing high is how you cook someone's
  * phone.
+ *
+ * The deviceMemory/hardwareConcurrency floors deliberately sit low (<=2,
+ * not <=4). Chrome's Device Memory API rounds actual RAM down to the
+ * nearest power of two, so most contemporary phones with 4-6GB report
+ * exactly 4 — a <=4 floor was silently forcing the majority of real phones
+ * to tier C's static fallback (confirmed live: a phone stuck on the tier-C
+ * poster rendered the full tier-B scene fine once forced via ?tier=B). The
+ * live FPS probe below (§5.2) is the actual safety net for a bad guess —
+ * it measures real render cost after mount and downgrades one step if the
+ * device can't sustain it — so the static pre-check only needs to catch
+ * genuinely low-end hardware, not gate the entire mid-range on a rounding
+ * quirk.
  */
 export function detectTier(): Tier {
   const override = tierOverride();
@@ -53,8 +65,8 @@ export function detectTier(): Tier {
     !hasWebGL2() ||
     prefersReducedMotion() ||
     isSlowConnection ||
-    (nav?.deviceMemory !== undefined && nav.deviceMemory <= 4) ||
-    (nav?.hardwareConcurrency !== undefined && nav.hardwareConcurrency <= 4)
+    (nav?.deviceMemory !== undefined && nav.deviceMemory <= 2) ||
+    (nav?.hardwareConcurrency !== undefined && nav.hardwareConcurrency <= 2)
   ) {
     return "C";
   }

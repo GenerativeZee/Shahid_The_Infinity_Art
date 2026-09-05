@@ -331,6 +331,31 @@ Running log of choices the spec didn't dictate, and why. Newest at bottom.
   plane is 3:4 portrait, so the texture is center-cropped via UV
   repeat/offset (object-fit: cover equivalent) rather than stretched.
 
+## Tier detection was silently downgrading most real phones
+
+- **`deviceMemory <= 4` / `hardwareConcurrency <= 4` in `lib/tier.ts`
+  loosened to `<= 2`.** Confirmed live on a real phone: it sat on the
+  tier-C static fallback (no hero animation, no wedding fold) by default,
+  then ran the full tier-B live scene without issue once forced via
+  `?tier=B`. Root cause — Chrome's Device Memory API rounds actual RAM
+  down to the nearest power of two, so most contemporary phones with
+  4-6GB actual RAM report exactly `4`; the old `<=4` floor was reading
+  that as "definitely low-end" and routing the majority of real phones
+  to the static fallback instead of the live scene they can handle.
+  Lowered the floor to `<=2` for both signals so only genuinely low-end
+  hardware pre-emptively lands on C — the existing live FPS probe
+  (§5.2, `probeFps`/`downgradeFor`) is the actual safety net for a wrong
+  guess, catching anything that turns out too slow after mount, so the
+  static check no longer needs to double as that safety net itself.
+- **No original brief/spec document is checked into this repo** — §-numbered
+  references throughout `lib/tier.ts` and the hero/wedding components point
+  at a document that only existed as context in earlier sessions. This fix
+  was made on the strength of a live repro plus the internal consistency
+  argument above (the FPS probe already exists to correct static-guess
+  errors), not by checking against original spec numbers — flagging this
+  so a future session doesn't assume `<=4` was an arbitrary guess if it
+  ever needs to reconcile against the real brief.
+
 ## Open items outside the code (§17 of the brief — tracked, not forgotten)
 
 - Google Business Profile: claim it, upload the real photography once shot,
